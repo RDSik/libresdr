@@ -1,0 +1,382 @@
+module libre_top #(
+    parameter logic ILA_EN = 1
+) (
+    inout [14:0] ddr_addr,
+    inout [ 2:0] ddr_ba,
+    inout        ddr_cas_n,
+    inout        ddr_ck_n,
+    inout        ddr_ck_p,
+    inout        ddr_cke,
+    inout        ddr_cs_n,
+    inout [ 3:0] ddr_dm,
+    inout [31:0] ddr_dq,
+    inout [ 3:0] ddr_dqs_n,
+    inout [ 3:0] ddr_dqs_p,
+    inout        ddr_odt,
+    inout        ddr_ras_n,
+    inout        ddr_reset_n,
+    inout        ddr_we_n,
+
+    inout        fixed_io_ddr_vrn,
+    inout        fixed_io_ddr_vrp,
+    inout [53:0] fixed_io_mio,
+    inout        fixed_io_ps_clk,
+    inout        fixed_io_ps_porb,
+    inout        fixed_io_ps_srstb,
+
+    inout iic_scl,
+    inout iic_sda,
+
+    input        rx_clk_in_p,
+    input        rx_clk_in_n,
+    input        rx_frame_in_p,
+    input        rx_frame_in_n,
+    input  [5:0] rx_data_in_p,
+    input  [5:0] rx_data_in_n,
+    output       tx_clk_out_p,
+    output       tx_clk_out_n,
+    output       tx_frame_out_p,
+    output       tx_frame_out_n,
+    output [5:0] tx_data_out_p,
+    output [5:0] tx_data_out_n,
+
+    output enable,
+    output txnrx,
+
+    inout       gpio_resetb,
+    inout       gpio_en_agc,
+    inout [3:0] gpio_ctl,
+    inout [7:0] gpio_status,
+
+    output spi_csn,
+    output spi_clk,
+    output spi_mosi,
+    input  spi_miso,
+
+    output pl_spi_clk_o,
+    output pl_spi_mosi,
+    input  pl_spi_miso,
+
+    input pps
+);
+
+    // internal signals
+
+    logic [24:0] gpio_i;
+    logic [24:0] gpio_o;
+    logic [24:0] gpio_t;
+
+    // instantiations
+
+    ad_iobuf #(
+        .DATA_WIDTH(14)
+    ) i_iobuf (
+        .dio_t(gpio_t[13:0]),
+        .dio_i(gpio_o[13:0]),
+        .dio_o(gpio_i[13:0]),
+        .dio_p({gpio_resetb,  // 13:13
+ gpio_en_agc,  // 12:12
+ gpio_ctl,  // 11: 8
+ gpio_status})
+    );  //  7: 0
+
+    assign gpio_i[16:14] = gpio_o[16:14];
+
+    localparam int unsigned CH_NUM = 2;
+    localparam int unsigned IQ_DATA_WIDTH = 16;
+    localparam int unsigned AXIL_ADDR_WIDTH = 32;
+    localparam int unsigned AXIL_DATA_WIDTH = 32;
+
+    logic ps_clk;
+    logic ps_arstn;
+
+    axil_if #(
+        .DATA_WIDTH(AXIL_DATA_WIDTH),
+        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
+    ) axil (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    logic                                      delay_clk;
+    logic                                      clk;
+    logic                                      rst;
+
+    logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] adc_tdata;
+    logic [CH_NUM-1:0][1:0]                    adc_tvalid;
+
+    logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] dac_tdata;
+    logic [CH_NUM-1:0][1:0]                    dac_tvalid;
+
+    logic                                      scl_i;
+    logic                                      scl_o;
+    logic                                      scl_t;
+
+    logic                                      sda_i;
+    logic                                      sda_o;
+    logic                                      sda_t;
+
+    IOBUF i_scl_IOBUF (
+        .O (scl_i),
+        .IO(iic_scl),
+        .I (scl_o),
+        .T (scl_t)
+    );
+
+    IOBUF i_sda_IOBUF (
+        .O (sda_i),
+        .IO(iic_sda),
+        .I (sda_o),
+        .T (sda_t)
+    );
+
+    libre_bd i_libre_bd (
+        .DDR_0_addr   (ddr_addr),
+        .DDR_0_ba     (ddr_ba),
+        .DDR_0_cas_n  (ddr_cas_n),
+        .DDR_0_ck_n   (ddr_ck_n),
+        .DDR_0_ck_p   (ddr_ck_p),
+        .DDR_0_cke    (ddr_cke),
+        .DDR_0_cs_n   (ddr_cs_n),
+        .DDR_0_dm     (ddr_dm),
+        .DDR_0_dq     (ddr_dq),
+        .DDR_0_dqs_n  (ddr_dqs_n),
+        .DDR_0_dqs_p  (ddr_dqs_p),
+        .DDR_0_odt    (ddr_odt),
+        .DDR_0_ras_n  (ddr_ras_n),
+        .DDR_0_reset_n(ddr_reset_n),
+        .DDR_0_we_n   (ddr_we_n),
+
+        .FCLK_CLK0_0    (ps_clk),
+        .FCLK_CLK1_0    (delay_clk),
+        .FCLK_RESET0_N_0(ps_arstn),
+
+        .FIXED_IO_0_ddr_vrn (fixed_io_ddr_vrn),
+        .FIXED_IO_0_ddr_vrp (fixed_io_ddr_vrp),
+        .FIXED_IO_0_mio     (fixed_io_mio),
+        .FIXED_IO_0_ps_clk  (fixed_io_ps_clk),
+        .FIXED_IO_0_ps_porb (fixed_io_ps_porb),
+        .FIXED_IO_0_ps_srstb(fixed_io_ps_srstb),
+
+        .GPIO_0_0_tri_i(gpio_i),
+        .GPIO_0_0_tri_o(gpio_o),
+        .GPIO_0_0_tri_t(gpio_t),
+
+        .IIC_0_scl_i(scl_i),
+        .IIC_0_scl_o(scl_o),
+        .IIC_0_scl_t(scl_t),
+        .IIC_0_sda_i(sda_i),
+        .IIC_0_sda_o(sda_o),
+        .IIC_0_sda_t(sda_t),
+
+        .M_AXI_0_araddr (axil.araddr),
+        .M_AXI_0_arprot (axil.arprot),
+        .M_AXI_0_arready(axil.arready),
+        .M_AXI_0_arvalid(axil.arvalid),
+        .M_AXI_0_awaddr (axil.awaddr),
+        .M_AXI_0_awprot (axil.awprot),
+        .M_AXI_0_awready(axil.awready),
+        .M_AXI_0_awvalid(axil.awvalid),
+        .M_AXI_0_bready (axil.bready),
+        .M_AXI_0_bresp  (axil.bresp),
+        .M_AXI_0_bvalid (axil.bvalid),
+        .M_AXI_0_rdata  (axil.rdata),
+        .M_AXI_0_rready (axil.rready),
+        .M_AXI_0_rresp  (axil.rresp),
+        .M_AXI_0_rvalid (axil.rvalid),
+        .M_AXI_0_wdata  (axil.wdata),
+        .M_AXI_0_wready (axil.wready),
+        .M_AXI_0_wstrb  (axil.wstrb),
+        .M_AXI_0_wvalid (axil.wvalid),
+
+        .M_AXIS_MM2S_0_tdata (dac_tdata),
+        .M_AXIS_MM2S_0_tkeep (),
+        .M_AXIS_MM2S_0_tlast (),
+        .M_AXIS_MM2S_0_tready(|dac_tvalid),
+        .M_AXIS_MM2S_0_tvalid(),
+
+        .SPI_0_0_io0_i('0),
+        .SPI_0_0_io0_o(spi_mosi),
+        .SPI_0_0_io0_t(),
+        .SPI_0_0_io1_i(spi_miso),
+        .SPI_0_0_io1_o(),
+        .SPI_0_0_io1_t(),
+        .SPI_0_0_sck_i('0),
+        .SPI_0_0_sck_o(spi_clk),
+        .SPI_0_0_sck_t(),
+        .SPI_0_0_ss1_o(),
+        .SPI_0_0_ss2_o(),
+        .SPI_0_0_ss_i ('1),
+        .SPI_0_0_ss_o (spi_csn),
+        .SPI_0_0_ss_t (),
+
+        .SPI_0_1_io0_i('0),
+        .SPI_0_1_io0_o(pl_spi_mosi),
+        .SPI_0_1_io0_t(),
+        .SPI_0_1_io1_i(pl_spi_miso),
+        .SPI_0_1_io1_o(),
+        .SPI_0_1_io1_t(),
+        .SPI_0_1_sck_i('0),
+        .SPI_0_1_sck_o(pl_spi_clk_o),
+        .SPI_0_1_sck_t(),
+        .SPI_0_1_ss_i ('1),
+        .SPI_0_1_ss_o (),
+        .SPI_0_1_ss_t (),
+
+        .S_AXIS_S2MM_0_tdata (adc_tdata),
+        .S_AXIS_S2MM_0_tkeep ('1),
+        .S_AXIS_S2MM_0_tlast ('0),
+        .S_AXIS_S2MM_0_tready(),
+        .S_AXIS_S2MM_0_tvalid(|adc_tvalid)
+    );
+
+    axi_ad9361 #(
+        .ID                      (0),
+        .MODE_1R1T               (0),
+        .FPGA_TECHNOLOGY         (0),
+        .FPGA_FAMILY             (0),
+        .SPEED_GRADE             (0),
+        .DEV_PACKAGE             (0),
+        .TDD_DISABLE             (0),
+        .PPS_RECEIVER_ENABLE     (1),
+        .CMOS_OR_LVDS_N          (0),
+        .ADC_INIT_DELAY          (30),
+        .ADC_DATAPATH_DISABLE    (0),
+        .ADC_USERPORTS_DISABLE   (0),
+        .ADC_DATAFORMAT_DISABLE  (0),
+        .ADC_DCFILTER_DISABLE    (0),
+        .ADC_IQCORRECTION_DISABLE(0),
+        .DAC_INIT_DELAY          (0),
+        .DAC_CLK_EDGE_SEL        (0),
+        .DAC_IODELAY_ENABLE      (0),
+        .DAC_DATAPATH_DISABLE    (0),
+        .DAC_DDS_DISABLE         (0),
+        .DAC_DDS_TYPE            (1),
+        .DAC_DDS_CORDIC_DW       (14),
+        .DAC_DDS_CORDIC_PHASE_DW (13),
+        .DAC_USERPORTS_DISABLE   (0),
+        .DAC_IQCORRECTION_DISABLE(0),
+        .IO_DELAY_GROUP          ("dev_if_delay_group"),
+        .IODELAY_CTRL            (1),
+        .MIMO_ENABLE             (0),
+        .USE_SSI_CLK             (1),
+        .DELAY_REFCLK_FREQUENCY  (200),
+        .RX_NODPA                (0)
+    ) i_axi_ad9361 (
+        .s_axi_aclk   (axil.clk_i),
+        .s_axi_aresetn(axil.arstn_i),
+        .s_axi_awvalid(axil.awvalid),
+        .s_axi_awaddr (axil.awaddr),
+        .s_axi_awprot (axil.awprot),
+        .s_axi_awready(axil.awready),
+        .s_axi_wvalid (axil.wvalid),
+        .s_axi_wdata  (axil.wdata),
+        .s_axi_wstrb  (axil.wstrb),
+        .s_axi_wready (axil.wready),
+        .s_axi_bvalid (axil.bvalid),
+        .s_axi_bresp  (axil.bresp),
+        .s_axi_bready (axil.bready),
+        .s_axi_arvalid(axil.arvalid),
+        .s_axi_araddr (axil.araddr),
+        .s_axi_arprot (axil.arprot),
+        .s_axi_arready(axil.arready),
+        .s_axi_rvalid (axil.rvalid),
+        .s_axi_rdata  (axil.rdata),
+        .s_axi_rresp  (axil.rresp),
+        .s_axi_rready (axil.rready),
+
+        .txnrx         (txnrx),
+        .enable        (enable),
+        .rx_clk_in_n   (rx_clk_in_n),
+        .rx_clk_in_p   (rx_clk_in_p),
+        .rx_data_in_n  (rx_data_in_n),
+        .rx_data_in_p  (rx_data_in_p),
+        .tx_clk_out_n  (tx_clk_out_n),
+        .tx_clk_out_p  (tx_clk_out_p),
+        .rx_frame_in_n (rx_frame_in_n),
+        .rx_frame_in_p (rx_frame_in_p),
+        .tx_data_out_n (tx_data_out_n),
+        .tx_data_out_p (tx_data_out_p),
+        .tx_frame_out_n(tx_frame_out_n),
+        .tx_frame_out_p(tx_frame_out_p),
+
+        .up_txnrx     (gpio_o[16]),
+        .up_enable    (gpio_o[15]),
+        .rx_clk_in    ('0),
+        .rx_frame_in  ('0),
+        .rx_data_in   ('0),
+        .tx_clk_out   (),
+        .tx_frame_out (),
+        .tx_data_out  (),
+        .dac_sync_in  ('0),
+        .dac_sync_out (),
+        .tdd_sync     ('0),
+        .tdd_sync_cntr(),
+        .gps_pps      (pps),
+        .gps_pps_irq  (),
+        .delay_clk    (delay_clk),
+        .l_clk        (clk),
+        .clk          (clk),
+        .rst          (rst),
+
+        .adc_enable_i0(),
+        .adc_valid_i0 (adc_tvalid[0][0]),
+        .adc_data_i0  (adc_tdata[0][0]),
+        .adc_enable_q0(),
+        .adc_valid_q0 (adc_tvalid[0][1]),
+        .adc_data_q0  (adc_tdata[0][1]),
+        .adc_enable_i1(),
+        .adc_valid_i1 (adc_tvalid[1][0]),
+        .adc_data_i1  (adc_tdata[1][0]),
+        .adc_enable_q1(),
+        .adc_valid_q1 (adc_tvalid[1][1]),
+        .adc_data_q1  (adc_tdata[1][1]),
+        .adc_dovf     ('0),
+        .adc_r1_mode  (),
+
+        .dac_enable_i0(),
+        .dac_valid_i0 (dac_tvalid[0][0]),
+        .dac_data_i0  (dac_tdata[0][0]),
+        .dac_enable_q0(),
+        .dac_valid_q0 (dac_tvalid[0][1]),
+        .dac_data_q0  (dac_tdata[0][1]),
+        .dac_enable_i1(),
+        .dac_valid_i1 (dac_tvalid[1][0]),
+        .dac_data_i1  (dac_tdata[1][0]),
+        .dac_enable_q1(),
+        .dac_valid_q1 (dac_tvalid[1][1]),
+        .dac_data_q1  (dac_tdata[1][1]),
+        .dac_dunf     ('0),
+        .dac_r1_mode  (),
+
+        .up_dac_gpio_in ('0),
+        .up_dac_gpio_out(),
+        .up_adc_gpio_in ('0),
+        .up_adc_gpio_out()
+    );
+
+    if (ILA_EN) begin : g_ila
+        axil_ila i_axil_ila (
+            .clk    (ps_clk),
+            .probe0 (axil.awvalid),
+            .probe1 (axil.awaddr),
+            .probe2 (axil.bresp),
+            .probe3 (axil.bvalid),
+            .probe4 (axil.bready),
+            .probe5 (axil.wdata),
+            .probe6 (axil.wvalid),
+            .probe7 (axil.wready),
+            .probe8 (axil.awready),
+            .probe9 (axil.rready),
+            .probe10(axil.araddr),
+            .probe11(axil.arvalid),
+            .probe12(axil.arready),
+            .probe13(axil.rresp),
+            .probe14(axil.rdata),
+            .probe15(axil.wstrb),
+            .probe16(axil.rvalid),
+            .probe17(axil.arprot),
+            .probe18(axil.awprot)
+        );
+    end
+endmodule

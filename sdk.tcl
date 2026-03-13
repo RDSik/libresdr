@@ -1,0 +1,46 @@
+set syn_top     "libre_top"
+set hw_project  ${syn_top}_hw_platform_0
+set app         $syn_top
+set bsp         ${app}_bsp
+set device_tree ${app}_devtree_bsp
+set cpu         "ps7_cortexa9_0"
+set modules_dir [file normalize "modules"]
+set project_dir [file normalize "project"]
+set sdk_dir     [file normalize "$project_dir/$syn_top.sdk"]
+
+file delete -force $sdk_dir/SDK.log
+file delete -force $sdk_dir/.metadata
+file delete -force $sdk_dir/RemoteSystemsTempFiles
+file delete -force $sdk_dir/$hw_project
+file delete -force $sdk_dir/$bsp
+file delete -force $sdk_dir/$app
+file delete -force $sdk_dir/$device_tree
+
+setws $sdk_dir
+
+repo -set "device-tree-xlnx-xilinx"
+
+createhw -name $hw_project -hwspec $sdk_dir/$syn_top.hdf
+
+createbsp -name $bsp -hwproject $hw_project -proc $cpu -os standalone
+
+createapp -name $app -app {Empty Application} -hwproject $hw_project -bsp $bsp -proc $cpu -os standalone -lang C
+
+configapp -app $app build-config debug
+updatemss -mss $sdk_dir/$bsp/system.mss
+regenbsp -bsp $bsp
+
+createbsp -name $device_tree -hwproject $hw_project -proc $cpu -os device_tree
+
+file copy -force $project_dir/$syn_top.runs/impl_1/$syn_top.bit $sdk_dir/$hw_project
+
+set sdk_dirs [glob -nocomplain -type d [file join $modules_dir */sdk]]
+foreach sdk_path $sdk_dirs  {
+    if {[file isdirectory $sdk_path]} {
+        puts "Current dir: $sdk_path"
+        # configapp -app $app -add include-path $sdk_path
+        importsources -name $app -path $sdk_path
+    }
+}
+
+projects -build
