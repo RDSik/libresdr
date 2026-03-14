@@ -30,6 +30,8 @@ module signal_gen
     assign reset  = wr_regs.control.reset;
     assign enable = wr_regs.control.enable;
 
+    localparam int DDS_DATA_WIDTH = 32;
+
     axis_if #(
         .DATA_WIDTH(DDS_DATA_WIDTH)
     ) dds_axis (
@@ -98,7 +100,6 @@ module signal_gen
         .wr_valid_o  (wr_valid)
     );
 
-    localparam int DDS_DATA_WIDTH = 32;
     localparam logic TLAST_EN = 0;
 
     dds #(
