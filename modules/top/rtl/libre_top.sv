@@ -82,10 +82,11 @@ module libre_top #(
 
     assign gpio_i[16:14] = gpio_o[16:14];
 
-    localparam int unsigned CH_NUM = 2;
-    localparam int unsigned IQ_DATA_WIDTH = 16;
-    localparam int unsigned AXIL_ADDR_WIDTH = 32;
-    localparam int unsigned AXIL_DATA_WIDTH = 32;
+    localparam int CH_NUM = 2;
+    localparam int IQ_DATA_WIDTH = 16;
+    localparam int DDS_PHASE_WIDTH = 32;
+    localparam int AXIL_ADDR_WIDTH = 32;
+    localparam int AXIL_DATA_WIDTH = 32;
 
     logic ps_clk;
     logic ps_arstn;
@@ -93,6 +94,13 @@ module libre_top #(
     axil_if #(
         .DATA_WIDTH(AXIL_DATA_WIDTH),
         .ADDR_WIDTH(AXIL_ADDR_WIDTH)
+    ) axil (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(AXIL_DATA_WIDTH),
     ) axil (
         .clk_i  (ps_clk),
         .arstn_i(ps_arstn)
@@ -357,7 +365,7 @@ module libre_top #(
 
     if (ILA_EN) begin : g_ila
         axil_ila i_axil_ila (
-            .clk    (ps_clk),
+            .clk    (axil.clk_i),
             .probe0 (axil.awvalid),
             .probe1 (axil.awaddr),
             .probe2 (axil.bresp),

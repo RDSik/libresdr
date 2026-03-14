@@ -1,7 +1,7 @@
 # constraints
 # ad9361 (SWAP == 0x1)
 
-set_property -dict {PACKAGE_PIN K18 IOSTANDARD LVDS_25} [get_ports pps]
+set_property -dict {PACKAGE_PIN K18 IOSTANDARD LVCMOS33} [get_ports pps]
 
 set_property -dict {PACKAGE_PIN P20 IOSTANDARD LVDS_25 DIFF_TERM 1} [get_ports rx_clk_in_n]
 set_property -dict {PACKAGE_PIN N20 IOSTANDARD LVDS_25 DIFF_TERM 1} [get_ports rx_clk_in_p]
