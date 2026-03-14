@@ -1,7 +1,5 @@
 set path [file dirname [info script]]
 
-add_files -norecurse $xci_defaultlib
-
 set xil_defaultlib "
     $path/rtl/ad_rst.v
     $path/rtl/ad_pnmon.v
