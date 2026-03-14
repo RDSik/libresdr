@@ -17,7 +17,7 @@ module signal_gen
 
     axil_if.slave s_axil,
 
-    axis_if.master s_axis,
+    axis_if.slave  s_axis,
     axis_if.master m_axis
 );
 
