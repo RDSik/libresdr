@@ -92,8 +92,26 @@ module axis_data_fifo #(
     parameter                C_ECC_MODE           = 0,          // 0 - no_ecc, 1 - en_ecc
     parameter                C_FIFO_MEMORY_TYPE   = "auto",
     parameter                C_USE_ADV_FEATURES   = "1000",
+    // |  Setting USE_ADV_FEATURES[1]  to 1 enables prog_full flag;    Default value of this bit is 0                        |
+    // |   Setting USE_ADV_FEATURES[2]  to 1 enables wr_data_count;     Default value of this bit is 0                       |
+    // |   Setting USE_ADV_FEATURES[3]  to 1 enables almost_full flag;  Default value of this bit is 0                       |
+    // |   Setting USE_ADV_FEATURES[9]  to 1 enables prog_empty flag;   Default value of this bit is 0                       |
+    // |   Setting USE_ADV_FEATURES[10] to 1 enables rd_data_count;     Default value of this bit is 0                       |
+    // |   Setting USE_ADV_FEATURES[11] to 1 enables almost_empty flag; Default value of this bit is 0                       |
+    // |                                                                                                                     |
+    // | CAUTION: DO NOT change the default value of USE_ADV_FEATURES[12].                                                   |
     parameter integer        C_PROG_EMPTY_THRESH  = 5,
+    // |  Min_Value = 5                                                                                                      |
+    // |   Max_Value = FIFO_WRITE_DEPTH - 5                                                                                  |
+    // |                                                                                                                     |
+    // | NOTE: The default threshold value is dependent on default FIFO_WRITE_DEPTH value. If FIFO_WRITE_DEPTH value is      |
+    // | changed, ensure the threshold value is within the valid range though the programmable flags are not used.           |
     parameter integer        C_PROG_FULL_THRESH   = 11
+    // |  Min_Value = 5 + CDC_SYNC_STAGES                                                                                    |
+    // |   Max_Value = FIFO_WRITE_DEPTH - 5                                                                                  |
+    // |                                                                                                                     |
+    // | NOTE: The default threshold value is dependent on default FIFO_WRITE_DEPTH value. If FIFO_WRITE_DEPTH value is      |
+    // | changed, ensure the threshold value is within the valid range though the programmable flags are not used.           |
 ) (
     ///////////////////////////////////////////////////////////////////////////////
     // Port Declarations
