@@ -8,6 +8,8 @@ set xci_defaultlib "
 add_files -norecurse $xci_defaultlib
 
 set xil_defaultlib "
+    $path/rtl/signal_gen_pkg.svh
+    $path/rtl/signal_gen.sv
     $path/rtl/axil_reg_file.sv
     $path/rtl/axis_dw_conv.sv
     $path/rtl/axis_fifo.sv

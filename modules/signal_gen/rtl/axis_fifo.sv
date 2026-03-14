@@ -2,7 +2,6 @@
 module axis_fifo #(
     parameter int   FIFO_WIDTH   = 32,
     parameter int   FIFO_DEPTH   = 128,
-    parameter int   CDC_REG_NUM  = 2,
     parameter int   READ_LATENCY = 1,
     parameter logic TLAST_EN     = 0,
     parameter       RAM_STYLE    = "block"

@@ -99,13 +99,6 @@ module libre_top #(
         .arstn_i(ps_arstn)
     );
 
-    axis_if #(
-        .DATA_WIDTH(AXIL_DATA_WIDTH),
-    ) axil (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
-    );
-
     logic                                      delay_clk;
     logic                                      clk;
     logic                                      rst;
