@@ -41,34 +41,13 @@ module signal_gen
 
     axis_if #(
         .DATA_WIDTH(DATA_WIDTH)
-    ) dw_conv_axis (
-        .clk_i(clk_i),
-        .rst_i(reset)
-    );
-
-    axis_if #(
-        .DATA_WIDTH(DATA_WIDTH)
     ) fifo_axis (
         .clk_i(clk_i),
         .rst_i(reset)
     );
 
-    logic [$clog2(FIFO_DEPTH)-1:0] data_cnt;
-    logic                          data_cnt_last;
-    logic                          m_handshake;
-
-    assign data_cnt_last = (data_cnt == FIFO_DEPTH - 1);
-    assign m_handshake   = m_axis.tvalid & m_axis.tready;
-
-    always_ff @(posedge clk_i) begin
-        if (reset) begin
-            data_cnt <= '0;
-        end else if (m_handshake & ~data_cnt_last) begin
-            data_cnt <= data_cnt + 1'b1;
-        end
-    end
-
-    logic dds_tready;
+    logic [$clog2(FIFO_DEPTH):0] data_cnt;
+    logic                        dds_tready;
 
     always_comb begin
         rd_valid                  = '1;
@@ -78,8 +57,8 @@ module signal_gen
         rd_regs.param.fifo_depth  = FIFO_DEPTH;
         rd_regs.param.reg_num     = SIGNAL_GEN_REG_NUM;
 
-        rd_regs.status.fifo_empty = ~fifo_axis.tvalid;
-        rd_regs.status.fifo_full  = ~dw_conv_axis.tready;
+        rd_regs.status.fifo_empty = ~m_axis.tvalid;
+        rd_regs.status.fifo_full  = ~fifo_axis.tready;
         rd_regs.status.dds_ready  = dds_tready;
         rd_regs.status.data_cnt   = data_cnt;
     end
@@ -120,7 +99,7 @@ module signal_gen
         .TLAST_EN      (TLAST_EN)
     ) i_axis_dw_conv (
         .s_axis(dds_axis),
-        .m_axis(dw_conv_axis)
+        .m_axis(fifo_axis)
     );
 
     axis_fifo #(
@@ -130,15 +109,11 @@ module signal_gen
         .READ_LATENCY(1),
         .RAM_STYLE   ("block"),
     ) i_axis_fifo (
-        .s_axis    (dw_conv_axis),
-        .m_axis    (fifo_axis),
+        .s_axis    (fifo_axis),
+        .m_axis    (m_axis),
         .a_full_o  (),
         .a_empty_o (),
-        .data_cnt_o()
+        .data_cnt_o(data_cnt)
     );
-
-    assign m_axis.tdata  = fifo_axis.tdata;
-    assign m_axis.tready = fifo_axis.tready;
-    assign m_axis.tvalid = fifo_axis.tvalid & ~data_cnt_last;
 
 endmodule

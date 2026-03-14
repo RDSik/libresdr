@@ -73,8 +73,8 @@ create_clock -period 8.000 -name rx_clk [get_ports rx_clk_in_p]
 
 # probably gone in 2016.4
 
-create_clock -name clk_fpga_0 -period 10 [get_pins "i_system_wrapper/system_i/sys_ps7/inst/PS7_i/FCLKCLK[0]"]
-create_clock -name clk_fpga_1 -period  5 [get_pins "i_system_wrapper/system_i/sys_ps7/inst/PS7_i/FCLKCLK[1]"]
+create_clock -name clk_fpga_0 -period 10 [get_pins "i_libre_bd/processing_system7_0/FCLK_CLK0"]
+create_clock -name clk_fpga_1 -period  5 [get_pins "i_libre_bd/processing_system7_0/FCLK_CLK1"]
 
 create_clock -name spi0_clk      -period 40   [get_pins -hier */EMIOSPI0SCLKO]
 
@@ -201,6 +201,6 @@ set_property PACKAGE_PIN R2 [get_ports {ddr_dqs_p[2]}]
 set_property PACKAGE_PIN W4 [get_ports {ddr_dqs_n[3]}]
 set_property PACKAGE_PIN W5 [get_ports {ddr_dqs_p[3]}]
 
-set_false_path -from [get_pins {i_system_wrapper/system_i/axi_ad9361/inst/i_rx/i_up_adc_common/up_adc_gpio_out_int_reg[0]/C}]
-set_false_path -from [get_pins {i_system_wrapper/system_i/axi_ad9361/inst/i_tx/i_up_dac_common/up_dac_gpio_out_int_reg[0]/C}]
+set_false_path -from [get_pins {i_axi_ad9361/i_rx/i_up_adc_common/up_adc_gpio_out_int_reg[0]/C}]
+set_false_path -from [get_pins {i_axi_ad9361/i_tx/i_up_dac_common/up_dac_gpio_out_int_reg[0]/C}]
 
