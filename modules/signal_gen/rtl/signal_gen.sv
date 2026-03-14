@@ -101,7 +101,7 @@ module signal_gen
     dds #(
         .PHASE_WIDTH(DDS_PHASE_WIDTH)
     ) i_dds (
-        .clk_i       (s_axil.clk_i),
+        .clk_i       (clk_i),
         .rst_i       (reset),
         .en_i        (enable),
         .pinc_i      (wr_regs.settings.pinc),

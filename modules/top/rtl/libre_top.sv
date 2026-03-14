@@ -230,7 +230,9 @@ module libre_top #(
         .S_AXIS_S2MM_0_tkeep ('1),
         .S_AXIS_S2MM_0_tlast ('0),
         .S_AXIS_S2MM_0_tready(),
-        .S_AXIS_S2MM_0_tvalid(|adc_tvalid)
+        .S_AXIS_S2MM_0_tvalid(|adc_tvalid),
+
+        .pps_irq(pps_irq)
     );
 
     axi_ad9361 #(

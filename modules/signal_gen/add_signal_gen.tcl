@@ -1,7 +1,7 @@
 set path [file dirname [info script]]
 
 set xci_defaultlib "
-    $path/axi_clock_converter/axi_clock_converter.xci
+    $path/ip/axi_clock_converter/axi_clock_converter.xci
     $path/ip/dds_compiler/dds_compiler.xci
     $path/ip/axil_ila/axil_ila.xci
 "

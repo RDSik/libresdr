@@ -1,5 +1,5 @@
 TOP := libre_top
-GUI ?= 0
+GUI ?= 1
 
 PROJECT_DIR := project
 EDA_TCL     := project.tcl

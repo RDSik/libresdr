@@ -241,6 +241,7 @@ proc create_root_design { parentCell } {
  ] $FCLK_CLK0_0
   set FCLK_CLK1_0 [ create_bd_port -dir O -type clk FCLK_CLK1_0 ]
   set FCLK_RESET0_N_0 [ create_bd_port -dir O -type rst FCLK_RESET0_N_0 ]
+  set pps_irq [ create_bd_port -dir I -from 0 -to 0 pps_irq ]
 
   # Create instance: axi_dma_0, and set properties
   set axi_dma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 axi_dma_0 ]
@@ -542,7 +543,7 @@ proc create_root_design { parentCell } {
 
   # Create instance: xlconcat_0, and set properties
   set xlconcat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0 ]
-  set_property CONFIG.NUM_PORTS {4} $xlconcat_0
+  set_property CONFIG.NUM_PORTS {5} $xlconcat_0
 
 
   # Create interface connections
@@ -565,6 +566,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net smartconnect_0_M00_AXI [get_bd_intf_pins processing_system7_0/S_AXI_HP1] [get_bd_intf_pins smartconnect_0/M00_AXI]
 
   # Create port connections
+  connect_bd_net -net In4_0_1 [get_bd_ports pps_irq] [get_bd_pins xlconcat_0/In4]
   connect_bd_net -net axi_dma_0_mm2s_introut [get_bd_pins axi_dma_0/mm2s_introut] [get_bd_pins xlconcat_0/In2]
   connect_bd_net -net axi_dma_0_s2mm_introut [get_bd_pins axi_dma_0/s2mm_introut] [get_bd_pins xlconcat_0/In3]
   connect_bd_net -net axi_iic_0_iic2intc_irpt [get_bd_pins axi_iic_0/iic2intc_irpt] [get_bd_pins xlconcat_0/In0]
