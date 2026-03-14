@@ -172,7 +172,7 @@ module signal_gen
         end
     end
 
-    assign s_axis.tready      = bypass_en;
+    assign s_axis.tready      = bypass_en & resetn;
     assign m_fifo_axis.tready = bypass_en ? 1'b0 : load_reg;
 
 endmodule
