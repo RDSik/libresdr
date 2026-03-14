@@ -3,7 +3,7 @@
 
 package signal_gen_pkg;
 
-    parameter int DDS_PHASE_WIDTH = 32;
+    localparam int DDS_PHASE_WIDTH = 32;
 
     typedef struct packed {
         logic [7:0] rsrvd;
