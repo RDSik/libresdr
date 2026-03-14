@@ -1,7 +1,7 @@
 module axis_dw_conv #(
-    parameter int   DATA_WIDTH_IN  = 32,
-    parameter int   DATA_WIDTH_OUT = 128,
-    parameter logic TLAST_EN       = 0
+    parameter int   S_DATA_WIDTH = 32,
+    parameter int   M_DATA_WIDTH = 128,
+    parameter logic TLAST_EN     = 0
 ) (
     axis_if.master m_axis,
     axis_if.slave  s_axis
@@ -17,18 +17,16 @@ module axis_dw_conv #(
     assign s_handshake = s_axis.tvalid & s_axis.tready;
     assign m_handshake = m_axis.tvalid & m_axis.tready;
 
-    if (DATA_WIDTH_IN > DATA_WIDTH_OUT) begin : g_down_size
-        localparam int RATIO = DATA_WIDTH_IN / DATA_WIDTH_OUT;
+    if (S_DATA_WIDTH > M_DATA_WIDTH) begin : g_down_size
+        localparam int RATIO = S_DATA_WIDTH / M_DATA_WIDTH;
 
-        logic [$clog2(RATIO)-1:0]                     cnt;
-        logic                                         cnt_done;
-        logic                                         busy;
-        logic                                         m_axis_tlast;
-        logic [        RATIO-1:0][DATA_WIDTH_OUT-1:0] m_axis_tdata;
+        logic [$clog2(RATIO)-1:0]                   cnt;
+        logic                                       cnt_done;
+        logic                                       busy;
+        logic                                       m_axis_tlast;
+        logic [        RATIO-1:0][M_DATA_WIDTH-1:0] m_axis_tdata;
 
-        /* verilator lint_off WIDTHEXPAND */
         assign cnt_done = (cnt == RATIO - 1);
-        /* verilator lint_on WIDTHEXPAND */
 
         always_ff @(posedge clk_i) begin
             if (rst_i) begin
@@ -78,16 +76,16 @@ module axis_dw_conv #(
         assign m_axis.tlast  = m_axis_tlast & cnt_done;
         assign m_axis.tvalid = busy;
         assign s_axis.tready = ~busy;
-    end else if (DATA_WIDTH_IN < DATA_WIDTH_OUT) begin : g_up_size
+    end else if (S_DATA_WIDTH < M_DATA_WIDTH) begin : g_up_size
 
-        localparam int RATIO = DATA_WIDTH_OUT / DATA_WIDTH_IN;
+        localparam int RATIO = M_DATA_WIDTH / S_DATA_WIDTH;
 
-        logic [$clog2(RATIO)-1:0]                    cnt;
-        logic                                        cnt_done;
-        logic                                        done;
-        logic                                        flush;
-        logic                                        m_axis_tlast;
-        logic [        RATIO-1:0][DATA_WIDTH_IN-1:0] m_axis_tdata;
+        logic [$clog2(RATIO)-1:0]                   cnt;
+        logic                                       cnt_done;
+        logic                                       done;
+        logic                                       flush;
+        logic                                       m_axis_tlast;
+        logic [        RATIO-1:0][S_DATA_WIDTH-1:0] m_axis_tdata;
 
         assign flush    = cnt_done | (TLAST_EN & s_axis.tlast);
         assign cnt_done = (cnt == RATIO - 1);
@@ -137,7 +135,7 @@ module axis_dw_conv #(
         end
 
         assign m_axis.tdata  = m_axis_tdata;
-        assign m_axis.tlast  = m_axis_tlast;
+        assign m_axis.tlast  = m_axis_tlast & done;
         assign m_axis.tvalid = done;
         assign s_axis.tready = ~done;
     end else begin : g_bypass

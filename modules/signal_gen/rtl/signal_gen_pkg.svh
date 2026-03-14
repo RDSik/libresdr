@@ -21,7 +21,8 @@ package signal_gen_pkg;
     } signal_gen_status_reg_t;
 
     typedef struct packed {
-        logic [29:0] rsrvd;
+        logic [28:0] rsrvd;
+        logic        bypass;
         logic        enable;
         logic        reset;
     } signal_gen_control_reg_t;

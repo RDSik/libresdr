@@ -103,6 +103,8 @@ module libre_top #(
     logic                                      clk;
     logic                                      rst;
 
+    logic                                      pps_irq;
+
     logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] adc_tdata;
     logic [CH_NUM-1:0][1:0]                    adc_tvalid;
 
@@ -314,7 +316,7 @@ module libre_top #(
         .tdd_sync     ('0),
         .tdd_sync_cntr(),
         .gps_pps      (pps),
-        .gps_pps_irq  (),
+        .gps_pps_irq  (pps_irq),
         .delay_clk    (delay_clk),
         .l_clk        (clk),
         .clk          (clk),
