@@ -15,7 +15,7 @@ module signal_gen
 );
 
     logic                                      clk_i;
-    asiign                                     clk_i = s_axil.clk_i;
+    assign                                     clk_i = s_axil.clk_i;
 
     signal_gen_regs_t                          rd_regs;
     signal_gen_regs_t                          wr_regs;
@@ -107,7 +107,7 @@ module signal_gen
         .FIFO_DEPTH  (FIFO_DEPTH),
         .TLAST_EN    (TLAST_EN),
         .READ_LATENCY(1),
-        .RAM_STYLE   ("block"),
+        .RAM_STYLE   ("block")
     ) i_axis_fifo (
         .s_axis    (fifo_axis),
         .m_axis    (m_axis),
