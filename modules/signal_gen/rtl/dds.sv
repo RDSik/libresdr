@@ -2,7 +2,7 @@ module dds #(
     parameter int PHASE_WIDTH = 32
 ) (
     input logic clk_i,
-    input logic rst_i,
+    input logic rstn_i,
     input logic en_i,
 
     input logic [PHASE_WIDTH-1:0] pinc_i,
@@ -19,7 +19,7 @@ module dds #(
     logic                   dds_tvalid;
 
     always_ff @(posedge clk_i) begin
-        if (rst_i) begin
+        if (~rstn_i) begin
             dds_tvalid        <= '0;
             poff_d            <= '0;
             {pinc_dd, pinc_d} <= '0;
@@ -32,7 +32,7 @@ module dds #(
 
     dds_compiler i_dds_compiler (
         .aclk               (clk_i),
-        .aresetn            (rst_i),
+        .aresetn            (rstn_i),
         .s_axis_phase_tready(dds_tready_o),
         .s_axis_phase_tvalid(dds_tvalid),
         .s_axis_phase_tdata ({poff_d, pinc_dd}),

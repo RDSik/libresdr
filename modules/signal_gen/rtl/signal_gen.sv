@@ -3,6 +3,7 @@
 module signal_gen
     import signal_gen_pkg::*;
 #(
+    parameter int   CH_NUM          = 2,
     parameter int   AXIL_ADDR_WIDTH = 32,
     parameter int   AXIL_DATA_WIDTH = 32,
     parameter int   DATA_WIDTH      = 64,
@@ -14,51 +15,43 @@ module signal_gen
     input logic clk_i,
     input logic arstn_i,
 
-    input logic [DATA_WIDTH-1:0] bypass_tdata_i,
-    input logic                  bypass_tvalid_i,
-
     axil_if.slave s_axil,
 
+    axis_if.master s_axis,
     axis_if.master m_axis
 );
 
-    signal_gen_regs_t                          rd_regs;
-    signal_gen_regs_t                          wr_regs;
+    signal_gen_regs_t                                  rd_regs;
+    signal_gen_regs_t                                  wr_regs;
 
-    logic             [SIGNAL_GEN_REG_NUM-1:0] rd_request;
-    logic             [SIGNAL_GEN_REG_NUM-1:0] rd_valid;
-    logic             [SIGNAL_GEN_REG_NUM-1:0] wr_valid;
+    logic                     [SIGNAL_GEN_REG_NUM-1:0] rd_request;
+    logic                     [SIGNAL_GEN_REG_NUM-1:0] rd_valid;
+    logic                     [SIGNAL_GEN_REG_NUM-1:0] wr_valid;
 
-    logic                                      reset;
-    logic                                      enable;
-    logic                                      bypass;
+    signal_gen_settings_reg_t [            CH_NUM-1:0] dds;
+    logic                                              resetn;
+    logic                                              enable;
+    logic                                              bypass_en;
+    logic                                              select;
 
-    assign reset  = wr_regs.control.reset;
-    assign enable = wr_regs.control.enable;
-    assign bypass = wr_regs.control.bypass;
+    assign resetn    = ~wr_regs.control.reset;
+    assign enable    = wr_regs.control.enable;
+    assign bypass_en = wr_regs.control.bypass_en;
+    assign select    = wr_regs.dds.select;
 
-    localparam int DDS_DATA_WIDTH = 32;
+    always_ff @(posedge clk_i or negedge arstn_i) begin
+        if (~arstn_i) begin
+            dds <= '0;
+        end else begin
+            if (wr_valid[SIGNAL_GEN_PINC_REG_POS]) begin
+                dds[select].pinc <= wr_regs.dds.settings.pinc;
+            end
 
-    axis_if #(
-        .DATA_WIDTH(DDS_DATA_WIDTH)
-    ) dds_axis (
-        .clk_i(clk_i),
-        .rst_i(reset)
-    );
-
-    axis_if #(
-        .DATA_WIDTH(DDS_DATA_WIDTH)
-    ) fifo_axis (
-        .clk_i(clk_i),
-        .rst_i(reset)
-    );
-
-    axis_if #(
-        .DATA_WIDTH(DATA_WIDTH)
-    ) dw_conv_axis (
-        .clk_i(clk_i),
-        .rst_i(reset)
-    );
+            if (wr_valid[SIGNAL_GEN_POFF_REG_POS]) begin
+                dds[select].poff <= wr_regs.dds.settings.poff;
+            end
+        end
+    end
 
     logic [$clog2(FIFO_DEPTH):0] data_cnt;
     logic                        dds_tready;
@@ -67,7 +60,7 @@ module signal_gen
         rd_valid                  = '1;
         rd_regs                   = wr_regs;
 
-        rd_regs.param.data_width  = DATA_WIDTH;
+        rd_regs.param.ch_num      = CH_NUM;
         rd_regs.param.fifo_depth  = FIFO_DEPTH;
         rd_regs.param.reg_num     = SIGNAL_GEN_REG_NUM;
 
@@ -96,63 +89,90 @@ module signal_gen
         .wr_valid_o  (wr_valid)
     );
 
-    localparam logic TLAST_EN = 0;
+    localparam int IQ_DATA_WIDTH = 16;
 
-    dds #(
-        .PHASE_WIDTH(DDS_PHASE_WIDTH)
-    ) i_dds (
-        .clk_i       (clk_i),
-        .rst_i       (reset),
-        .en_i        (enable),
-        .pinc_i      (wr_regs.settings.pinc),
-        .poff_i      (wr_regs.settings.poff),
-        .dds_tready_o(dds_tready),
-        .m_axis      (dds_axis)
+    axis_if #(
+        .DATA_WIDTH(DATA_WIDTH)
+    ) s_fifo_axis (
+        .clk_i  (clk_i),
+        .arstn_i(resetn)
     );
 
-    axis_fifo #(
-        .FIFO_WIDTH  (DDS_DATA_WIDTH),
-        .FIFO_DEPTH  (FIFO_DEPTH),
-        .TLAST_EN    (TLAST_EN),
-        .READ_LATENCY(1),
-        .RAM_STYLE   ("block")
+    axis_if #(
+        .DATA_WIDTH(DATA_WIDTH)
+    ) m_fifo_axis (
+        .clk_i  (clk_i),
+        .arstn_i(resetn)
+    );
+
+    logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] dds_tdata;
+    logic [CH_NUM-1:0]                         dds_tvalid;
+    logic [CH_NUM-1:0]                         dds_tready;
+
+    for (genvar ch_indx = 0; ch_indx < CH_NUM; ch_indx++) begin : g_ch
+        axis_if #(
+            .DATA_WIDTH(IQ_DATA_WIDTH * 2)
+        ) dds_axis (
+            .clk_i  (clk_i),
+            .arstn_i(resetn)
+        );
+
+        dds #(
+            .PHASE_WIDTH(DDS_PHASE_WIDTH)
+        ) i_dds (
+            .clk_i       (clk_i),
+            .rstn_i      (resetn),
+            .en_i        (enable),
+            .pinc_i      (dds[ch_indx].pinc),
+            .poff_i      (dds[ch_indx].poff),
+            .dds_tready_o(dds_tready[ch_indx]),
+            .m_axis      (dds_axis)
+        );
+
+        assign dds_tdata[ch_indx]  = dds_axis.tdata;
+        assign dds_tvalid[ch_indx] = dds_axis.tvalid;
+        assign dds_axis.tready     = s_fifo_axis.tready;
+    end
+
+    assign s_fifo_axis.tdata  = dds_tdata;
+    assign s_fifo_axis.tvalid = |dds_tvalid;
+
+    localparam logic [31:0] AXIS_SIGNAL_SET = 32'h03;
+
+    axis_data_fifo_wrap #(
+        .AXIS_SIGNAL_SET (AXIS_SIGNAL_SET),
+        .FIFO_DEPTH      (FIFO_DEPTH),
+        .FIFO_MEM_TYPE   ("block"),
+        .FAMILY          (""),
+        .USE_ADV_FEATURES("1000"),
     ) i_axis_fifo (
-        .s_axis    (dds_axis),
-        .m_axis    (fifo_axis),
-        .a_full_o  (),
-        .a_empty_o (),
+        .en_i      (enable),
+        .s_axis    (s_fifo_axis),
+        .m_axis    (m_fifo_axis),
         .data_cnt_o(data_cnt)
-    );
-
-    axis_dw_conv #(
-        .S_DATA_WIDTH(DDS_DATA_WIDTH),
-        .M_DATA_WIDTH(DATA_WIDTH),
-        .TLAST_EN    (TLAST_EN)
-    ) i_axis_dw_conv (
-        .s_axis(fifo_axis),
-        .m_axis(dw_conv_axis)
     );
 
     logic load_reg;
     assign load_reg = m_axis.tready | ~m_axis.tvalid;
 
     always_ff @(posedge clk_i) begin
-        if (reset) begin
+        if (~resetn) begin
             m_axis.tdata  <= '0;
             m_axis.tvalid <= '0;
         end else begin
-            if (bypass) begin
-                m_axis.tdata  <= bypass_tdata_i;
-                m_axis.tvalid <= bypass_tvalid_i;
+            if (bypass_en) begin
+                m_axis.tdata  <= s_axis.tdata;
+                m_axis.tvalid <= s_axis.tvalid;
             end else begin
                 if (load_reg) begin
-                    m_axis.tdata  <= dw_conv_axis.tdata;
-                    m_axis.tvalid <= dw_conv_axis.tvalid;
+                    m_axis.tdata  <= m_fifo_axis.tdata;
+                    m_axis.tvalid <= m_fifo_axis.tvalid;
                 end
             end
         end
     end
 
-    assign dw_conv_axis.tready = bypass ? 1'b1 : load_reg;
+    assign s_axis.tready      = bypass_en;
+    assign m_fifo_axis.tready = bypass_en ? 1'b0 : load_reg;
 
 endmodule
