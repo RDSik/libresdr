@@ -1,9 +1,5 @@
 set path [file dirname [info script]]
 
-set xci_defaultlib "
-    $path/ip/axil_ila/axil_ila.xci
-"
-
 add_files -norecurse $xci_defaultlib
 
 set xil_defaultlib "
