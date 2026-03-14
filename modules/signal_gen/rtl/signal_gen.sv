@@ -3,7 +3,6 @@
 module signal_gen
     import signal_gen_pkg::*;
 #(
-    parameter int   CH_NUM          = 2,
     parameter int   AXIL_ADDR_WIDTH = 32,
     parameter int   AXIL_DATA_WIDTH = 32,
     parameter int   DATA_WIDTH      = 64,
@@ -20,6 +19,9 @@ module signal_gen
     axis_if.slave  s_axis,
     axis_if.master m_axis
 );
+
+    localparam int IQ_DATA_WIDTH = 16;
+    localparam int CH_NUM = DATA_WIDTH / (IQ_DATA_WIDTH * 2);
 
     signal_gen_regs_t                                  rd_regs;
     signal_gen_regs_t                                  wr_regs;
@@ -102,8 +104,6 @@ module signal_gen
         .wr_regs_o   (wr_regs),
         .wr_valid_o  (wr_valid)
     );
-
-    localparam int IQ_DATA_WIDTH = 16;
 
     logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] dds_tdata;
     logic [CH_NUM-1:0]                         dds_tvalid;
