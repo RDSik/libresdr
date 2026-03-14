@@ -39,7 +39,21 @@ module signal_gen
     assign bypass_en = wr_regs.control.bypass_en;
     assign select    = wr_regs.dds.select;
 
-    always_ff @(posedge clk_i or negedge arstn_i) begin
+    axis_if #(
+        .DATA_WIDTH(DATA_WIDTH)
+    ) s_fifo_axis (
+        .clk_i  (clk_i),
+        .arstn_i(resetn)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(DATA_WIDTH)
+    ) m_fifo_axis (
+        .clk_i  (clk_i),
+        .arstn_i(resetn)
+    );
+
+    always_ff @(posedge clk_i) begin
         if (~arstn_i) begin
             dds <= '0;
         end else begin
@@ -54,7 +68,7 @@ module signal_gen
     end
 
     logic [$clog2(FIFO_DEPTH):0] data_cnt;
-    logic                        dds_tready;
+    logic [          CH_NUM-1:0] dds_tready;
 
     always_comb begin
         rd_valid                  = '1;
@@ -64,9 +78,9 @@ module signal_gen
         rd_regs.param.fifo_depth  = FIFO_DEPTH;
         rd_regs.param.reg_num     = SIGNAL_GEN_REG_NUM;
 
-        rd_regs.status.fifo_empty = ~fifo_axis.tvalid;
-        rd_regs.status.fifo_full  = ~dds_axis.tready;
-        rd_regs.status.dds_ready  = dds_tready;
+        rd_regs.status.fifo_empty = ~m_fifo_axis.tvalid;
+        rd_regs.status.fifo_full  = ~s_fifo_axis.tready;
+        rd_regs.status.dds_ready  = |dds_tready;
         rd_regs.status.data_cnt   = data_cnt;
     end
 
@@ -91,23 +105,8 @@ module signal_gen
 
     localparam int IQ_DATA_WIDTH = 16;
 
-    axis_if #(
-        .DATA_WIDTH(DATA_WIDTH)
-    ) s_fifo_axis (
-        .clk_i  (clk_i),
-        .arstn_i(resetn)
-    );
-
-    axis_if #(
-        .DATA_WIDTH(DATA_WIDTH)
-    ) m_fifo_axis (
-        .clk_i  (clk_i),
-        .arstn_i(resetn)
-    );
-
     logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] dds_tdata;
     logic [CH_NUM-1:0]                         dds_tvalid;
-    logic [CH_NUM-1:0]                         dds_tready;
 
     for (genvar ch_indx = 0; ch_indx < CH_NUM; ch_indx++) begin : g_ch
         axis_if #(
@@ -143,13 +142,14 @@ module signal_gen
         .AXIS_SIGNAL_SET (AXIS_SIGNAL_SET),
         .FIFO_DEPTH      (FIFO_DEPTH),
         .FIFO_MEM_TYPE   ("block"),
-        .FAMILY          (""),
-        .USE_ADV_FEATURES("1000"),
+        .FAMILY          ("virtex7"),
+        .USE_ADV_FEATURES("1004")
     ) i_axis_fifo (
-        .en_i      (enable),
-        .s_axis    (s_fifo_axis),
-        .m_axis    (m_fifo_axis),
-        .data_cnt_o(data_cnt)
+        .en_i              (enable),
+        .s_axis            (s_fifo_axis),
+        .m_axis            (m_fifo_axis),
+        .axis_rd_data_count(),
+        .axis_wr_data_count(data_cnt)
     );
 
     logic load_reg;
