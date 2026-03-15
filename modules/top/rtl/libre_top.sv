@@ -119,13 +119,6 @@ module libre_top #(
         .arstn_i(ps_arstn)
     );
 
-    axis_if #(
-        .DATA_WIDTH(FULL_DATA_WIDH)
-    ) dac_axis (
-        .clk_i  (clk),
-        .arstn_i(~rst)
-    );
-
     logic                                      pps_irq;
 
     logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] adc_tdata;
@@ -408,6 +401,13 @@ module libre_top #(
     localparam int FIFO_DEPTH = 1024;
     localparam FIFO_MEM_TYPE = "block";
     localparam FAMILY = "";
+
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) dac_axis (
+        .clk_i  (clk),
+        .arstn_i(~rst)
+    );
 
     logic arstn;
 
