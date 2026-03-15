@@ -1,7 +1,7 @@
 `ifndef AXIL_ENV_SVH
 `define AXIL_ENV_SVH
 
-`include "../../verification/tb/cfg.svh"
+`include "cfg.svh"
 
 class axil_env #(
     parameter int ADDR_WIDTH = 32,

@@ -1,4 +1,4 @@
-`include "../rtl/signal_gen_pkg.svh"
+`include "../../../../../modules/signal_gen/rtl/signal_gen_pkg.svh"
 
 module signal_gen
     import signal_gen_pkg::*;

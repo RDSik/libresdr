@@ -1,8 +1,8 @@
 `ifndef AXIL_SIGNAL_GEN_SVH
 `define AXIL_SIGNAL_GEN_SVH
 
-`include "modules/signal_gen_pkg/rtl/signal_gen_pkg.svh"
-`include "modules/verification/tb/axil_env.svh"
+`include "../../../../../modules/verification/tb/axil_env.svh"
+`include "../../../../../modules/signal_gen/rtl/signal_gen_pkg.svh"
 
 import signal_gen_pkg::*;
 

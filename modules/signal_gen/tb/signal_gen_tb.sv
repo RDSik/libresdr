@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-`include "modules/signal_gen/tb/signal_gen_class.svh"
+`include "../../../../../modules/signal_gen/tb/signal_gen_class.svh"
 
 module signal_gen_tb ();
 
@@ -65,7 +65,7 @@ module signal_gen_tb ();
     initial begin
         m_clk_i = 1'b0;
         forever begin
-            #(CLK_PER_NS / 2) m_clk_i = ~m_clk_i;
+            #(M_CLK_PER_NS / 2) m_clk_i = ~m_clk_i;
         end
     end
 
