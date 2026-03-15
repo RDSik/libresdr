@@ -37,7 +37,7 @@ module signal_gen
     logic                                              resetn;
     logic                                              enable;
     logic                                              bypass_en;
-    logic                                              select;
+    logic [$clogs(CH_NUM)-1:0]                         select;
 
     assign resetn    = ~wr_regs.control.reset;
     assign enable    = wr_regs.control.enable;
