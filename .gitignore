@@ -7,6 +7,10 @@
 !modules/**/rtl/*.sv
 !modules/**/rtl/*.svh
 
+!modules/**/tb/*.v
+!modules/**/tb/*.sv
+!modules/**/tb/*.svh
+
 !modules/**/ip/**/*.xci
 
 !modules/**/sdk/*.c

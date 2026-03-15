@@ -75,18 +75,17 @@ module signal_gen
     logic [$clog2(FIFO_DEPTH):0] data_cnt;
     logic [          CH_NUM-1:0] dds_tready;
 
-    always_comb begin
-        rd_valid                  = '1;
-        rd_regs                   = wr_regs;
+    always_ff @(posedge clk_i) begin
+        rd_regs                   <= wr_regs;
 
-        rd_regs.param.ch_num      = CH_NUM;
-        rd_regs.param.fifo_depth  = FIFO_DEPTH;
-        rd_regs.param.reg_num     = SIGNAL_GEN_REG_NUM;
+        rd_regs.param.ch_num      <= CH_NUM;
+        rd_regs.param.fifo_depth  <= FIFO_DEPTH;
+        rd_regs.param.reg_num     <= SIGNAL_GEN_REG_NUM;
 
-        rd_regs.status.fifo_empty = ~m_fifo_axis.tvalid;
-        rd_regs.status.fifo_full  = ~s_fifo_axis.tready;
-        rd_regs.status.dds_ready  = |dds_tready;
-        rd_regs.status.data_cnt   = data_cnt;
+        rd_regs.status.fifo_empty <= ~m_fifo_axis.tvalid;
+        rd_regs.status.fifo_full  <= ~s_fifo_axis.tready;
+        rd_regs.status.data_cnt   <= data_cnt;
+        rd_regs.status.dds_ready  <= dds_tready[select];
     end
 
     axil_reg_file_wrap #(
@@ -102,7 +101,7 @@ module signal_gen
         .arstn_i     (arstn_i),
         .s_axil      (s_axil),
         .rd_regs_i   (rd_regs),
-        .rd_valid_i  (rd_valid),
+        .rd_valid_i  ('1),
         .rd_request_o(rd_request),
         .wr_regs_o   (wr_regs),
         .wr_valid_o  (wr_valid)
