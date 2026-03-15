@@ -20,10 +20,8 @@ package signal_gen_pkg;
     } signal_gen_status_reg_t;
 
     typedef struct packed {
-        logic [28:0] rsrvd;
-        logic        bypass_en;
-        logic        enable;
-        logic        reset;https://github.com/RDSik/libresdr/blob/master/modules/signal_gen/rtl/signal_gen_pkg.svh
+        logic [15:0] enable;
+        logic [15:0] resetn;
     } signal_gen_control_reg_t;
 
     typedef struct packed {
@@ -32,7 +30,9 @@ package signal_gen_pkg;
     } signal_gen_settings_reg_t;
 
     typedef struct packed {
-        logic [31:0]              select;
+        logic [22:0]              rsrvd;
+        logic [7:0]               select;
+        logic                     bypass_en;
         signal_gen_settings_reg_t settings;
     } signal_gen_dds_reg_t;
 
@@ -62,10 +62,7 @@ package signal_gen_pkg;
 
     localparam int SIGNAL_GEN_REG_NUM = $bits(signal_gen_regs_t) / 32;
 
-    localparam signal_gen_regs_t SIGNAL_GEN_REG_INIT = '{
-        control : '{reset: 1'b1, default: '0},
-        default: '0
-    };
+    localparam signal_gen_regs_t SIGNAL_GEN_REG_INIT = '{default: '0};
 
 endpackage
 

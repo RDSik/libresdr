@@ -21,7 +21,7 @@ set xil_defaultlib "
 add_files -norecurse $xil_defaultlib
 
 set xil_defaultlib "
-    $path/tb/signal_gen_class.svh
+    $path/tb/axil_master.sv
     $path/tb/signal_gen_tb.sv
 "
 add_files -fileset sim_1 $xil_defaultlib

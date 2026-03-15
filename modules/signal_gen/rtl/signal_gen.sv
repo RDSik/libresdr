@@ -34,28 +34,36 @@ module signal_gen
     logic                     [SIGNAL_GEN_REG_NUM-1:0] wr_valid;
 
     signal_gen_settings_reg_t [            CH_NUM-1:0] dds;
-    logic                                              resetn;
-    logic                                              enable;
+    logic                     [            CH_NUM-1:0] resetn;
+    logic                     [            CH_NUM-1:0] enable;
     logic                                              bypass_en;
-    logic [$clog2(CH_NUM)-1:0]                         select;
+    logic                     [    $clog2(CH_NUM)-1:0] select;
 
-    assign resetn    = ~wr_regs.control.reset;
+    assign resetn    = wr_regs.control.resetn;
     assign enable    = wr_regs.control.enable;
-    assign bypass_en = wr_regs.control.bypass_en;
+    assign bypass_en = wr_regs.dds.bypass_en;
     assign select    = wr_regs.dds.select;
+
+    logic one_dds_en;
+    logic one_dds_rstn;
+
+    always_ff @(posedge clk_i) begin
+        one_dds_en   <= |enable;
+        one_dds_rstn <= ~&resetn;
+    end
 
     axis_if #(
         .DATA_WIDTH(DATA_WIDTH)
     ) s_fifo_axis (
         .clk_i  (clk_i),
-        .arstn_i(resetn)
+        .arstn_i(one_dds_rstn)
     );
 
     axis_if #(
         .DATA_WIDTH(DATA_WIDTH)
     ) m_fifo_axis (
         .clk_i  (clk_i),
-        .arstn_i(resetn)
+        .arstn_i(one_dds_rstn)
     );
 
     always_ff @(posedge clk_i) begin
@@ -115,15 +123,15 @@ module signal_gen
             .DATA_WIDTH(IQ_DATA_WIDTH * 2)
         ) dds_axis (
             .clk_i  (clk_i),
-            .arstn_i(resetn)
+            .arstn_i(resetn[ch_indx])
         );
 
         dds #(
             .PHASE_WIDTH(DDS_PHASE_WIDTH)
         ) i_dds (
             .clk_i       (clk_i),
-            .rstn_i      (resetn),
-            .en_i        (enable),
+            .rstn_i      (resetn[ch_indx]),
+            .en_i        (enable[ch_indx]),
             .pinc_i      (dds[ch_indx].pinc),
             .poff_i      (dds[ch_indx].poff),
             .dds_tready_o(dds_tready[ch_indx]),
@@ -147,8 +155,8 @@ module signal_gen
         .FAMILY          (FAMILY),
         .USE_ADV_FEATURES("1004")
     ) i_dds_fifo (
-        .s_en_i            (enable),
-        .m_en_i            (enable),
+        .s_en_i            (one_dds_en),
+        .m_en_i            (one_dds_en),
         .s_axis            (s_fifo_axis),
         .m_axis            (m_fifo_axis),
         .axis_rd_data_count(),
@@ -159,7 +167,7 @@ module signal_gen
         .DATA_WIDTH(DATA_WIDTH)
     ) bypass_axis (
         .clk_i  (clk_i),
-        .arstn_i(resetn)
+        .arstn_i(one_dds_rstn)
     );
 
     axis_data_fifo_wrap #(
