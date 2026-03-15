@@ -3,12 +3,14 @@
 module signal_gen
     import signal_gen_pkg::*;
 #(
+    parameter logic ILA_EN          = 0,
+    parameter logic ASYNC_MODE_EN   = 0,
     parameter int   AXIL_ADDR_WIDTH = 32,
     parameter int   AXIL_DATA_WIDTH = 32,
     parameter int   DATA_WIDTH      = 64,
     parameter int   FIFO_DEPTH      = 4096,
-    parameter logic ILA_EN          = 0,
-    parameter       MODE            = "sync"
+    parameter       FIFO_MEM_TYPE   = "block",
+    parameter       FAMILY          = ""
 ) (
 
     input logic clk_i,
@@ -92,8 +94,8 @@ module signal_gen
         .REG_NUM       (SIGNAL_GEN_REG_NUM),
         .reg_t         (signal_gen_regs_t),
         .REG_INIT      (SIGNAL_GEN_REG_INIT),
-        .ILA_EN        (ILA_EN),
-        .MODE          (MODE)
+        .ASYNC_MODE_EN (ASYNC_MODE_EN),
+        .ILA_EN        (ILA_EN)
     ) i_axil_reg_file (
         .clk_i       (clk_i),
         .arstn_i     (arstn_i),
@@ -141,8 +143,8 @@ module signal_gen
     axis_data_fifo_wrap #(
         .AXIS_SIGNAL_SET (AXIS_SIGNAL_SET),
         .FIFO_DEPTH      (FIFO_DEPTH),
-        .FIFO_MEM_TYPE   ("block"),
-        .FAMILY          ("virtex7"),
+        .FIFO_MEM_TYPE   (FIFO_MEM_TYPE),
+        .FAMILY          (FAMILY),
         .USE_ADV_FEATURES("1004")
     ) i_axis_fifo (
         .en_i              (enable),

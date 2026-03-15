@@ -192,6 +192,7 @@ module libre_top #(
         .M_AXI_0_wstrb  (axil.wstrb),
         .M_AXI_0_wvalid (axil.wvalid),
 
+        .m_axis_mm2s_aclk_0  (clk),
         .M_AXIS_MM2S_0_tdata (dac_tdata),
         .M_AXIS_MM2S_0_tkeep (),
         .M_AXIS_MM2S_0_tlast (),
