@@ -44,20 +44,20 @@ module signal_gen_tb ();
     axis_if #(
         .DATA_WIDTH(AXIS_DATA_WIDTH)
     ) m_axis (
-        .clk_i  (s_clk_i),
+        .clk_i  (m_clk_i),
         .arstn_i(arstn_i)
     );
 
     axis_if #(
         .DATA_WIDTH(AXIS_DATA_WIDTH)
     ) s_axis (
-        .clk_i  (m_clk_i),
+        .clk_i  (s_clk_i),
         .arstn_i(arstn_i)
     );
 
     initial begin
         arstn_i = 1'b0;
-        repeat (RESET_DELAY) @(posedge s_clk_i);
+        repeat (RESET_DELAY) @(posedge m_clk_i);
         arstn_i = 1'b1;
         $display("Reset done in: %0t ns\n.", $time());
     end
@@ -79,6 +79,7 @@ module signal_gen_tb ();
     initial begin
         signal_gen_write_regs();
         signal_gen_read_regs();
+        #10 $stop();
     end
 
     axil_master #(
@@ -101,11 +102,11 @@ module signal_gen_tb ();
         .FIFO_MEM_TYPE  (FIFO_MEM_TYPE),
         .FAMILY         (FAMILY)
     ) dut (
-        .clk_i  (clk),
+        .clk_i  (m_clk_i),
         .arstn_i(arstn_i),
         .s_axil (axil),
-        .s_axis (m_axis),
-        .m_axis (s_axis)
+        .s_axis (s_axis),
+        .m_axis (m_axis)
     );
 
     task automatic signal_gen_write_regs();
