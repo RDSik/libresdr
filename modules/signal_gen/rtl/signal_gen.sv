@@ -4,7 +4,7 @@ module signal_gen
     import signal_gen_pkg::*;
 #(
     parameter logic ILA_EN          = 0,
-    parameter logic ASYNC_MODE_EN   = 0,
+    parameter int   ASYNC_MODE_EN   = 0,
     parameter int   AXIL_ADDR_WIDTH = 32,
     parameter int   AXIL_DATA_WIDTH = 32,
     parameter int   DATA_WIDTH      = 64,
@@ -14,6 +14,7 @@ module signal_gen
 ) (
 
     input logic clk_i,
+    input logic rst_i,
     input logic arstn_i,
 
     axil_if.slave s_axil,
@@ -146,7 +147,7 @@ module signal_gen
         .FIFO_MEM_TYPE   (FIFO_MEM_TYPE),
         .FAMILY          (FAMILY),
         .USE_ADV_FEATURES("1004")
-    ) i_axis_fifo (
+    ) i_sync_fifo (
         .en_i              (enable),
         .s_axis            (s_fifo_axis),
         .m_axis            (m_fifo_axis),
@@ -154,27 +155,39 @@ module signal_gen
         .axis_wr_data_count(data_cnt)
     );
 
-    logic load_reg;
-    assign load_reg = m_axis.tready | ~m_axis.tvalid;
+    axis_if #(
+        .DATA_WIDTH(DATA_WIDTH)
+    ) bypass_axis (
+        .clk_i  (clk_i),
+        .arstn_i(resetn)
+    );
 
-    always_ff @(posedge clk_i) begin
-        if (~resetn) begin
-            m_axis.tdata  <= '0;
-            m_axis.tvalid <= '0;
+    axis_data_fifo_wrap #(
+        .AXIS_SIGNAL_SET   (AXIS_SIGNAL_SET),
+        .FIFO_DEPTH        (FIFO_DEPTH),
+        .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
+        .FAMILY            (FAMILY),
+        .ASYNC_MODE_EN     (ASYNC_MODE_EN),
+        .SYNCHRONIZER_STAGE(3),
+        .USE_ADV_FEATURES  ("1000")
+    ) i_bypass_fifo (
+        .en_i  (enable),
+        .s_axis(s_axis),
+        .m_axis(bypass_axis)
+    );
+
+    always_comb begin
+        bypass_axis.tready = 1'b0;
+        m_fifo_axis.tready = 1'b0;
+        if (bypass_en) begin
+            m_axis.tdata       = bypass_axis.tdata;
+            m_axis.tvalid      = bypass_axis.tvalid;
+            bypass_axis.tready = m_axis.tready;
         end else begin
-            if (bypass_en) begin
-                m_axis.tdata  <= s_axis.tdata;
-                m_axis.tvalid <= s_axis.tvalid;
-            end else begin
-                if (load_reg) begin
-                    m_axis.tdata  <= m_fifo_axis.tdata;
-                    m_axis.tvalid <= m_fifo_axis.tvalid;
-                end
-            end
+            m_axis.tdata       = m_fifo_axis.tdata;
+            m_axis.tvalid      = m_fifo_axis.tvalid;
+            m_fifo_axis.tready = m_axis.tready;
         end
     end
-
-    assign s_axis.tready      = bypass_en & resetn;
-    assign m_fifo_axis.tready = bypass_en ? 1'b0 : load_reg;
 
 endmodule
