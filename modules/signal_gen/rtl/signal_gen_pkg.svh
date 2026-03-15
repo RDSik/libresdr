@@ -23,7 +23,7 @@ package signal_gen_pkg;
         logic [28:0] rsrvd;
         logic        bypass_en;
         logic        enable;
-        logic        reset;
+        logic        reset;https://github.com/RDSik/libresdr/blob/master/modules/signal_gen/rtl/signal_gen_pkg.svh
     } signal_gen_control_reg_t;
 
     typedef struct packed {
@@ -32,8 +32,7 @@ package signal_gen_pkg;
     } signal_gen_settings_reg_t;
 
     typedef struct packed {
-        logic [30:0]              rsrvd;
-        logic                     select;
+        logic [31:0]              select;
         signal_gen_settings_reg_t settings;
     } signal_gen_dds_reg_t;
 
