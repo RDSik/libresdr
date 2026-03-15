@@ -4,11 +4,11 @@ module signal_gen
     import signal_gen_pkg::*;
 #(
     parameter logic ILA_EN          = 0,
+    parameter logic ASYNC_MODE_EN   = 0,
     parameter int   CH_NUM          = 2,
     parameter int   DATA_WIDTH      = 64,
     parameter int   AXIL_DATA_WIDTH = 32,
     parameter int   AXIL_ADDR_WIDTH = 32,
-    parameter int   ASYNC_MODE_EN   = 0,
     parameter int   SYNC_STAGE_NUM  = 3,
     parameter int   FIFO_DEPTH      = 4096,
     parameter       FIFO_MEM_TYPE   = "block",
