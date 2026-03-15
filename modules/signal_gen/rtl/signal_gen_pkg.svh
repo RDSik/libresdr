@@ -50,7 +50,7 @@ package signal_gen_pkg;
     localparam int SIGNAL_GEN_PINC_REG_POS = SIGNAL_GEN_CONTROL_REG_POS + $bits(
         signal_gen_settings_reg_t
     ) / 32;
-    localparam int SIGNAL_GEN_SELECT_REG_POS = SIGNAL_GEN_CONTROL_REG_POS + $bits(
+    localparam int SIGNAL_GEN_DDS_REG_POS = SIGNAL_GEN_CONTROL_REG_POS + $bits(
         signal_gen_dds_reg_t
     ) / 32;
     localparam int SIGNAL_GEN_STATUS_REG_POS = SIGNAL_GEN_POFF_REG_POS + $bits(
