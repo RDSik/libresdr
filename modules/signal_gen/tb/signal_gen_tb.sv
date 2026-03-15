@@ -6,9 +6,9 @@ module signal_gen_tb ();
 
     import signal_gen_pkg::*;
 
-    localparam int CH_NUM = 2;
-    localparam int ASYNC_MODE_EN = 1;
+    localparam logic ASYNC_MODE_EN = 1;
     localparam int SYNC_STAGE_NUM = 3;
+    localparam int CH_NUM = 2;
     localparam int AXIL_ADDR_WIDTH = 32;
     localparam int AXIL_DATA_WIDTH = 32;
     localparam int AXIS_DATA_WIDTH = CH_NUM * 32;
