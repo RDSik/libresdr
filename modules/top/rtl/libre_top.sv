@@ -85,7 +85,6 @@ module libre_top #(
     localparam int CH_NUM = 2;
     localparam int IQ_DATA_WIDTH = 16;
     localparam int FULL_DATA_WIDH = CH_NUM * IQ_DATA_WIDTH * 2;
-    localparam int DDS_PHASE_WIDTH = 32;
     localparam int AXIL_ADDR_WIDTH = 32;
     localparam int AXIL_DATA_WIDTH = 32;
 
@@ -423,6 +422,7 @@ module libre_top #(
 
     signal_gen #(
         .ILA_EN         (ILA_EN),
+        .CH_NUM         (CH_NUM),
         .DATA_WIDTH     (FULL_DATA_WIDH),
         .AXIL_ADDR_WIDTH(AXIL_ADDR_WIDTH),
         .AXIL_DATA_WIDTH(AXIL_DATA_WIDTH),

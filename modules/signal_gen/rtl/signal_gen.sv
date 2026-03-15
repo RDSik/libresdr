@@ -4,11 +4,12 @@ module signal_gen
     import signal_gen_pkg::*;
 #(
     parameter logic ILA_EN          = 0,
+    parameter int   CH_NUM          = 2,
+    parameter int   DATA_WIDTH      = 64,
+    parameter int   AXIL_DATA_WIDTH = 32,
+    parameter int   AXIL_ADDR_WIDTH = 32,
     parameter int   ASYNC_MODE_EN   = 0,
     parameter int   SYNC_STAGE_NUM  = 3,
-    parameter int   AXIL_ADDR_WIDTH = 32,
-    parameter int   AXIL_DATA_WIDTH = 32,
-    parameter int   DATA_WIDTH      = 64,
     parameter int   FIFO_DEPTH      = 4096,
     parameter       FIFO_MEM_TYPE   = "block",
     parameter       FAMILY          = ""
@@ -24,7 +25,6 @@ module signal_gen
 );
 
     localparam int IQ_DATA_WIDTH = 16;
-    localparam int CH_NUM = DATA_WIDTH / (IQ_DATA_WIDTH * 2);
 
     signal_gen_regs_t                                  rd_regs;
     signal_gen_regs_t                                  wr_regs;
@@ -92,8 +92,11 @@ module signal_gen
 
         rd_regs.status.fifo_empty <= ~m_fifo_axis.tvalid;
         rd_regs.status.fifo_full  <= ~s_fifo_axis.tready;
-        rd_regs.status.data_cnt   <= data_cnt;
+        rd_regs.status.fifo_cnt   <= data_cnt;
         rd_regs.status.dds_ready  <= dds_tready[select];
+
+        rd_regs.dds.settings.poff <= dds[select].poff;
+        rd_regs.dds.settings.pinc <= dds[select].pinc;
     end
 
     axil_reg_file_wrap #(
