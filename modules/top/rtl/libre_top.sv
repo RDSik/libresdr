@@ -399,7 +399,7 @@ module libre_top #(
     localparam int ASYNC_MODE_EN = 1;
     localparam int FIFO_DEPTH = 1024;
     localparam FIFO_MEM_TYPE = "block";
-    localparam FAMILY = "";
+    localparam FAMILY = "zynq";
 
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)

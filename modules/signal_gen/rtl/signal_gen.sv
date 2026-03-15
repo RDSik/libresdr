@@ -12,7 +12,7 @@ module signal_gen
     parameter int   SYNC_STAGE_NUM  = 3,
     parameter int   FIFO_DEPTH      = 4096,
     parameter       FIFO_MEM_TYPE   = "block",
-    parameter       FAMILY          = ""
+    parameter       FAMILY          = "zynq"
 ) (
 
     input logic clk_i,

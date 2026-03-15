@@ -14,7 +14,7 @@ module signal_gen_tb ();
     localparam int AXIS_DATA_WIDTH = CH_NUM * 32;
     localparam int FIFO_DEPTH = 4096;
     localparam FIFO_MEM_TYPE = "block";
-    localparam FAMILY = "";
+    localparam FAMILY = "zynq";
 
     localparam logic [AXIL_ADDR_WIDTH-1:0] BASE_ADDR = 'h200000;
     localparam int ADDR_OFFSET = AXIL_DATA_WIDTH / 8;

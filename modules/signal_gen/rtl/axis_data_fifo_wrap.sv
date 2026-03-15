@@ -10,7 +10,7 @@ module axis_data_fifo_wrap #(
     parameter int          ACLKEN_CONV_MODE   = 0,
     parameter              USE_ADV_FEATURES   = "1000",
     parameter              FIFO_MEM_TYPE      = "block",
-    parameter              FAMILY             = ""
+    parameter              FAMILY             = "zynq"
 ) (
     input logic s_en_i,
     input logic m_en_i,
