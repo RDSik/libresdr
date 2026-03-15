@@ -118,6 +118,27 @@ module libre_top #(
         .arstn_i(ps_arstn)
     );
 
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) s2mm_axis (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) dac_axis (
+        .clk_i  (clk),
+        .arstn_i(~rst)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) adc_axis (
+        .clk_i  (clk),
+        .arstn_i(~rst)
+    );
+
     logic                                      pps_irq;
 
     logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] adc_tdata;
@@ -261,14 +282,55 @@ module libre_top #(
         .SPI_0_1_ss_o (),
         .SPI_0_1_ss_t (),
 
-        .S_AXIS_S2MM_0_tdata (adc_tdata),
+        .S_AXIS_S2MM_0_tdata (s2mm_axis.tdata),
         .S_AXIS_S2MM_0_tkeep ('1),
         .S_AXIS_S2MM_0_tlast ('0),
-        .S_AXIS_S2MM_0_tready(),
-        .S_AXIS_S2MM_0_tvalid(|adc_tvalid),
+        .S_AXIS_S2MM_0_tready(s2mm_axis.tready),
+        .S_AXIS_S2MM_0_tvalid(s2mm_axis.tvalid),
 
         .pps_irq(pps_irq)
     );
+
+    localparam logic [31:0] AXIS_SIGNAL_SET = 32'h03;
+    localparam int SYNC_STAGE_NUM = 3;
+    localparam int ASYNC_MODE_EN = 1;
+    localparam int FIFO_DEPTH = 1024;
+    localparam USE_ADV_FEATURES = "1000";
+    localparam FIFO_MEM_TYPE = "block";
+    localparam FAMILY = "zynq";
+
+    axis_data_fifo_wrap #(
+        .AXIS_SIGNAL_SET   (AXIS_SIGNAL_SET),
+        .FIFO_DEPTH        (FIFO_DEPTH),
+        .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
+        .FAMILY            (FAMILY),
+        .ASYNC_MODE_EN     (ASYNC_MODE_EN),
+        .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
+        .USE_ADV_FEATURES  (USE_ADV_FEATURES)
+    ) i_dac_fifo (
+        .s_en_i(1'b1),
+        .m_en_i(1'b1),
+        .s_axis(mm2s_axis),
+        .m_axis(dac_axis)
+    );
+
+    axis_data_fifo_wrap #(
+        .AXIS_SIGNAL_SET   (AXIS_SIGNAL_SET),
+        .FIFO_DEPTH        (FIFO_DEPTH),
+        .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
+        .FAMILY            (FAMILY),
+        .ASYNC_MODE_EN     (ASYNC_MODE_EN),
+        .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
+        .USE_ADV_FEATURES  (USE_ADV_FEATURES)
+    ) i_adc_fifo (
+        .s_en_i(1'b1),
+        .m_en_i(1'b1),
+        .s_axis(adc_axis),
+        .m_axis(s2mm_axis)
+    );
+
+    assign adc_axis.tdata  = adc_tdata;
+    assign adc_axis.tvalid = |adc_tvalid;
 
     axi_ad9361 #(
         .ID                      (0),
@@ -395,15 +457,9 @@ module libre_top #(
         .up_adc_gpio_out()
     );
 
-    localparam int SYNC_STAGE_NUM = 3;
-    localparam int ASYNC_MODE_EN = 1;
-    localparam int FIFO_DEPTH = 1024;
-    localparam FIFO_MEM_TYPE = "block";
-    localparam FAMILY = "zynq";
-
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
-    ) dac_axis (
+    ) sig_gen_axis (
         .clk_i  (clk),
         .arstn_i(~rst)
     );
@@ -435,12 +491,12 @@ module libre_top #(
         .clk_i  (clk),
         .arstn_i(arstn),
         .s_axil (axil_sig_gen),
-        .s_axis (mm2s_axis),
-        .m_axis (dac_axis)
+        .s_axis (dac_axis),
+        .m_axis (sig_gen_axis)
     );
 
-    assign dac_tdata       = dac_axis.tdata;
-    assign dac_axis.tready = |dac_tready;
+    assign dac_tdata           = sig_gen_axis.tdata;
+    assign sig_gen_axis.tready = |dac_tready;
 
     if (ILA_EN) begin : g_ila
         axil_ila i_axil_ila (

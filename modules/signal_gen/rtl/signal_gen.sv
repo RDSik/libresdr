@@ -166,35 +166,13 @@ module signal_gen
         .axis_wr_data_count(data_cnt)
     );
 
-    axis_if #(
-        .DATA_WIDTH(DATA_WIDTH)
-    ) bypass_axis (
-        .clk_i  (clk_i),
-        .arstn_i(one_dds_rstn)
-    );
-
-    axis_data_fifo_wrap #(
-        .AXIS_SIGNAL_SET   (AXIS_SIGNAL_SET),
-        .FIFO_DEPTH        (FIFO_DEPTH),
-        .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
-        .FAMILY            (FAMILY),
-        .ASYNC_MODE_EN     (ASYNC_MODE_EN),
-        .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
-        .USE_ADV_FEATURES  ("1000")
-    ) i_async_fifo (
-        .s_en_i(1'b1),
-        .m_en_i(1'b1),
-        .s_axis(s_axis),
-        .m_axis(bypass_axis)
-    );
-
     always_comb begin
-        bypass_axis.tready = 1'b0;
+        s_axis.tready      = 1'b0;
         m_fifo_axis.tready = 1'b0;
         if (bypass_en) begin
-            m_axis.tdata       = bypass_axis.tdata;
-            m_axis.tvalid      = bypass_axis.tvalid;
-            bypass_axis.tready = m_axis.tready;
+            m_axis.tdata  = s_axis.tdata;
+            m_axis.tvalid = s_axis.tvalid;
+            s_axis.tready = m_axis.tready;
         end else begin
             m_axis.tdata       = m_fifo_axis.tdata;
             m_axis.tvalid      = m_fifo_axis.tvalid;
