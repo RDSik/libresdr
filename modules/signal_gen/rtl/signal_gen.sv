@@ -49,7 +49,7 @@ module signal_gen
 
     always_ff @(posedge clk_i) begin
         one_dds_en   <= |enable;
-        one_dds_rstn <= ~&resetn;
+        one_dds_rstn <= &resetn;
     end
 
     axis_if #(

@@ -23,6 +23,7 @@ module signal_gen_tb ();
     localparam logic [1:0][31:0] PINC = {32'd233, 32'd677};
     localparam logic BYPASS_EN = 0;
 
+    localparam int WAIT_TIME = 1000;
     localparam int S_CLK_PER_NS = 2;
     localparam int M_CLK_PER_NS = 4;
     localparam int RESET_DELAY = 10;
@@ -81,7 +82,7 @@ module signal_gen_tb ();
     initial begin
         signal_gen_write_regs();
         signal_gen_read_regs();
-        #10 $stop();
+        #WAIT_TIME $stop();
     end
 
     axil_master #(
