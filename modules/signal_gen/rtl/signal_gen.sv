@@ -5,6 +5,7 @@ module signal_gen
 #(
     parameter logic ILA_EN          = 0,
     parameter int   ASYNC_MODE_EN   = 0,
+    parameter int   SYNC_STAGE_NUM  = 3,
     parameter int   AXIL_ADDR_WIDTH = 32,
     parameter int   AXIL_DATA_WIDTH = 32,
     parameter int   DATA_WIDTH      = 64,
@@ -14,7 +15,6 @@ module signal_gen
 ) (
 
     input logic clk_i,
-    input logic rst_i,
     input logic arstn_i,
 
     axil_if.slave s_axil,
@@ -147,8 +147,9 @@ module signal_gen
         .FIFO_MEM_TYPE   (FIFO_MEM_TYPE),
         .FAMILY          (FAMILY),
         .USE_ADV_FEATURES("1004")
-    ) i_sync_fifo (
-        .en_i              (enable),
+    ) i_dds_fifo (
+        .s_en_i            (enable),
+        .m_en_i            (enable),
         .s_axis            (s_fifo_axis),
         .m_axis            (m_fifo_axis),
         .axis_rd_data_count(),
@@ -168,10 +169,11 @@ module signal_gen
         .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
         .FAMILY            (FAMILY),
         .ASYNC_MODE_EN     (ASYNC_MODE_EN),
-        .SYNCHRONIZER_STAGE(3),
+        .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
         .USE_ADV_FEATURES  ("1000")
-    ) i_bypass_fifo (
-        .en_i  (enable),
+    ) i_async_fifo (
+        .s_en_i(1'b1),
+        .m_en_i(1'b1),
         .s_axis(s_axis),
         .m_axis(bypass_axis)
     );

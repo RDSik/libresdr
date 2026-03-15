@@ -12,7 +12,8 @@ module axis_data_fifo_wrap #(
     parameter              FIFO_MEM_TYPE      = "block",
     parameter              FAMILY             = ""
 ) (
-    input logic en_i,
+    input logic s_en_i,
+    input logic m_en_i,
 
     axis_if.slave  s_axis,
     axis_if.master m_axis,
@@ -48,7 +49,7 @@ module axis_data_fifo_wrap #(
     ) i_axis_data_fifo (
         .s_axis_aclk       (s_axis.clk_i),
         .s_axis_aresetn    (s_axis.arstn_i),
-        .s_axis_aclken     (en_i),
+        .s_axis_aclken     (s_en_i),
         .s_axis_tvalid     (s_axis.tvalid),
         .s_axis_tready     (s_axis.tready),
         .s_axis_tdata      (s_axis.tdata),
@@ -67,7 +68,7 @@ module axis_data_fifo_wrap #(
         .injectsbiterr     ('0),
         .injectdbiterr     ('0),
         .m_axis_aclk       (m_axis.clk_i),
-        .m_axis_aclken     (en_i),
+        .m_axis_aclken     (m_en_i),
         .m_axis_tvalid     (m_axis.tvalid),
         .m_axis_tready     (m_axis.tready),
         .m_axis_tdata      (m_axis.tdata),

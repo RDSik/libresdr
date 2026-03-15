@@ -84,6 +84,7 @@ module libre_top #(
 
     localparam int CH_NUM = 2;
     localparam int IQ_DATA_WIDTH = 16;
+    localparam int FULL_DATA_WIDH = CH_NUM * IQ_DATA_WIDTH * 2;
     localparam int DDS_PHASE_WIDTH = 32;
     localparam int AXIL_ADDR_WIDTH = 32;
     localparam int AXIL_DATA_WIDTH = 32;
@@ -91,17 +92,39 @@ module libre_top #(
     logic ps_clk;
     logic ps_arstn;
 
+    logic delay_clk;
+    logic clk;
+    logic rst;
+
     axil_if #(
         .DATA_WIDTH(AXIL_DATA_WIDTH),
         .ADDR_WIDTH(AXIL_ADDR_WIDTH)
-    ) axil (
+    ) axil_ad (
         .clk_i  (ps_clk),
         .arstn_i(ps_arstn)
     );
 
-    logic                                      delay_clk;
-    logic                                      clk;
-    logic                                      rst;
+    axil_if #(
+        .DATA_WIDTH(AXIL_DATA_WIDTH),
+        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
+    ) axil_sig_gen (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) mm2s_axis (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) dac_axis (
+        .clk_i  (clk),
+        .arstn_i(~rst)
+    );
 
     logic                                      pps_irq;
 
@@ -172,32 +195,51 @@ module libre_top #(
         .IIC_0_sda_o(sda_o),
         .IIC_0_sda_t(sda_t),
 
-        .M_AXI_0_araddr (axil.araddr),
-        .M_AXI_0_arprot (axil.arprot),
-        .M_AXI_0_arready(axil.arready),
-        .M_AXI_0_arvalid(axil.arvalid),
-        .M_AXI_0_awaddr (axil.awaddr),
-        .M_AXI_0_awprot (axil.awprot),
-        .M_AXI_0_awready(axil.awready),
-        .M_AXI_0_awvalid(axil.awvalid),
-        .M_AXI_0_bready (axil.bready),
-        .M_AXI_0_bresp  (axil.bresp),
-        .M_AXI_0_bvalid (axil.bvalid),
-        .M_AXI_0_rdata  (axil.rdata),
-        .M_AXI_0_rready (axil.rready),
-        .M_AXI_0_rresp  (axil.rresp),
-        .M_AXI_0_rvalid (axil.rvalid),
-        .M_AXI_0_wdata  (axil.wdata),
-        .M_AXI_0_wready (axil.wready),
-        .M_AXI_0_wstrb  (axil.wstrb),
-        .M_AXI_0_wvalid (axil.wvalid),
+        .M_AXI_0_araddr (axil_ad.araddr),
+        .M_AXI_0_arprot (axil_ad.arprot),
+        .M_AXI_0_arready(axil_ad.arready),
+        .M_AXI_0_arvalid(axil_ad.arvalid),
+        .M_AXI_0_awaddr (axil_ad.awaddr),
+        .M_AXI_0_awprot (axil_ad.awprot),
+        .M_AXI_0_awready(axil_ad.awready),
+        .M_AXI_0_awvalid(axil_ad.awvalid),
+        .M_AXI_0_bready (axil_ad.bready),
+        .M_AXI_0_bresp  (axil_ad.bresp),
+        .M_AXI_0_bvalid (axil_ad.bvalid),
+        .M_AXI_0_rdata  (axil_ad.rdata),
+        .M_AXI_0_rready (axil_ad.rready),
+        .M_AXI_0_rresp  (axil_ad.rresp),
+        .M_AXI_0_rvalid (axil_ad.rvalid),
+        .M_AXI_0_wdata  (axil_ad.wdata),
+        .M_AXI_0_wready (axil_ad.wready),
+        .M_AXI_0_wstrb  (axil_ad.wstrb),
+        .M_AXI_0_wvalid (axil_ad.wvalid),
 
-        .m_axis_mm2s_aclk_0  (clk),
-        .M_AXIS_MM2S_0_tdata (dac_tdata),
-        .M_AXIS_MM2S_0_tkeep (),
-        .M_AXIS_MM2S_0_tlast (),
-        .M_AXIS_MM2S_0_tready(|dac_tready),
-        .M_AXIS_MM2S_0_tvalid(),
+        .M_AXI_1_araddr (axil_sig_gen.araddr),
+        .M_AXI_1_arprot (axil_sig_gen.arprot),
+        .M_AXI_1_arready(axil_sig_gen.arready),
+        .M_AXI_1_arvalid(axil_sig_gen.arvalid),
+        .M_AXI_1_awaddr (axil_sig_gen.awaddr),
+        .M_AXI_1_awprot (axil_sig_gen.awprot),
+        .M_AXI_1_awready(axil_sig_gen.awready),
+        .M_AXI_1_awvalid(axil_sig_gen.awvalid),
+        .M_AXI_1_bready (axil_sig_gen.bready),
+        .M_AXI_1_bresp  (axil_sig_gen.bresp),
+        .M_AXI_1_bvalid (axil_sig_gen.bvalid),
+        .M_AXI_1_rdata  (axil_sig_gen.rdata),
+        .M_AXI_1_rready (axil_sig_gen.rready),
+        .M_AXI_1_rresp  (axil_sig_gen.rresp),
+        .M_AXI_1_rvalid (axil_sig_gen.rvalid),
+        .M_AXI_1_wdata  (axil_sig_gen.wdata),
+        .M_AXI_1_wready (axil_sig_gen.wready),
+        .M_AXI_1_wstrb  (axil_sig_gen.wstrb),
+        .M_AXI_1_wvalid (axil_sig_gen.wvalid),
+
+        .M_AXIS_MM2S_0_tdata (mm2s_axis.tdata),
+        .M_AXIS_MM2S_0_tkeep (mm2s_axis.tkeep),
+        .M_AXIS_MM2S_0_tlast (mm2s_axis.tlast),
+        .M_AXIS_MM2S_0_tready(mm2s_axis.tready),
+        .M_AXIS_MM2S_0_tvalid(mm2s_axis.tvalid),
 
         .SPI_0_0_io0_i('0),
         .SPI_0_0_io0_o(spi_mosi),
@@ -269,27 +311,27 @@ module libre_top #(
         .DELAY_REFCLK_FREQUENCY  (200),
         .RX_NODPA                (0)
     ) i_axi_ad9361 (
-        .s_axi_aclk   (axil.clk_i),
-        .s_axi_aresetn(axil.arstn_i),
-        .s_axi_awvalid(axil.awvalid),
-        .s_axi_awaddr (axil.awaddr),
-        .s_axi_awprot (axil.awprot),
-        .s_axi_awready(axil.awready),
-        .s_axi_wvalid (axil.wvalid),
-        .s_axi_wdata  (axil.wdata),
-        .s_axi_wstrb  (axil.wstrb),
-        .s_axi_wready (axil.wready),
-        .s_axi_bvalid (axil.bvalid),
-        .s_axi_bresp  (axil.bresp),
-        .s_axi_bready (axil.bready),
-        .s_axi_arvalid(axil.arvalid),
-        .s_axi_araddr (axil.araddr),
-        .s_axi_arprot (axil.arprot),
-        .s_axi_arready(axil.arready),
-        .s_axi_rvalid (axil.rvalid),
-        .s_axi_rdata  (axil.rdata),
-        .s_axi_rresp  (axil.rresp),
-        .s_axi_rready (axil.rready),
+        .s_axi_aclk   (axil_ad.clk_i),
+        .s_axi_aresetn(axil_ad.arstn_i),
+        .s_axi_awvalid(axil_ad.awvalid),
+        .s_axi_awaddr (axil_ad.awaddr),
+        .s_axi_awprot (axil_ad.awprot),
+        .s_axi_awready(axil_ad.awready),
+        .s_axi_wvalid (axil_ad.wvalid),
+        .s_axi_wdata  (axil_ad.wdata),
+        .s_axi_wstrb  (axil_ad.wstrb),
+        .s_axi_wready (axil_ad.wready),
+        .s_axi_bvalid (axil_ad.bvalid),
+        .s_axi_bresp  (axil_ad.bresp),
+        .s_axi_bready (axil_ad.bready),
+        .s_axi_arvalid(axil_ad.arvalid),
+        .s_axi_araddr (axil_ad.araddr),
+        .s_axi_arprot (axil_ad.arprot),
+        .s_axi_arready(axil_ad.arready),
+        .s_axi_rvalid (axil_ad.rvalid),
+        .s_axi_rdata  (axil_ad.rdata),
+        .s_axi_rresp  (axil_ad.rresp),
+        .s_axi_rready (axil_ad.rready),
 
         .txnrx         (txnrx),
         .enable        (enable),
@@ -361,28 +403,67 @@ module libre_top #(
         .up_adc_gpio_out()
     );
 
+    localparam int SYNC_STAGE_NUM = 3;
+    localparam int ASYNC_MODE_EN = 1;
+    localparam int FIFO_DEPTH = 1024;
+    localparam FIFO_MEM_TYPE = "block";
+    localparam FAMILY = "";
+
+    logic arstn;
+
+    xpm_cdc_async_rst #(
+        .DEST_SYNC_FF   (SYNC_STAGE_NUM),
+        .INIT_SYNC_FF   (0),
+        .RST_ACTIVE_HIGH(0)
+    ) i_xpm_cdc_async_rst (
+        .src_arst (ps_arstn),
+        .dest_clk (clk),
+        .dest_arst(arstn)
+    );
+
+    signal_gen #(
+        .ILA_EN         (ILA_EN),
+        .DATA_WIDTH     (FULL_DATA_WIDH),
+        .AXIL_ADDR_WIDTH(AXIL_ADDR_WIDTH),
+        .AXIL_DATA_WIDTH(AXIL_DATA_WIDTH),
+        .SYNC_STAGE_NUM (SYNC_STAGE_NUM),
+        .ASYNC_MODE_EN  (ASYNC_MODE_EN),
+        .FIFO_DEPTH     (FIFO_DEPTH),
+        .FIFO_MEM_TYPE  (FIFO_MEM_TYPE),
+        .FAMILY         (FAMILY)
+    ) i_signal_gen (
+        .clk_i  (clk),
+        .arstn_i(arstn),
+        .s_axil (axil_sig_gen),
+        .s_axis (mm2s_axis),
+        .m_axis (dac_axis)
+    );
+
+    assign dac_tdata       = dac_axis.tdata;
+    assign dac_axis.tready = |dac_tready;
+
     if (ILA_EN) begin : g_ila
         axil_ila i_axil_ila (
-            .clk    (axil.clk_i),
-            .probe0 (axil.awvalid),
-            .probe1 (axil.awaddr),
-            .probe2 (axil.bresp),
-            .probe3 (axil.bvalid),
-            .probe4 (axil.bready),
-            .probe5 (axil.wdata),
-            .probe6 (axil.wvalid),
-            .probe7 (axil.wready),
-            .probe8 (axil.awready),
-            .probe9 (axil.rready),
-            .probe10(axil.araddr),
-            .probe11(axil.arvalid),
-            .probe12(axil.arready),
-            .probe13(axil.rresp),
-            .probe14(axil.rdata),
-            .probe15(axil.wstrb),
-            .probe16(axil.rvalid),
-            .probe17(axil.arprot),
-            .probe18(axil.awprot)
+            .clk    (axil_ad.clk_i),
+            .probe0 (axil_ad.awvalid),
+            .probe1 (axil_ad.awaddr),
+            .probe2 (axil_ad.bresp),
+            .probe3 (axil_ad.bvalid),
+            .probe4 (axil_ad.bready),
+            .probe5 (axil_ad.wdata),
+            .probe6 (axil_ad.wvalid),
+            .probe7 (axil_ad.wready),
+            .probe8 (axil_ad.awready),
+            .probe9 (axil_ad.rready),
+            .probe10(axil_ad.araddr),
+            .probe11(axil_ad.arvalid),
+            .probe12(axil_ad.arready),
+            .probe13(axil_ad.rresp),
+            .probe14(axil_ad.rdata),
+            .probe15(axil_ad.wstrb),
+            .probe16(axil_ad.rvalid),
+            .probe17(axil_ad.arprot),
+            .probe18(axil_ad.awprot)
         );
     end
 
