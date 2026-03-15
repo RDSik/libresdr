@@ -109,7 +109,7 @@ module libre_top #(
     logic [CH_NUM-1:0][1:0]                    adc_tvalid;
 
     logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] dac_tdata;
-    logic [CH_NUM-1:0][1:0]                    dac_tvalid;
+    logic [CH_NUM-1:0][1:0]                    dac_tready;
 
     logic                                      scl_i;
     logic                                      scl_o;
@@ -195,7 +195,7 @@ module libre_top #(
         .M_AXIS_MM2S_0_tdata (dac_tdata),
         .M_AXIS_MM2S_0_tkeep (),
         .M_AXIS_MM2S_0_tlast (),
-        .M_AXIS_MM2S_0_tready(|dac_tvalid),
+        .M_AXIS_MM2S_0_tready(|dac_tready),
         .M_AXIS_MM2S_0_tvalid(),
 
         .SPI_0_0_io0_i('0),
@@ -340,16 +340,16 @@ module libre_top #(
         .adc_r1_mode  (),
 
         .dac_enable_i0(),
-        .dac_valid_i0 (dac_tvalid[0][0]),
+        .dac_valid_i0 (dac_tready[0][0]),
         .dac_data_i0  (dac_tdata[0][0]),
         .dac_enable_q0(),
-        .dac_valid_q0 (dac_tvalid[0][1]),
+        .dac_valid_q0 (dac_tready[0][1]),
         .dac_data_q0  (dac_tdata[0][1]),
         .dac_enable_i1(),
-        .dac_valid_i1 (dac_tvalid[1][0]),
+        .dac_valid_i1 (dac_tready[1][0]),
         .dac_data_i1  (dac_tdata[1][0]),
         .dac_enable_q1(),
-        .dac_valid_q1 (dac_tvalid[1][1]),
+        .dac_valid_q1 (dac_tready[1][1]),
         .dac_data_q1  (dac_tdata[1][1]),
         .dac_dunf     ('0),
         .dac_r1_mode  (),
