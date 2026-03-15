@@ -43,17 +43,19 @@ module signal_gen_tb ();
 
     axis_if #(
         .DATA_WIDTH(AXIS_DATA_WIDTH)
-    ) m_axis (
-        .clk_i  (m_clk_i),
+    ) s_axis (
+        .clk_i  (s_clk_i),
         .arstn_i(arstn_i)
     );
 
     axis_if #(
         .DATA_WIDTH(AXIS_DATA_WIDTH)
-    ) s_axis (
-        .clk_i  (s_clk_i),
+    ) m_axis (
+        .clk_i  (m_clk_i),
         .arstn_i(arstn_i)
     );
+
+    assign m_axis.tready = 1'b1;
 
     initial begin
         arstn_i = 1'b0;
