@@ -1,8 +1,6 @@
 module dds #(
     parameter int PHASE_WIDTH = 32
 ) (
-    input logic clk_i,
-    input logic rstn_i,
     input logic en_i,
 
     input logic [PHASE_WIDTH-1:0] pinc_i,
@@ -12,6 +10,12 @@ module dds #(
 
     axis_if.master m_axis
 );
+
+    logic clk_i;
+    logic rstn_i;
+
+    assign clk_i  = m_axid.clk_i;
+    assign rstn_i = m_axis.arstn_i;
 
     logic [PHASE_WIDTH-1:0] poff_d;
     logic [PHASE_WIDTH-1:0] pinc_d;
