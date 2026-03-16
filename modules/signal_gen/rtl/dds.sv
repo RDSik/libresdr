@@ -14,7 +14,7 @@ module dds #(
     logic clk_i;
     logic rstn_i;
 
-    assign clk_i  = m_axid.clk_i;
+    assign clk_i  = m_axis.clk_i;
     assign rstn_i = m_axis.arstn_i;
 
     logic [PHASE_WIDTH-1:0] poff_d;
