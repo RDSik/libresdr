@@ -83,6 +83,8 @@ module signal_gen
     logic [$clog2(FIFO_DEPTH):0] data_cnt;
     logic [          CH_NUM-1:0] dds_tready;
 
+    assign rd_valid = '1;
+
     always_ff @(posedge clk_i) begin
         rd_regs                   <= wr_regs;
 
@@ -112,7 +114,7 @@ module signal_gen
         .arstn_i     (arstn_i),
         .s_axil      (s_axil),
         .rd_regs_i   (rd_regs),
-        .rd_valid_i  ('1),
+        .rd_valid_i  (rd_valid),
         .rd_request_o(rd_request),
         .wr_regs_o   (wr_regs),
         .wr_valid_o  (wr_valid)
