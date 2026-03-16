@@ -34,22 +34,22 @@ module signal_gen
     logic                     [SIGNAL_GEN_REG_NUM-1:0] wr_valid;
 
     signal_gen_settings_reg_t [            CH_NUM-1:0] dds;
-    logic                     [            CH_NUM-1:0] resetn;
-    logic                     [            CH_NUM-1:0] enable;
-    logic                                              bypass_en;
+    logic                     [            CH_NUM-1:0] dds_resetn;
+    logic                     [            CH_NUM-1:0] dds_enable;
+    logic                                              module_en;
     logic                     [    $clog2(CH_NUM)-1:0] select;
 
-    assign resetn    = wr_regs.control.resetn;
-    assign enable    = wr_regs.control.enable;
-    assign bypass_en = wr_regs.dds.bypass_en;
-    assign select    = wr_regs.dds.select;
+    assign dds_resetn = wr_regs.control.dds_resetn;
+    assign dds_enable = wr_regs.control.dds_enable;
+    assign module_en  = wr_regs.dds.module_en;
+    assign select     = wr_regs.dds.select;
 
     logic one_dds_en;
     logic one_dds_rstn;
 
     always_ff @(posedge clk_i) begin
-        one_dds_en   <= |enable;
-        one_dds_rstn <= &resetn;
+        one_dds_en   <= |dds_enable;
+        one_dds_rstn <= &dds_resetn;
     end
 
     axis_if #(
@@ -126,13 +126,13 @@ module signal_gen
             .DATA_WIDTH(IQ_DATA_WIDTH * 2)
         ) dds_axis (
             .clk_i  (clk_i),
-            .arstn_i(resetn[ch_indx])
+            .arstn_i(dds_resetn[ch_indx])
         );
 
         dds #(
             .PHASE_WIDTH(DDS_PHASE_WIDTH)
         ) i_dds (
-            .en_i        (enable[ch_indx]),
+            .en_i        (dds_enable[ch_indx]),
             .pinc_i      (dds[ch_indx].pinc),
             .poff_i      (dds[ch_indx].poff),
             .dds_tready_o(dds_tready[ch_indx]),
@@ -167,14 +167,14 @@ module signal_gen
     always_comb begin
         s_axis.tready      = 1'b0;
         m_fifo_axis.tready = 1'b0;
-        if (bypass_en) begin
-            m_axis.tdata  = s_axis.tdata;
-            m_axis.tvalid = s_axis.tvalid;
-            s_axis.tready = m_axis.tready;
-        end else begin
+        if (module_en) begin
             m_axis.tdata       = m_fifo_axis.tdata;
             m_axis.tvalid      = m_fifo_axis.tvalid;
             m_fifo_axis.tready = m_axis.tready;
+        end else begin
+            m_axis.tdata  = s_axis.tdata;
+            m_axis.tvalid = s_axis.tvalid;
+            s_axis.tready = m_axis.tready;
         end
     end
 

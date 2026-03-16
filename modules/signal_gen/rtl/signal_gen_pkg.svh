@@ -20,8 +20,8 @@ package signal_gen_pkg;
     } signal_gen_status_reg_t;
 
     typedef struct packed {
-        logic [15:0] enable;
-        logic [15:0] resetn;
+        logic [15:0] dds_enable;
+        logic [15:0] dds_resetn;
     } signal_gen_control_reg_t;
 
     typedef struct packed {
@@ -32,7 +32,7 @@ package signal_gen_pkg;
     typedef struct packed {
         logic [22:0]              rsrvd;
         logic [7:0]               select;
-        logic                     bypass_en;
+        logic                     module_en;
         signal_gen_settings_reg_t settings;
     } signal_gen_dds_reg_t;
 

@@ -18,9 +18,9 @@ module signal_gen_tb ();
 
     localparam logic [AXIL_ADDR_WIDTH-1:0] BASE_ADDR = 'h200000;
     localparam int ADDR_OFFSET = AXIL_DATA_WIDTH / 8;
-    localparam logic [1:0][31:0] POFF = {32'd44, 32'd22};
-    localparam logic [1:0][31:0] PINC = {32'd233, 32'd677};
-    localparam logic BYPASS_EN = 0;
+    localparam logic [CH_NUM-1:0][DDS_PHASE_WIDTH-1:0] POFF = {32'd44, 32'd22};
+    localparam logic [CH_NUM-1:0][DDS_PHASE_WIDTH-1:0] PINC = {32'd233, 32'd677};
+    localparam logic MODULE_EN = 1;
 
     localparam int WAIT_TIME = 1000;
     localparam int S_CLK_PER_NS = 2;
@@ -114,8 +114,8 @@ module signal_gen_tb ();
 
     task automatic signal_gen_write_regs();
         signal_gen_regs_t signal_gen_regs;
-        signal_gen_regs.control.resetn = '1;
-        signal_gen_regs.control.enable = '1;
+        signal_gen_regs.control.dds_resetn = '1;
+        signal_gen_regs.control.dds_enable = '1;
         begin
             master.master_read_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_PARAM_REG_POS,
                                    signal_gen_regs.param);
@@ -123,7 +123,7 @@ module signal_gen_tb ();
                                     signal_gen_regs.control);
             for (int ch_indx = 0; ch_indx < signal_gen_regs.param.ch_num; ch_indx++) begin
                 master.master_write_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_DDS_REG_POS, {
-                                        ch_indx, BYPASS_EN});
+                                        ch_indx, MODULE_EN});
                 master.master_write_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_POFF_REG_POS,
                                         POFF[ch_indx]);
                 master.master_write_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_PINC_REG_POS,
@@ -138,20 +138,22 @@ module signal_gen_tb ();
             master.master_read_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_CONTROL_REG_POS,
                                    signal_gen_regs.control);
             master.master_read_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_DDS_REG_POS, {
-                                   signal_gen_regs.dds.select, signal_gen_regs.dds.bypass_en});
+                                   signal_gen_regs.dds.select, signal_gen_regs.dds.module_en});
             master.master_read_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_STATUS_REG_POS,
                                    signal_gen_regs.status);
             master.master_read_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_PARAM_REG_POS,
                                    signal_gen_regs.param);
 
             $display("[%0t][SIGNAL_GEN]: base_addr  = %0h", $time, BASE_ADDR);
-            $display("[%0t][SIGNAL_GEN]: resetn     = %0d", $time, signal_gen_regs.control.resetn);
-            $display("[%0t][SIGNAL_GEN]: enable     = %0d", $time, signal_gen_regs.control.enable);
-            $display("[%0t][SIGNAL_GEN]: bypass_en  = %0d", $time, signal_gen_regs.dds.bypass_en);
+            $display("[%0t][SIGNAL_GEN]: dds_resetn = %0d", $time,
+                     signal_gen_regs.control.dds_resetn);
+            $display("[%0t][SIGNAL_GEN]: dds_enable = %0d", $time,
+                     signal_gen_regs.control.dds_enable);
+            $display("[%0t][SIGNAL_GEN]: module_en  = %0d", $time, signal_gen_regs.dds.module_en);
             $display("[%0t][SIGNAL_GEN]: fifo_cnt   = %0d", $time, signal_gen_regs.status.fifo_cnt);
             $display("[%0t][SIGNAL_GEN]: dds_ready  = %0d", $time,
                      signal_gen_regs.status.dds_ready);
-            $display("[%0t][SIGNAL_GEN]: dds_ready  = %0d", $time,
+            $display("[%0t][SIGNAL_GEN]: fifo_empty = %0d", $time,
                      signal_gen_regs.status.fifo_empty);
             $display("[%0t][SIGNAL_GEN]: fifo_full  = %0d", $time,
                      signal_gen_regs.status.fifo_full);
@@ -162,9 +164,9 @@ module signal_gen_tb ();
 
             for (int ch_indx = 0; ch_indx < signal_gen_regs.param.ch_num; ch_indx++) begin
                 master.master_write_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_DDS_REG_POS, {
-                                        ch_indx, BYPASS_EN});
+                                        ch_indx, MODULE_EN});
                 master.master_read_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_DDS_REG_POS, {
-                                       signal_gen_regs.dds.select, signal_gen_regs.dds.bypass_en});
+                                       signal_gen_regs.dds.select, signal_gen_regs.dds.module_en});
                 master.master_read_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_POFF_REG_POS,
                                        signal_gen_regs.dds.settings.poff);
                 master.master_read_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_PINC_REG_POS,

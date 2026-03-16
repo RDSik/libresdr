@@ -18,6 +18,8 @@
 
 !modules/**/*.tcl
 
+!doc/*.pdf
+
 !modules/**/*.coe
 
 !project.tcl
