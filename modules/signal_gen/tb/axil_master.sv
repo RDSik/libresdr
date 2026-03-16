@@ -58,7 +58,7 @@ module axil_master #(
     task automatic master_write_reg;
         input logic [AXIL_ADDR_WIDTH-1:0] addr;
         input logic [AXIL_DATA_WIDTH-1:0] data;
-        logic bresp;
+        logic [1:0] bresp;
         begin
             wait (m_axil.arstn_i);
             fork
