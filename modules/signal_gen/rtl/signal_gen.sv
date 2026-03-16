@@ -132,8 +132,6 @@ module signal_gen
         dds #(
             .PHASE_WIDTH(DDS_PHASE_WIDTH)
         ) i_dds (
-            .clk_i       (clk_i),
-            .rstn_i      (resetn[ch_indx]),
             .en_i        (enable[ch_indx]),
             .pinc_i      (dds[ch_indx].pinc),
             .poff_i      (dds[ch_indx].poff),
