@@ -3,6 +3,8 @@
 
 !project/**/libre_top.xdc
 
+!modules/**/doc/*.pdf
+
 !modules/**/rtl/*.v
 !modules/**/rtl/*.sv
 !modules/**/rtl/*.svh
@@ -17,8 +19,6 @@
 !modules/**/sdk/*.h
 
 !modules/**/*.tcl
-
-!doc/*.pdf
 
 !modules/**/*.coe
 
