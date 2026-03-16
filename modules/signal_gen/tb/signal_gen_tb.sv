@@ -119,7 +119,6 @@ module signal_gen_tb ();
         begin
             master.master_read_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_PARAM_REG_POS,
                                    signal_gen_regs.param);
-
             master.master_write_reg(BASE_ADDR + ADDR_OFFSET * SIGNAL_GEN_CONTROL_REG_POS,
                                     signal_gen_regs.control);
             for (int ch_indx = 0; ch_indx < signal_gen_regs.param.ch_num; ch_indx++) begin
