@@ -26,7 +26,6 @@ module axis_data_fifo_wrap #(
 
     output logic [31:0] axis_wr_data_count,
     output logic [31:0] axis_rd_data_count
-
 );
 
     axis_data_fifo #(
