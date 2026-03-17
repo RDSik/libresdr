@@ -5,6 +5,8 @@
 
 !modules/**/doc/*.pdf
 
+!modules/**/xdc/*.xdc
+
 !modules/**/rtl/*.v
 !modules/**/rtl/*.sv
 !modules/**/rtl/*.svh
