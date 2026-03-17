@@ -8,11 +8,18 @@ set gui_flag  [lindex $argv 1]
 set project_dir [file normalize "$dir"]
 set modules_dir [file normalize "modules"]
 set sdk_dir     [file normalize "$project_dir/$syn_top.sdk"]
+set libs_dir    [file normalize [file join $project_dir .. .. compile_simlib]] 
+
+puts "project_dir = $project_dir"
+puts "modules_dir = $modules_dir"
+puts "sdk_dir     = $sdk_dir"
+puts "libs_dir    = $libs_dir"
 
 create_project -force $syn_top $project_dir -part $part
 
 set_property target_language $language [current_project]
 set_property target_simulator Questa [current_project]
+set_property compxlib.questa_compiled_library_dir $libs_dir [current_project]
 set_property top $syn_top [current_fileset]
 set_property top $sim_top [get_filesets sim_1]
 
