@@ -73,8 +73,8 @@ create_clock -period 8.000 -name rx_clk [get_ports rx_clk_in_p]
 
 # probably gone in 2016.4
 
-create_clock -name clk_fpga_0 -period 10 [get_pins "i_libre_bd/processing_system7_0/FCLK_CLK0"]
-create_clock -name clk_fpga_1 -period  5 [get_pins "i_libre_bd/processing_system7_0/FCLK_CLK1"]
+create_clock -name clk_fpga_0 -period 10 [get_pins "i_libre_bd/ps_clk"]
+create_clock -name clk_fpga_1 -period  5 [get_pins "i_libre_bd/delay_clk"]
 
 create_clock -name spi0_clk      -period 40   [get_pins -hier */EMIOSPI0SCLKO]
 
