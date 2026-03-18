@@ -134,14 +134,14 @@ module libre_top #(
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
     ) dac_axis (
-        .clk_i  (clk),
+        .clk_i  (l_clk),
         .arstn_i(~rst)
     );
 
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
     ) adc_axis (
-        .clk_i  (clk),
+        .clk_i  (l_clk),
         .arstn_i(~rst)
     );
 
@@ -466,7 +466,7 @@ module libre_top #(
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
     ) sig_gen_axis (
-        .clk_i  (clk),
+        .clk_i  (l_clk),
         .arstn_i(~rst)
     );
 
@@ -478,7 +478,7 @@ module libre_top #(
         .RST_ACTIVE_HIGH(0)
     ) i_xpm_cdc_async_rst (
         .src_arst (ps_arstn),
-        .dest_clk (clk),
+        .dest_clk (l_clk),
         .dest_arst(arstn)
     );
 
@@ -494,7 +494,7 @@ module libre_top #(
         .FIFO_MEM_TYPE  (FIFO_MEM_TYPE),
         .FAMILY         (FAMILY)
     ) i_signal_gen (
-        .clk_i  (clk),
+        .clk_i  (l_clk),
         .arstn_i(arstn),
         .s_axil (axil_sig_gen),
         .s_axis (dac_axis),
