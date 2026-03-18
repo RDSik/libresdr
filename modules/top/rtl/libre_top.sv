@@ -100,10 +100,10 @@ module libre_top #(
     logic rst;
 
     if (CLK10M_EN) begin
-    assign clk = clk_10m;
-end else begin
-    assign clk = l_clk;
-end
+        assign clk = clk_10m;
+    end else begin
+        assign clk = l_clk;
+    end
 
     axil_if #(
         .DATA_WIDTH(AXIL_DATA_WIDTH),
