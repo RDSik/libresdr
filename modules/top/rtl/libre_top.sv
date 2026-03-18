@@ -1,5 +1,7 @@
 module libre_top #(
-    parameter logic ILA_EN = 1
+    parameter logic ILA_EN    = 1,
+    parameter logic PPS_EN    = 1,
+    parameter logic CLK10M_EN = 1
 ) (
     inout [14:0] ddr_addr,
     inout [ 2:0] ddr_ba,
@@ -93,8 +95,11 @@ module libre_top #(
     logic ps_arstn;
 
     logic delay_clk;
+    logic l_clk;
     logic clk;
     logic rst;
+
+    assign clk = (CLK10M_EN) ? clk_10m : l_clk;
 
     axil_if #(
         .DATA_WIDTH(AXIL_DATA_WIDTH),
@@ -341,7 +346,7 @@ module libre_top #(
         .SPEED_GRADE             (0),
         .DEV_PACKAGE             (0),
         .TDD_DISABLE             (0),
-        .PPS_RECEIVER_ENABLE     (1),
+        .PPS_RECEIVER_ENABLE     (PPS_EN),
         .CMOS_OR_LVDS_N          (0),
         .ADC_INIT_DELAY          (30),
         .ADC_DATAPATH_DISABLE    (0),
@@ -362,7 +367,7 @@ module libre_top #(
         .IO_DELAY_GROUP          ("dev_if_delay_group"),
         .IODELAY_CTRL            (1),
         .MIMO_ENABLE             (0),
-        .USE_SSI_CLK             (1),
+        .USE_SSI_CLK             (!CLK10M_EN),
         .DELAY_REFCLK_FREQUENCY  (200),
         .RX_NODPA                (0)
     ) i_axi_ad9361 (
@@ -418,7 +423,7 @@ module libre_top #(
         .gps_pps      (pps),
         .gps_pps_irq  (pps_irq),
         .delay_clk    (delay_clk),
-        .l_clk        (clk),
+        .l_clk        (l_clk),
         .clk          (clk),
         .rst          (rst),
 
