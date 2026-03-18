@@ -57,6 +57,7 @@ module libre_top #(
     output pl_spi_mosi,
     input  pl_spi_miso,
 
+    input clk_10m,
     input pps
 );
 

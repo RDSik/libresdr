@@ -1,6 +1,8 @@
 # constraints
 # ad9361 (SWAP == 0x1)
 
+create_clock -period 100.000 -name clk_i -waveform {0.000 5.000} [get_ports clk_10m]
+set_property -dict {PACKAGE_PIN K17 IOSTANDARD LVCMOS33} [get_ports clk_10m]
 set_property -dict {PACKAGE_PIN K18 IOSTANDARD LVCMOS33} [get_ports pps]
 
 set_property -dict {PACKAGE_PIN P20 IOSTANDARD LVDS_25 DIFF_TERM 1} [get_ports rx_clk_in_n]
