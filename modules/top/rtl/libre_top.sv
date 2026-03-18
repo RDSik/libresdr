@@ -99,7 +99,11 @@ module libre_top #(
     logic clk;
     logic rst;
 
-    assign clk = (CLK10M_EN) ? clk_10m : l_clk;
+    if (CLK10M_EN) begin
+    assign clk = clk_10m;
+end else begin
+    assign clk = l_clk;
+end
 
     axil_if #(
         .DATA_WIDTH(AXIL_DATA_WIDTH),
