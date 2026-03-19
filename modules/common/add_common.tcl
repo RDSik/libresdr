@@ -3,8 +3,6 @@ set path [file dirname [info script]]
 set xci_defaultlib "
     $path/ip/axi_clock_converter/axi_clock_converter.xci
     $path/ip/axis_data_fifo/axis_data_fifo.xci
-    $path/ip/fir_interpolator/fir_interpolator.xci
-    $path/ip/fir_decimator/fir_decimator.xci
     $path/ip/dds_compiler/dds_compiler.xci
     $path/ip/axil_ila/axil_ila.xci
 "

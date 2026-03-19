@@ -4,6 +4,7 @@
 !project/**/libre_top.xdc
 
 !modules/**/doc/*.pdf
+!modules/**/doc/*.jpg
 
 !modules/**/xdc/*.xdc
 
