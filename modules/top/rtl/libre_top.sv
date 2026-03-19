@@ -99,9 +99,9 @@ module libre_top #(
     logic clk;
     logic rst;
 
-    if (CLK10M_EN) begin
+    if (CLK10M_EN) begin : g_clk10m
         assign clk = clk_10m;
-    end else begin
+    end else begin : g_rx_clk
         assign clk = l_clk;
     end
 

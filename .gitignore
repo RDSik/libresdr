@@ -22,7 +22,7 @@
 
 !modules/**/*.tcl
 
-!modules/**/*.coe
+!modules/**/model/*.coe
 
 !project.tcl
 !sdk.tcl
