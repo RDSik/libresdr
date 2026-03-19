@@ -611,14 +611,7 @@ module axi_ad9361_cmos_if #(
     .clk_in_n (1'd0),
     .clk (l_clk));
   end else begin
-  ad_data_clk #(
-    .SINGLE_ENDED (1)
-  ) i_clk (
-    .rst (1'd0),
-    .locked (),
-    .clk_in_p (clk),
-    .clk_in_n (1'd0),
-    .clk (l_clk));
+    assign l_clk = clk;
   end
   endgenerate
 
