@@ -13,7 +13,7 @@ project:
 sdk:
 	xsct $(SDK_TCL)
 ifeq ($(GUI), 1)
-	xsct -workspace $(PROJECT_DIR)/$(TOP).sdk
+	vitis -workspace $(PROJECT_DIR)/$(TOP).sdk &
 endif
 
 clean:
