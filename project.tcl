@@ -57,4 +57,4 @@ wait_on_run impl_1
 
 file mkdir $sdk_dir
 
-write_hwdэ_platform -fixed -include_bit -force $sdk_dir/$syn_top.xsa
+write_hw_platform -fixed -include_bit -force $sdk_dir/$syn_top.xsa
