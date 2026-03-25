@@ -7,7 +7,7 @@ module signal_gen
     parameter logic ASYNC_MODE_EN   = 0,
     parameter int   SYNC_STAGE_NUM  = 3,
     parameter int   CH_NUM          = 2,
-    parameter int   DATA_WIDTH      = 64,
+    parameter int   DATA_WIDTH      = 16,
     parameter int   AXIL_DATA_WIDTH = 32,
     parameter int   AXIL_ADDR_WIDTH = 32,
     parameter int   FIFO_DEPTH      = 4096,
@@ -24,7 +24,7 @@ module signal_gen
     axis_if.master m_axis
 );
 
-    localparam int IQ_DATA_WIDTH = 16;
+    localparam int FULL_DATA_WIDTH = CH_NUM * DATA_WIDTH * 2;
 
     signal_gen_regs_t                                  rd_regs;
     signal_gen_regs_t                                  wr_regs;
@@ -53,14 +53,14 @@ module signal_gen
     end
 
     axis_if #(
-        .DATA_WIDTH(DATA_WIDTH)
+        .DATA_WIDTH(FULL_DATA_WIDTH)
     ) s_fifo_axis (
         .clk_i  (clk_i),
         .arstn_i(one_dds_rstn)
     );
 
     axis_if #(
-        .DATA_WIDTH(DATA_WIDTH)
+        .DATA_WIDTH(FULL_DATA_WIDTH)
     ) m_fifo_axis (
         .clk_i  (clk_i),
         .arstn_i(one_dds_rstn)
@@ -81,7 +81,6 @@ module signal_gen
     end
 
     logic [$clog2(FIFO_DEPTH):0] data_cnt;
-    logic [          CH_NUM-1:0] dds_tready;
 
     assign rd_valid = '1;
 
@@ -95,7 +94,6 @@ module signal_gen
         rd_regs.status.fifo_empty <= ~m_fifo_axis.tvalid;
         rd_regs.status.fifo_full  <= ~s_fifo_axis.tready;
         rd_regs.status.fifo_cnt   <= data_cnt;
-        rd_regs.status.dds_ready  <= dds_tready[select];
 
         rd_regs.dds.settings.poff <= dds[select].poff;
         rd_regs.dds.settings.pinc <= dds[select].pinc;
@@ -120,30 +118,21 @@ module signal_gen
         .wr_valid_o  (wr_valid)
     );
 
-    logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] dds_tdata;
-    logic [CH_NUM-1:0]                         dds_tvalid;
+    logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] dds_tdata;
+    logic [CH_NUM-1:0]                      dds_tvalid;
 
     for (genvar ch_indx = 0; ch_indx < CH_NUM; ch_indx++) begin : g_ch
-        axis_if #(
-            .DATA_WIDTH(IQ_DATA_WIDTH * 2)
-        ) dds_axis (
-            .clk_i  (clk_i),
-            .arstn_i(dds_resetn[ch_indx])
-        );
-
         dds #(
             .PHASE_WIDTH(DDS_PHASE_WIDTH)
         ) i_dds (
-            .en_i        (dds_enable[ch_indx]),
-            .pinc_i      (dds[ch_indx].pinc),
-            .poff_i      (dds[ch_indx].poff),
-            .dds_tready_o(dds_tready[ch_indx]),
-            .m_axis      (dds_axis)
+            .clk_i   (clk_i),
+            .rstn_i  (dds_resetn[ch_indx]),
+            .en_i    (dds_enable[ch_indx]),
+            .pinc_i  (dds[ch_indx].pinc),
+            .poff_i  (dds[ch_indx].poff),
+            .tdata_o (dds_tdata[ch_indx]),
+            .tvalid_o(dds_tvalid[ch_indx])
         );
-
-        assign dds_tdata[ch_indx]  = dds_axis.tdata;
-        assign dds_tvalid[ch_indx] = dds_axis.tvalid;
-        assign dds_axis.tready     = s_fifo_axis.tready;
     end
 
     assign s_fifo_axis.tdata  = dds_tdata;

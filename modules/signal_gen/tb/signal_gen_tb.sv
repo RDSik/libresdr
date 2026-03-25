@@ -9,9 +9,10 @@ module signal_gen_tb ();
     localparam logic ASYNC_MODE_EN = 1;
     localparam int SYNC_STAGE_NUM = 3;
     localparam int CH_NUM = 2;
+    localparam int DATA_WIDTH = 16;
     localparam int AXIL_ADDR_WIDTH = 32;
     localparam int AXIL_DATA_WIDTH = 32;
-    localparam int AXIS_DATA_WIDTH = CH_NUM * 32;
+    localparam int AXIS_DATA_WIDTH = CH_NUM * DATA_WIDTH * 2;
     localparam int FIFO_DEPTH = 4096;
     localparam FIFO_MEM_TYPE = "block";
     localparam FAMILY = "zynq";
@@ -96,7 +97,7 @@ module signal_gen_tb ();
     signal_gen #(
         .ILA_EN         (0),
         .CH_NUM         (CH_NUM),
-        .DATA_WIDTH     (AXIS_DATA_WIDTH),
+        .DATA_WIDTH     (DATA_WIDTH),
         .AXIL_ADDR_WIDTH(AXIL_ADDR_WIDTH),
         .AXIL_DATA_WIDTH(AXIL_DATA_WIDTH),
         .SYNC_STAGE_NUM (SYNC_STAGE_NUM),
@@ -151,8 +152,6 @@ module signal_gen_tb ();
                      signal_gen_regs.control.dds_enable);
             $display("[%0t][SIGNAL_GEN]: module_en  = %0d", $time, signal_gen_regs.dds.module_en);
             $display("[%0t][SIGNAL_GEN]: fifo_cnt   = %0d", $time, signal_gen_regs.status.fifo_cnt);
-            $display("[%0t][SIGNAL_GEN]: dds_ready  = %0d", $time,
-                     signal_gen_regs.status.dds_ready);
             $display("[%0t][SIGNAL_GEN]: fifo_empty = %0d", $time,
                      signal_gen_regs.status.fifo_empty);
             $display("[%0t][SIGNAL_GEN]: fifo_full  = %0d", $time,

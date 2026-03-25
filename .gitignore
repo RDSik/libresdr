@@ -8,6 +8,9 @@
 
 !modules/**/xdc/*.xdc
 
+!modules/**/driver/include/*.h
+!modules/**/driver/source/*.c
+
 !modules/**/rtl/*.v
 !modules/**/rtl/*.sv
 !modules/**/rtl/*.svh
@@ -17,9 +20,6 @@
 !modules/**/tb/*.svh
 
 !modules/**/ip/**/*.xci
-
-!modules/**/sdk/*.c
-!modules/**/sdk/*.h
 
 !modules/**/*.tcl
 

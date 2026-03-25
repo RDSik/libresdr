@@ -1,7 +1,7 @@
 module libre_top #(
     parameter logic ILA_EN    = 1,
-    parameter logic PPS_EN    = 1,
-    parameter logic CLK10M_EN = 1
+    parameter logic PPS_EN    = 0,
+    parameter logic CLK10M_EN = 0
 ) (
     inout [14:0] ddr_addr,
     inout [ 2:0] ddr_ba,
@@ -137,16 +137,9 @@ module libre_top #(
 
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
-    ) dac_axis (
-        .clk_i  (l_clk),
-        .arstn_i(~rst)
-    );
-
-    axis_if #(
-        .DATA_WIDTH(FULL_DATA_WIDH)
-    ) adc_axis (
-        .clk_i  (l_clk),
-        .arstn_i(~rst)
+    ) sig_gen_axis (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
     );
 
     logic                                      pps_irq;
@@ -301,101 +294,25 @@ module libre_top #(
         .pps_irq(pps_irq)
     );
 
-    localparam logic [31:0] AXIS_SIGNAL_SET = 32'h03;
     localparam int SYNC_STAGE_NUM = 3;
     localparam int ASYNC_MODE_EN = 1;
     localparam int FIFO_DEPTH = 1024;
-    localparam USE_ADV_FEATURES = "1000";
     localparam FIFO_MEM_TYPE = "block";
     localparam FAMILY = "zynq";
 
-    axis_data_fifo_wrap #(
-        .AXIS_SIGNAL_SET   (AXIS_SIGNAL_SET),
-        .FIFO_DEPTH        (FIFO_DEPTH),
-        .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
-        .FAMILY            (FAMILY),
-        .ASYNC_MODE_EN     (ASYNC_MODE_EN),
-        .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
-        .USE_ADV_FEATURES  (USE_ADV_FEATURES)
-    ) i_dac_fifo (
-        .s_en_i(1'b1),
-        .m_en_i(1'b1),
-        .s_axis(mm2s_axis),
-        .m_axis(dac_axis)
-    );
-
-    axis_data_fifo_wrap #(
-        .AXIS_SIGNAL_SET   (AXIS_SIGNAL_SET),
-        .FIFO_DEPTH        (FIFO_DEPTH),
-        .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
-        .FAMILY            (FAMILY),
-        .ASYNC_MODE_EN     (ASYNC_MODE_EN),
-        .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
-        .USE_ADV_FEATURES  (USE_ADV_FEATURES)
-    ) i_adc_fifo (
-        .s_en_i(1'b1),
-        .m_en_i(1'b1),
-        .s_axis(adc_axis),
-        .m_axis(s2mm_axis)
-    );
-
-    assign adc_axis.tdata  = adc_tdata;
-    assign adc_axis.tvalid = |adc_tvalid;
-
-    axi_ad9361 #(
-        .ID                      (0),
-        .MODE_1R1T               (0),
-        .FPGA_TECHNOLOGY         (0),
-        .FPGA_FAMILY             (0),
-        .SPEED_GRADE             (0),
-        .DEV_PACKAGE             (0),
-        .TDD_DISABLE             (0),
-        .PPS_RECEIVER_ENABLE     (PPS_EN),
-        .CMOS_OR_LVDS_N          (0),
-        .ADC_INIT_DELAY          (30),
-        .ADC_DATAPATH_DISABLE    (0),
-        .ADC_USERPORTS_DISABLE   (0),
-        .ADC_DATAFORMAT_DISABLE  (0),
-        .ADC_DCFILTER_DISABLE    (0),
-        .ADC_IQCORRECTION_DISABLE(0),
-        .DAC_INIT_DELAY          (0),
-        .DAC_CLK_EDGE_SEL        (0),
-        .DAC_IODELAY_ENABLE      (0),
-        .DAC_DATAPATH_DISABLE    (0),
-        .DAC_DDS_DISABLE         (0),
-        .DAC_DDS_TYPE            (1),
-        .DAC_DDS_CORDIC_DW       (14),
-        .DAC_DDS_CORDIC_PHASE_DW (13),
-        .DAC_USERPORTS_DISABLE   (0),
-        .DAC_IQCORRECTION_DISABLE(0),
-        .IO_DELAY_GROUP          ("dev_if_delay_group"),
-        .IODELAY_CTRL            (1),
-        .MIMO_ENABLE             (0),
-        .USE_SSI_CLK             (!CLK10M_EN),
-        .DELAY_REFCLK_FREQUENCY  (200),
-        .RX_NODPA                (0)
-    ) i_axi_ad9361 (
-        .s_axi_aclk   (axil_ad.clk_i),
-        .s_axi_aresetn(axil_ad.arstn_i),
-        .s_axi_awvalid(axil_ad.awvalid),
-        .s_axi_awaddr (axil_ad.awaddr),
-        .s_axi_awprot (axil_ad.awprot),
-        .s_axi_awready(axil_ad.awready),
-        .s_axi_wvalid (axil_ad.wvalid),
-        .s_axi_wdata  (axil_ad.wdata),
-        .s_axi_wstrb  (axil_ad.wstrb),
-        .s_axi_wready (axil_ad.wready),
-        .s_axi_bvalid (axil_ad.bvalid),
-        .s_axi_bresp  (axil_ad.bresp),
-        .s_axi_bready (axil_ad.bready),
-        .s_axi_arvalid(axil_ad.arvalid),
-        .s_axi_araddr (axil_ad.araddr),
-        .s_axi_arprot (axil_ad.arprot),
-        .s_axi_arready(axil_ad.arready),
-        .s_axi_rvalid (axil_ad.rvalid),
-        .s_axi_rdata  (axil_ad.rdata),
-        .s_axi_rresp  (axil_ad.rresp),
-        .s_axi_rready (axil_ad.rready),
+    axi_ad9361_top #(
+        .DATA_WIDTH    (IQ_DATA_WIDTH),
+        .ILA_EN        (ILA_EN),
+        .FAMILY        (FAMILY),
+        .FIFO_DEPTH    (FIFO_DEPTH),
+        .ASYNC_MODE_EN (ASYNC_MODE_EN),
+        .FIFO_MEM_TYPE (FIFO_MEM_TYPE),
+        .CH_NUM        (CH_NUM),
+        .CLK10M_EN     (CLK10M_EN),
+        .PPS_EN        (PPS_EN),
+        .SYNC_STAGE_NUM(SYNC_STAGE_NUM)
+    ) i_axi_ad9361_top (
+        .s_axil(axil_ad),
 
         .txnrx         (txnrx),
         .enable        (enable),
@@ -412,125 +329,36 @@ module libre_top #(
         .tx_frame_out_n(tx_frame_out_n),
         .tx_frame_out_p(tx_frame_out_p),
 
-        .up_txnrx     (gpio_o[16]),
-        .up_enable    (gpio_o[15]),
-        .rx_clk_in    ('0),
-        .rx_frame_in  ('0),
-        .rx_data_in   ('0),
-        .tx_clk_out   (),
-        .tx_frame_out (),
-        .tx_data_out  (),
-        .dac_sync_in  ('0),
-        .dac_sync_out (),
-        .tdd_sync     ('0),
-        .tdd_sync_cntr(),
-        .gps_pps      (pps),
-        .gps_pps_irq  (pps_irq),
-        .delay_clk    (delay_clk),
-        .l_clk        (l_clk),
-        .clk          (clk),
-        .rst          (rst),
+        .up_txnrx   (gpio_o[16]),
+        .up_enable  (gpio_o[15]),
+        .gps_pps    (pps),
+        .gps_pps_irq(pps_irq),
+        .delay_clk  (delay_clk),
+        .l_clk      (l_clk),
+        .clk        (clk),
+        .rst        (rst),
 
-        .adc_enable_i0(),
-        .adc_valid_i0 (adc_tvalid[0][0]),
-        .adc_data_i0  (adc_tdata[0][0]),
-        .adc_enable_q0(),
-        .adc_valid_q0 (adc_tvalid[0][1]),
-        .adc_data_q0  (adc_tdata[0][1]),
-        .adc_enable_i1(),
-        .adc_valid_i1 (adc_tvalid[1][0]),
-        .adc_data_i1  (adc_tdata[1][0]),
-        .adc_enable_q1(),
-        .adc_valid_q1 (adc_tvalid[1][1]),
-        .adc_data_q1  (adc_tdata[1][1]),
-        .adc_dovf     ('0),
-        .adc_r1_mode  (),
-
-        .dac_enable_i0(),
-        .dac_valid_i0 (dac_tready[0][0]),
-        .dac_data_i0  (dac_tdata[0][0]),
-        .dac_enable_q0(),
-        .dac_valid_q0 (dac_tready[0][1]),
-        .dac_data_q0  (dac_tdata[0][1]),
-        .dac_enable_i1(),
-        .dac_valid_i1 (dac_tready[1][0]),
-        .dac_data_i1  (dac_tdata[1][0]),
-        .dac_enable_q1(),
-        .dac_valid_q1 (dac_tready[1][1]),
-        .dac_data_q1  (dac_tdata[1][1]),
-        .dac_dunf     ('0),
-        .dac_r1_mode  (),
-
-        .up_dac_gpio_in ('0),
-        .up_dac_gpio_out(),
-        .up_adc_gpio_in ('0),
-        .up_adc_gpio_out()
-    );
-
-    axis_if #(
-        .DATA_WIDTH(FULL_DATA_WIDH)
-    ) sig_gen_axis (
-        .clk_i  (l_clk),
-        .arstn_i(~rst)
-    );
-
-    logic arstn;
-
-    xpm_cdc_async_rst #(
-        .DEST_SYNC_FF   (SYNC_STAGE_NUM),
-        .INIT_SYNC_FF   (0),
-        .RST_ACTIVE_HIGH(0)
-    ) i_xpm_cdc_async_rst (
-        .src_arst (ps_arstn),
-        .dest_clk (l_clk),
-        .dest_arst(arstn)
+        .adc_axis(s2mm_axis),
+        .dac_axis(sig_gen_axis)
     );
 
     signal_gen #(
         .ILA_EN         (ILA_EN),
         .CH_NUM         (CH_NUM),
-        .DATA_WIDTH     (FULL_DATA_WIDH),
+        .DATA_WIDTH     (IQ_DATA_WIDTH),
         .AXIL_ADDR_WIDTH(AXIL_ADDR_WIDTH),
         .AXIL_DATA_WIDTH(AXIL_DATA_WIDTH),
         .SYNC_STAGE_NUM (SYNC_STAGE_NUM),
-        .ASYNC_MODE_EN  (ASYNC_MODE_EN),
+        .ASYNC_MODE_EN  (0),
         .FIFO_DEPTH     (FIFO_DEPTH),
         .FIFO_MEM_TYPE  (FIFO_MEM_TYPE),
         .FAMILY         (FAMILY)
     ) i_signal_gen (
-        .clk_i  (l_clk),
-        .arstn_i(arstn),
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn),
         .s_axil (axil_sig_gen),
-        .s_axis (dac_axis),
+        .s_axis (mm2s_axis),
         .m_axis (sig_gen_axis)
     );
-
-    assign dac_tdata           = sig_gen_axis.tdata;
-    assign sig_gen_axis.tready = |dac_tready;
-
-    if (ILA_EN) begin : g_ila
-        axil_ila i_axil_ila (
-            .clk    (axil_ad.clk_i),
-            .probe0 (axil_ad.awvalid),
-            .probe1 (axil_ad.awaddr),
-            .probe2 (axil_ad.bresp),
-            .probe3 (axil_ad.bvalid),
-            .probe4 (axil_ad.bready),
-            .probe5 (axil_ad.wdata),
-            .probe6 (axil_ad.wvalid),
-            .probe7 (axil_ad.wready),
-            .probe8 (axil_ad.awready),
-            .probe9 (axil_ad.rready),
-            .probe10(axil_ad.araddr),
-            .probe11(axil_ad.arvalid),
-            .probe12(axil_ad.arready),
-            .probe13(axil_ad.rresp),
-            .probe14(axil_ad.rdata),
-            .probe15(axil_ad.wstrb),
-            .probe16(axil_ad.rvalid),
-            .probe17(axil_ad.arprot),
-            .probe18(axil_ad.awprot)
-        );
-    end
 
 endmodule

@@ -1,21 +1,17 @@
 module dds #(
-    parameter int PHASE_WIDTH = 32
+    parameter int PHASE_WIDTH = 32,
+    parameter int DATA_WIDTH  = 16
 ) (
+    input logic clk_i,
+    input logic rstn_i,
     input logic en_i,
 
     input logic [PHASE_WIDTH-1:0] pinc_i,
     input logic [PHASE_WIDTH-1:0] poff_i,
 
-    output logic dds_tready_o,
-
-    axis_if.master m_axis
+    output logic                       tvalid_o,
+    output logic [1:0][DATA_WIDTH-1:0] tdata_o
 );
-
-    logic clk_i;
-    logic rstn_i;
-
-    assign clk_i  = m_axis.clk_i;
-    assign rstn_i = m_axis.arstn_i;
 
     logic [PHASE_WIDTH-1:0] poff_d;
     logic [PHASE_WIDTH-1:0] pinc_d;
@@ -36,13 +32,11 @@ module dds #(
 
     dds_compiler i_dds_compiler (
         .aclk               (clk_i),
-        .aresetn            (rstn_i),
-        .s_axis_phase_tready(dds_tready_o),
+        .aresetn            (~rst_i),
         .s_axis_phase_tvalid(dds_tvalid),
         .s_axis_phase_tdata ({poff_d, pinc_dd}),
-        .m_axis_data_tready (m_axis.tready),
-        .m_axis_data_tvalid (m_axis.tvalid),
-        .m_axis_data_tdata  (m_axis.tdata)
+        .m_axis_data_tvalid (tvalid_o),
+        .m_axis_data_tdata  (tdata_o)
     );
 
 endmodule

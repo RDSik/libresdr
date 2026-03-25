@@ -11,9 +11,9 @@ project:
 	vivado -mode batch -source $(EDA_TCL) -tclargs $(PROJECT_DIR) $(GUI)
 
 sdk:
-	xsdk -batch -source $(SDK_TCL)
+	xsct $(SDK_TCL)
 ifeq ($(GUI), 1)
-	xsdk -workspace $(PROJECT_DIR)/$(TOP).sdk
+	xsct -workspace $(PROJECT_DIR)/$(TOP).sdk
 endif
 
 clean:

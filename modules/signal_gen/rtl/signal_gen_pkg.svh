@@ -12,8 +12,7 @@ package signal_gen_pkg;
     } signal_gen_param_reg_t;
 
     typedef struct packed {
-        logic [12:0] rsrvd;
-        logic        dds_ready;
+        logic [13:0] rsrvd;
         logic        fifo_full;
         logic        fifo_empty;
         logic [15:0] fifo_cnt;

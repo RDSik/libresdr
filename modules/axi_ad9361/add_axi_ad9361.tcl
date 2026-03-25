@@ -11,6 +11,7 @@ set xil_defaultlib "
     $path/rtl/axi_ad9361.v
     $path/rtl/ad_rst.v
     $path/rtl/ad_pnmon.v
+    $path/rtl/ad_bus_mux.v
     $path/rtl/ad_dds_cordic_pipe.v
     $path/rtl/ad_dds_sine_cordic.v
     $path/rtl/ad_dds_sine.v
