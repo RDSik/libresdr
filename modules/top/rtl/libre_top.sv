@@ -137,7 +137,7 @@ module libre_top #(
 
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
-    ) sig_gen_axis (
+    ) dac_axis (
         .clk_i  (ps_clk),
         .arstn_i(ps_arstn)
     );
@@ -339,7 +339,7 @@ module libre_top #(
         .rst        (rst),
 
         .adc_axis(s2mm_axis),
-        .dac_axis(sig_gen_axis)
+        .dac_axis(dac_axis)
     );
 
     signal_gen #(
@@ -358,7 +358,7 @@ module libre_top #(
         .arstn_i(ps_arstn),
         .s_axil (axil_sig_gen),
         .s_axis (mm2s_axis),
-        .m_axis (sig_gen_axis)
+        .m_axis (dac_axis)
     );
 
 endmodule

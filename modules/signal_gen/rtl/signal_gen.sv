@@ -123,7 +123,8 @@ module signal_gen
 
     for (genvar ch_indx = 0; ch_indx < CH_NUM; ch_indx++) begin : g_ch
         dds #(
-            .PHASE_WIDTH(DDS_PHASE_WIDTH)
+            .PHASE_WIDTH(DDS_PHASE_WIDTH),
+            .DATA_WIDTH (DATA_WIDTH)
         ) i_dds (
             .clk_i   (clk_i),
             .rstn_i  (dds_resetn[ch_indx]),
