@@ -20,12 +20,6 @@ module axi_ad9361_top #(
     input logic [5:0] rx_data_in_p,
     input logic [5:0] rx_data_in_n,
 
-    // physical interface (receive-cmos)
-
-    input logic        rx_clk_in,
-    input logic        rx_frame_in,
-    input logic [11:0] rx_data_in,
-
     // physical interface (transmit-lvds)
 
     output logic       tx_clk_out_p,
@@ -34,12 +28,6 @@ module axi_ad9361_top #(
     output logic       tx_frame_out_n,
     output logic [5:0] tx_data_out_p,
     output logic [5:0] tx_data_out_n,
-
-    // physical interface (transmit-cmos)
-
-    output logic        tx_clk_out,
-    output logic        tx_frame_out,
-    output logic [11:0] tx_data_out,
 
     // ensm control
 
