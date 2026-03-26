@@ -33,6 +33,7 @@ set xil_defaultlib "
     $path/rtl/up_dac_common.v
     $path/rtl/up_dac_channel.v
     $path/rtl/up_tdd_cntrl.v
+    $path/rtl/util_pulse_gen.v
     $path/rtl/ad_iobuf.v
     $path/rtl/ad_data_clk.v
     $path/rtl/ad_data_in.v

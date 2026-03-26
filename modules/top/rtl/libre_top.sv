@@ -285,11 +285,9 @@ module libre_top #(
         .SPI_0_1_ss_o (),
         .SPI_0_1_ss_t (),
 
-        .S_AXIS_S2MM_0_tdata (s2mm_axis.tdata),
-        .S_AXIS_S2MM_0_tkeep ('1),
-        .S_AXIS_S2MM_0_tlast ('0),
-        .S_AXIS_S2MM_0_tready(s2mm_axis.tready),
-        .S_AXIS_S2MM_0_tvalid(s2mm_axis.tvalid),
+        .S_AXIS_0_tdata (s2mm_axis.tdata),
+        .S_AXIS_0_tready(s2mm_axis.tready),
+        .S_AXIS_0_tvalid(s2mm_axis.tvalid),
 
         .pps_irq(pps_irq)
     );
