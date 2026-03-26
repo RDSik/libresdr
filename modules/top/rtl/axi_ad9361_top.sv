@@ -58,10 +58,20 @@ module axi_ad9361_top #(
     axis_if.master adc_axis
 );
 
-    logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] dac_tdata;
-    logic [CH_NUM-1:0][1:0]                 dac_tready;
-    logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] adc_tdata;
-    logic [CH_NUM-1:0][1:0]                 adc_tvalid;
+    localparam int PROC_DATA_WIDTH = 12;
+
+    logic [CH_NUM-1:0][1:0][PROC_DATA_WIDTH-1:0] adc_data;
+
+    logic [CH_NUM-1:0][1:0][     DATA_WIDTH-1:0] dac_tdata;
+    logic [CH_NUM-1:0][1:0]                      dac_tready;
+    logic [CH_NUM-1:0][1:0][     DATA_WIDTH-1:0] adc_tdata;
+    logic [CH_NUM-1:0][1:0]                      adc_tvalid;
+
+    for (genvar ch_indx = 0; ch_indx < CH_NUM; ch_indx++) begin : g_repack
+        for (genvar iq_indx = 0; iq_indx < 2; iq_indx++) begin : g_repack
+            assign adc_tdata[ch_indx][iq_indx] = signed'(adc_data[ch_indx][iq_indx]);
+        end
+    end
 
     axi_ad9361 #(
         .ID                      (0),
@@ -154,16 +164,16 @@ module axi_ad9361_top #(
 
         .adc_enable_i0(),
         .adc_valid_i0 (adc_tvalid[0][0]),
-        .adc_data_i0  (adc_tdata[0][0]),
+        .adc_data_i0  (adc_data[0][0]),
         .adc_enable_q0(),
         .adc_valid_q0 (adc_tvalid[0][1]),
-        .adc_data_q0  (adc_tdata[0][1]),
+        .adc_data_q0  (adc_data[0][1]),
         .adc_enable_i1(),
         .adc_valid_i1 (adc_tvalid[1][0]),
-        .adc_data_i1  (adc_tdata[1][0]),
+        .adc_data_i1  (adc_data[1][0]),
         .adc_enable_q1(),
         .adc_valid_q1 (adc_tvalid[1][1]),
-        .adc_data_q1  (adc_tdata[1][1]),
+        .adc_data_q1  (adc_data[1][1]),
         .adc_dovf     ('0),
         .adc_r1_mode  (),
 

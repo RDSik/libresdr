@@ -123,14 +123,14 @@ module libre_top #(
 
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
-    ) mm2s_axis (
+    ) axis_mm2s (
         .clk_i  (ps_clk),
         .arstn_i(ps_arstn)
     );
 
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
-    ) s2mm_axis (
+    ) axis_s2mm (
         .clk_i  (ps_clk),
         .arstn_i(ps_arstn)
     );
@@ -211,25 +211,25 @@ module libre_top #(
         .IIC_0_sda_o(sda_o),
         .IIC_0_sda_t(sda_t),
 
-        .M_AXI_0_araddr (axil_ad.araddr),
-        .M_AXI_0_arprot (axil_ad.arprot),
-        .M_AXI_0_arready(axil_ad.arready),
-        .M_AXI_0_arvalid(axil_ad.arvalid),
-        .M_AXI_0_awaddr (axil_ad.awaddr),
-        .M_AXI_0_awprot (axil_ad.awprot),
-        .M_AXI_0_awready(axil_ad.awready),
-        .M_AXI_0_awvalid(axil_ad.awvalid),
-        .M_AXI_0_bready (axil_ad.bready),
-        .M_AXI_0_bresp  (axil_ad.bresp),
-        .M_AXI_0_bvalid (axil_ad.bvalid),
-        .M_AXI_0_rdata  (axil_ad.rdata),
-        .M_AXI_0_rready (axil_ad.rready),
-        .M_AXI_0_rresp  (axil_ad.rresp),
-        .M_AXI_0_rvalid (axil_ad.rvalid),
-        .M_AXI_0_wdata  (axil_ad.wdata),
-        .M_AXI_0_wready (axil_ad.wready),
-        .M_AXI_0_wstrb  (axil_ad.wstrb),
-        .M_AXI_0_wvalid (axil_ad.wvalid),
+        .AXI_AD9361_0_araddr (axil_ad.araddr),
+        .AXI_AD9361_0_arprot (axil_ad.arprot),
+        .AXI_AD9361_0_arready(axil_ad.arready),
+        .AXI_AD9361_0_arvalid(axil_ad.arvalid),
+        .AXI_AD9361_0_awaddr (axil_ad.awaddr),
+        .AXI_AD9361_0_awprot (axil_ad.awprot),
+        .AXI_AD9361_0_awready(axil_ad.awready),
+        .AXI_AD9361_0_awvalid(axil_ad.awvalid),
+        .AXI_AD9361_0_bready (axil_ad.bready),
+        .AXI_AD9361_0_bresp  (axil_ad.bresp),
+        .AXI_AD9361_0_bvalid (axil_ad.bvalid),
+        .AXI_AD9361_0_rdata  (axil_ad.rdata),
+        .AXI_AD9361_0_rready (axil_ad.rready),
+        .AXI_AD9361_0_rresp  (axil_ad.rresp),
+        .AXI_AD9361_0_rvalid (axil_ad.rvalid),
+        .AXI_AD9361_0_wdata  (axil_ad.wdata),
+        .AXI_AD9361_0_wready (axil_ad.wready),
+        .AXI_AD9361_0_wstrb  (axil_ad.wstrb),
+        .AXI_AD9361_0_wvalid (axil_ad.wvalid),
 
         .M_AXI_1_araddr (axil_sig_gen.araddr),
         .M_AXI_1_arprot (axil_sig_gen.arprot),
@@ -251,11 +251,11 @@ module libre_top #(
         .M_AXI_1_wstrb  (axil_sig_gen.wstrb),
         .M_AXI_1_wvalid (axil_sig_gen.wvalid),
 
-        .M_AXIS_MM2S_0_tdata (mm2s_axis.tdata),
-        .M_AXIS_MM2S_0_tkeep (mm2s_axis.tkeep),
-        .M_AXIS_MM2S_0_tlast (mm2s_axis.tlast),
-        .M_AXIS_MM2S_0_tready(mm2s_axis.tready),
-        .M_AXIS_MM2S_0_tvalid(mm2s_axis.tvalid),
+        .M_AXIS_MM2S_0_tdata (axis_mm2s.tdata),
+        .M_AXIS_MM2S_0_tkeep (axis_mm2s.tkeep),
+        .M_AXIS_MM2S_0_tlast (axis_mm2s.tlast),
+        .M_AXIS_MM2S_0_tready(axis_mm2s.tready),
+        .M_AXIS_MM2S_0_tvalid(axis_mm2s.tvalid),
 
         .SPI_0_0_io0_i('0),
         .SPI_0_0_io0_o(spi_mosi),
@@ -285,9 +285,9 @@ module libre_top #(
         .SPI_0_1_ss_o (),
         .SPI_0_1_ss_t (),
 
-        .S_AXIS_0_tdata (s2mm_axis.tdata),
-        .S_AXIS_0_tready(s2mm_axis.tready),
-        .S_AXIS_0_tvalid(s2mm_axis.tvalid),
+        .S_AXIS_0_tdata (axis_s2mm.tdata),
+        .S_AXIS_0_tready(axis_s2mm.tready),
+        .S_AXIS_0_tvalid(axis_s2mm.tvalid),
 
         .pps_irq(pps_irq)
     );
@@ -336,7 +336,7 @@ module libre_top #(
         .clk        (clk),
         .rst        (rst),
 
-        .adc_axis(s2mm_axis),
+        .adc_axis(axis_s2mm),
         .dac_axis(dac_axis)
     );
 
@@ -355,7 +355,7 @@ module libre_top #(
         .clk_i  (ps_clk),
         .arstn_i(ps_arstn),
         .s_axil (axil_sig_gen),
-        .s_axis (mm2s_axis),
+        .s_axis (axis_mm2s),
         .m_axis (dac_axis)
     );
 
