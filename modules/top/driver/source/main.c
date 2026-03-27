@@ -67,7 +67,7 @@
 
 #include "axi_adc_core.h"
 #include "axi_dac_core.h"
-#include "axi_dmac.h"
+#include "xaxidma.h"
 #include "no_os_error.h"
 
 #ifdef IIO_SUPPORT
