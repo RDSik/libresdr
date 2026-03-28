@@ -57,10 +57,10 @@
 (* DowngradeIPIdentifiedWarnings = "yes" *)
 module axis_subset_converter #(
     parameter                C_FAMILY             = "virtex7",
-    parameter integer        C_S_AXIS_TDATA_WIDTH = 32,
+    parameter integer        C_AXIS_TDATA_WIDTH   = 32,
     parameter integer        C_S_AXIS_TID_WIDTH   = 1,
     parameter integer        C_S_AXIS_TDEST_WIDTH = 1,
-    parameter integer        C_S_AXIS_TUSER_WIDTH = 1,
+    parameter integer        C_AXIS_TUSER_WIDTH   = 1,
     parameter         [31:0] C_S_AXIS_SIGNAL_SET  = 32'hFF,
     // C_AXIS_SIGNAL_SET: each bit if enabled specifies which axis optional signals are present
     //   [0] => TREADY present (Required)
@@ -72,11 +72,9 @@ module axis_subset_converter #(
     //   [5] => TID present
     //   [6] => TDEST present
     //   [7] => TUSER present
-    parameter integer        C_M_AXIS_TDATA_WIDTH = 32,
     parameter integer        C_M_AXIS_TID_WIDTH   = 1,
     parameter integer        C_M_AXIS_TDEST_WIDTH = 1,
     parameter         [31:0] C_M_AXIS_SIGNAL_SET  = 32'hFF,
-    parameter integer        C_M_AXIS_TUSER_WIDTH = 1,
     parameter integer        C_DEFAULT_TLAST      = 0
 ) (
     ///////////////////////////////////////////////////////////////////////////////
@@ -88,26 +86,26 @@ module axis_subset_converter #(
     input wire aclken,
 
     // Slave side
-    input  wire                              s_axis_tvalid,
-    output wire                              s_axis_tready,
-    input  wire [  C_S_AXIS_TDATA_WIDTH-1:0] s_axis_tdata,
-    input  wire [C_S_AXIS_TDATA_WIDTH/8-1:0] s_axis_tstrb,
-    input  wire [C_S_AXIS_TDATA_WIDTH/8-1:0] s_axis_tkeep,
-    input  wire                              s_axis_tlast,
-    input  wire [    C_S_AXIS_TID_WIDTH-1:0] s_axis_tid,
-    input  wire [  C_S_AXIS_TDEST_WIDTH-1:0] s_axis_tdest,
-    input  wire [  C_S_AXIS_TUSER_WIDTH-1:0] s_axis_tuser,
+    input  wire                            s_axis_tvalid,
+    output wire                            s_axis_tready,
+    input  wire [  C_AXIS_TDATA_WIDTH-1:0] s_axis_tdata,
+    input  wire [C_AXIS_TDATA_WIDTH/8-1:0] s_axis_tstrb,
+    input  wire [C_AXIS_TDATA_WIDTH/8-1:0] s_axis_tkeep,
+    input  wire                            s_axis_tlast,
+    input  wire [  C_S_AXIS_TID_WIDTH-1:0] s_axis_tid,
+    input  wire [C_S_AXIS_TDEST_WIDTH-1:0] s_axis_tdest,
+    input  wire [  C_AXIS_TUSER_WIDTH-1:0] s_axis_tuser,
 
     // Master side
-    output wire                              m_axis_tvalid,
-    input  wire                              m_axis_tready,
-    output wire [  C_M_AXIS_TDATA_WIDTH-1:0] m_axis_tdata,
-    output wire [C_M_AXIS_TDATA_WIDTH/8-1:0] m_axis_tstrb,
-    output wire [C_M_AXIS_TDATA_WIDTH/8-1:0] m_axis_tkeep,
-    output wire                              m_axis_tlast,
-    output wire [    C_M_AXIS_TID_WIDTH-1:0] m_axis_tid,
-    output wire [  C_M_AXIS_TDEST_WIDTH-1:0] m_axis_tdest,
-    output wire [  C_M_AXIS_TUSER_WIDTH-1:0] m_axis_tuser,
+    output wire                            m_axis_tvalid,
+    input  wire                            m_axis_tready,
+    output wire [  C_AXIS_TDATA_WIDTH-1:0] m_axis_tdata,
+    output wire [C_AXIS_TDATA_WIDTH/8-1:0] m_axis_tstrb,
+    output wire [C_AXIS_TDATA_WIDTH/8-1:0] m_axis_tkeep,
+    output wire                            m_axis_tlast,
+    output wire [  C_M_AXIS_TID_WIDTH-1:0] m_axis_tid,
+    output wire [C_M_AXIS_TDEST_WIDTH-1:0] m_axis_tdest,
+    output wire [  C_AXIS_TUSER_WIDTH-1:0] m_axis_tuser,
 
     // Status Signals
     output wire transfer_dropped,
@@ -116,18 +114,16 @@ module axis_subset_converter #(
     // a conversion process detects a TKEEP that is not all HIGH
 );
 
-    top_axis_subset_converter #(
+    axis_subset_converter_v1_1_27_core #(
         .C_FAMILY            (C_FAMILY),
-        .C_S_AXIS_TDATA_WIDTH(C_S_AXIS_TDATA_WIDTH),
+        .C_AXIS_TDATA_WIDTH  (C_AXIS_TDATA_WIDTH),
         .C_S_AXIS_TID_WIDTH  (C_S_AXIS_TID_WIDTH),
         .C_S_AXIS_TDEST_WIDTH(C_S_AXIS_TDEST_WIDTH),
-        .C_S_AXIS_TUSER_WIDTH(C_S_AXIS_TUSER_WIDTH),
+        .C_AXIS_TUSER_WIDTH  (C_AXIS_TUSER_WIDTH),
         .C_S_AXIS_SIGNAL_SET (C_S_AXIS_SIGNAL_SET),
-        .C_M_AXIS_TDATA_WIDTH(C_M_AXIS_TDATA_WIDTH),
         .C_M_AXIS_TID_WIDTH  (C_M_AXIS_TID_WIDTH),
         .C_M_AXIS_TDEST_WIDTH(C_M_AXIS_TDEST_WIDTH),
         .C_M_AXIS_SIGNAL_SET (C_M_AXIS_SIGNAL_SET),
-        .C_M_AXIS_TUSER_WIDTH(C_M_AXIS_TUSER_WIDTH),
         .C_DEFAULT_TLAST     (C_DEFAULT_TLAST)
     ) inst (
         .aclk                (aclk),

@@ -12,15 +12,13 @@ module axis_subset_converter_wrap #(
 
     axis_subset_converter #(
         .C_FAMILY            (FAMILY),
-        .C_S_AXIS_TDATA_WIDTH(s_axis.DATA_WIDTH),
+        .C_AXIS_TDATA_WIDTH  (s_axis.DATA_WIDTH),
         .C_S_AXIS_TID_WIDTH  (s_axis.ID_WIDTH),
         .C_S_AXIS_TDEST_WIDTH(s_axis.DEST_WIDTH),
-        .C_S_AXIS_TUSER_WIDTH(s_axis.USER_WIDTH),
+        .C_AXIS_TUSER_WIDTH  (s_axis.USER_WIDTH),
         .C_S_AXIS_SIGNAL_SET (S_AXIS_SIGNAL_SET),
-        .C_M_AXIS_TDATA_WIDTH(m_axis.DATA_WIDTH),
         .C_M_AXIS_TID_WIDTH  (m_axis.ID_WIDTH),
         .C_M_AXIS_TDEST_WIDTH(m_axis.DEST_WIDTH),
-        .C_M_AXIS_TUSER_WIDTH(m_axis.USER_WIDTH),
         .C_M_AXIS_SIGNAL_SET (M_AXIS_SIGNAL_SET),
         .C_DEFAULT_TLAST     (DEFAULT_TLAST)
     ) i_axis_subset_converter (
