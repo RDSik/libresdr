@@ -222,8 +222,8 @@ module axi_ad9361_top #(
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDTH)
     ) m_adc_fifo (
-        .clk_i  (l_clk),
-        .arstn_i(~rst)
+        .clk_i  (adc_axis.clk_i),
+        .arstn_i(adc_axis.arstn_i)
     );
 
     axis_data_fifo_wrap #(
