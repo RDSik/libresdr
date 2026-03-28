@@ -24,10 +24,24 @@ module fir_adc_dac #(
 
     logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] int_tdata;
     logic [CH_NUM-1:0]                      int_tvalid;
-    logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] dac_tdata;
-    logic                                   pulse;
 
+    logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] dac_tdata;
     assign dac_tdata = dac_axis.tdata;
+
+    logic pulse;
+
+    util_pulse_gen #(
+        .PULSE_WIDTH (7),
+        .PULSE_PERIOD(1)
+    ) i_util_pulse_gen (
+        .clk          (clk_i),
+        .rstn         (arstn_i),
+        .pulse_width  ('0),
+        .pulse_period ('0),
+        .load_config  ('0),
+        .pulse_counter(),
+        .pulse        (pulse),
+    );
 
     for (genvar ch_indx = 0; ch_indx < CH_NUM; ch_indx++) begin : g_ch
         fir_decimator i_fir_decimator (
@@ -77,19 +91,6 @@ module fir_adc_dac #(
 
     assign adc_axis.tdata  = adc_tdata;
     assign adc_axis.tvalid = adc_tvalid;
-
-    util_pulse_gen #(
-        .PULSE_WIDTH (7),
-        .PULSE_PERIOD(1)
-    ) i_util_pulse_gen (
-        .clk          (clk_i),
-        .rstn         (arstn_i),
-        .pulse_width  ('0),
-        .pulse_period ('0),
-        .load_config  ('0),
-        .pulse_counter(),
-        .pulse        (pulse),
-    );
 
     ad_bus_mux #(
         .DATA_WIDTH(FULL_DATA_WIDH)
