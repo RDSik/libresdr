@@ -63,6 +63,8 @@ module axi_ad9361_top #(
 
     logic [CH_NUM-1:0][1:0][PROC_DATA_WIDTH-1:0] adc_data;
 
+    logic [      31:0]                           up_adc_gpio_out;
+    logic [      31:0]                           up_dac_gpio_out;
     logic [CH_NUM-1:0][1:0][     DATA_WIDTH-1:0] dac_tdata;
     logic [CH_NUM-1:0][1:0]                      dac_tready;
     logic [CH_NUM-1:0][1:0][     DATA_WIDTH-1:0] adc_tdata;
@@ -194,9 +196,9 @@ module axi_ad9361_top #(
         .dac_r1_mode  (),
 
         .up_dac_gpio_in ('0),
-        .up_dac_gpio_out(),
+        .up_dac_gpio_out(up_dac_gpio_out),
         .up_adc_gpio_in ('0),
-        .up_adc_gpio_out()
+        .up_adc_gpio_out(up_adc_gpio_out)
     );
 
     localparam int FULL_DATA_WIDTH = CH_NUM * DATA_WIDTH * 2;
