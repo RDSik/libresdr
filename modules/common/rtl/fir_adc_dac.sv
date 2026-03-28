@@ -54,18 +54,18 @@ module fir_adc_dac #(
             .m_axis_data_tdata (dec_tdata[ch_indx])
         );
 
-        logic [DATA_WIDTH*2-1:0] s_axis_data_tdata;
+        logic [DATA_WIDTH*2-1:0] s_axis_tdata;
         logic                    s_axis_tvalid;
 
-        assign s_axis_data_tdata = dac_tdata[ch_indx];
-        assign s_axis_tvalid     = |dac_tready_i[ch_indx] & pulse;
+        assign s_axis_tdata  = dac_tdata[ch_indx];
+        assign s_axis_tvalid = |dac_tready_i[ch_indx] & pulse;
 
         fir_interpolator i_fir_interpolator (
             .aresetn           (arstn_i),
             .aclk              (clk_i),
             .s_axis_data_tvalid(s_axis_tvalid),
             .s_axis_data_tready(),
-            .s_axis_data_tdata (s_axis_data_tdata),
+            .s_axis_data_tdata (s_axis_tdata),
             .m_axis_data_tvalid(int_tvalid[ch_indx]),
             .m_axis_data_tdata (int_tdata[ch_indx])
         );
