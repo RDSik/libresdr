@@ -4,7 +4,6 @@ set xci_defaultlib "
     $path/ip/axi_clock_converter/axi_clock_converter.xci
     $path/ip/fir_interpolator/fir_interpolator.xci
     $path/ip/fir_decimator/fir_decimator.xci
-    $path/ip/axis_subset_converter/axis_subset_converter.xci
     $path/ip/axis_data_fifo/axis_data_fifo.xci
     $path/ip/dds_compiler/dds_compiler.xci
     $path/ip/axil_ila/axil_ila.xci
@@ -16,7 +15,7 @@ set xil_defaultlib "
     $path/rtl/axil_reg_file_wrap.sv
     $path/rtl/axil_reg_file.sv
     $path/rtl/axis_data_fifo_wrap.sv
-    $path/rtl/axis_subset_converter_wrap.sv
+    $path/rtl/cnt.sv
     $path/rtl/dds.sv
     $path/rtl/fir_adc_dac.sv
 "

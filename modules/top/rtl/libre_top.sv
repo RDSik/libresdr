@@ -137,13 +137,6 @@ module libre_top #(
 
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
-    ) adc_axis (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
-    );
-
-    axis_if #(
-        .DATA_WIDTH(FULL_DATA_WIDH)
     ) dac_axis (
         .clk_i  (ps_clk),
         .arstn_i(ps_arstn)
@@ -307,18 +300,14 @@ module libre_top #(
     localparam FIFO_MEM_TYPE = "block";
     localparam FAMILY = "zynq";
 
-    localparam logic [31:0] S_AXIS_SIGNAL_SET = 32'h03;
-    localparam logic [31:0] M_AXIS_SIGNAL_SET = 32'h1B;
-
-    axis_subset_converter_wrap #(
-        .FAMILY           (FAMILY),
-        .DEFAULT_TLAST    (FIFO_DEPTH),
-        .S_AXIS_SIGNAL_SET(S_AXIS_SIGNAL_SET),
-        .M_AXIS_SIGNAL_SET(M_AXIS_SIGNAL_SET)
-    ) i_axis_subset_converter_wrap (
-        .en_i  (1'b1),
-        .s_axis(adc_axis),
-        .m_axis(axis_s2mm)
+    cnt #(
+        .CNT_WIDTH($clog2(FIFO_DEPTH))
+    ) i_cnt (
+        .clk_i     (ps_clk),
+        .arstn_i   (ps_arstn),
+        .num_i     (FIFO_DEPTH),
+        .en_i      (axis_s2mm.tvalid & axis_s2mm.tready),
+        .cnt_last_o(axis_s2mm.tlast)
     );
 
     axi_ad9361_top #(
@@ -359,7 +348,7 @@ module libre_top #(
         .clk        (clk),
         .rst        (rst),
 
-        .adc_axis(adc_axis),
+        .adc_axis(axis_s2mm),
         .dac_axis(dac_axis)
     );
 
