@@ -8,8 +8,8 @@
 
 !modules/**/xdc/*.xdc
 
-!modules/**/driver/include/*.h
-!modules/**/driver/source/*.c
+!modules/**/driver/*.h
+!modules/**/driver/*.c
 
 !modules/**/rtl/*.v
 !modules/**/rtl/*.sv

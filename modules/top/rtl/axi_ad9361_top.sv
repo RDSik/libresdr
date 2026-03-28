@@ -58,6 +58,7 @@ module axi_ad9361_top #(
     axis_if.master adc_axis
 );
 
+    localparam int FPGA_FAMILY = (FAMILY == "zynq") ? 0 : (FAMILY == "zynquplus") ? 2 : 3;
     localparam int PROC_DATA_WIDTH = 12;
 
     logic [CH_NUM-1:0][1:0][PROC_DATA_WIDTH-1:0] adc_data;
@@ -77,7 +78,7 @@ module axi_ad9361_top #(
         .ID                      (0),
         .MODE_1R1T               (0),
         .FPGA_TECHNOLOGY         (0),
-        .FPGA_FAMILY             (0),
+        .FPGA_FAMILY             (FPGA_FAMILY),
         .SPEED_GRADE             (0),
         .DEV_PACKAGE             (0),
         .TDD_DISABLE             (0),

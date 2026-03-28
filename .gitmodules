@@ -2,3 +2,11 @@
 	path = device-tree-xlnx
 	url = https://github.com/Xilinx/device-tree-xlnx.git
 	branch = xlnx_rel_v2022.2
+[submodule "no-OS"]
+	path = no-OS
+	url = https://github.com/analogdevicesinc/no-OS.git
+	branch = 2022_R2
+[submodule "modules/axi_ad9361/hdl"]
+	path = modules/axi_ad9361/hdl
+	url = https://github.com/analogdevicesinc/hdl.git
+	branch = hdl_2022_r2
