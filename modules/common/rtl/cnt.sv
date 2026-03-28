@@ -11,16 +11,17 @@ module cnt #(
 );
 
     logic [CNT_WIDTH-1:0] cnt;
-    logic [CNT_WIDTH-1:0] cnt_next;
     logic                 cnt_last;
-
-    assign cnt_next = cnt_last ? '0 : cnt + 1'b1;
 
     always_ff @(posedge clk_i) begin
         if (~arstn_i) begin
             cnt <= '0;
-        end else begin
-            cnt <= en_i ? cnt_next : cnt;
+        end else if (en_i) begin
+            if (cnt_last) begin
+                cnt <= '0;
+            end else begin
+                cnt <= cnt + 1'b1;
+            end
         end
     end
 
