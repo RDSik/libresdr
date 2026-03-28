@@ -72,11 +72,9 @@ module axis_subset_converter #(
     //   [5] => TID present
     //   [6] => TDEST present
     //   [7] => TUSER present
-    parameter integer        C_AXIS_TDATA_WIDTH   = 32,
     parameter integer        C_M_AXIS_TID_WIDTH   = 1,
     parameter integer        C_M_AXIS_TDEST_WIDTH = 1,
     parameter         [31:0] C_M_AXIS_SIGNAL_SET  = 32'hFF,
-    parameter integer        C_M_AXIS_TUSER_WIDTH = 1,
     parameter integer        C_DEFAULT_TLAST      = 0
 ) (
     ///////////////////////////////////////////////////////////////////////////////
@@ -107,7 +105,7 @@ module axis_subset_converter #(
     output wire                            m_axis_tlast,
     output wire [  C_M_AXIS_TID_WIDTH-1:0] m_axis_tid,
     output wire [C_M_AXIS_TDEST_WIDTH-1:0] m_axis_tdest,
-    output wire [C_M_AXIS_TUSER_WIDTH-1:0] m_axis_tuser,
+    output wire [  C_AXIS_TUSER_WIDTH-1:0] m_axis_tuser,
 
     // Status Signals
     output wire transfer_dropped,
