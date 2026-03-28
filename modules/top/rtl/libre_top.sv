@@ -286,7 +286,7 @@ module libre_top #(
         .SPI_0_1_ss_t (),
 
         .S_AXIS_S2MM_0_tdata (axis_s2mm.tdata),
-        .S_AXIS_S2MM_0_tkeep (axis_s2mm.tkeep),
+        .S_AXIS_S2MM_0_tkeep ('1),
         .S_AXIS_S2MM_0_tlast (axis_s2mm.tlast),
         .S_AXIS_S2MM_0_tready(axis_s2mm.tready),
         .S_AXIS_S2MM_0_tvalid(axis_s2mm.tvalid),

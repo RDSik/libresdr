@@ -36,8 +36,9 @@ set dac_dir     [glob -nocomplain -type d [file join $no_os_dir */axi_core/axi_d
 set adc_dir     [glob -nocomplain -type d [file join $no_os_dir */axi_core/axi_adc_core]]
 set ad_dir      [glob -nocomplain -type d [file join $no_os_dir */rf-transceiver/ad9361]]
 set xilinx_dir  [glob -nocomplain -type d [file join $no_os_dir */platform/xilinx]]
-set drivers_dir [glob -nocomplain -type d [file join $no_os_dir */drivers/api]]
-set include_dir [glob -nocomplain -type d [file join $no_os_dir */include]]
+set include_dir $no_os_dir/include
+set drivers_dir $no_os_dir/drivers/api
+set iio_dir     $no_os_dir/iio
 
 proc import_sources {app current_dir} {
     foreach sdk_path $current_dir  {
@@ -49,11 +50,17 @@ proc import_sources {app current_dir} {
     }
 }
 
-import_sources $app $dac_dir
-import_sources $app $adc_dir
-import_sources $app $ad_dir
-import_sources $app $xilinx_dir
-import_sources $app $drivers_dir
-import_sources $app $include_dir
+set source_dirs [concat \
+    $dac_dir \
+    $adc_dir \
+    $ad_dir \
+    $xilinx_dir \
+    $include_dir \
+    $drivers_dir \
+    $iio_dir \
+    $modules_dir/top/driver \
+]
+
+import_sources $app $source_dirs
 
 app build -name $app
