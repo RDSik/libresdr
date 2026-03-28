@@ -202,7 +202,7 @@ module axi_ad9361_top #(
     );
 
     localparam int FULL_DATA_WIDTH = CH_NUM * DATA_WIDTH * 2;
-    localparam logic [31:0] AXIS_SIGNAL_SET = 32'h03;
+    localparam logic [31:0] S_AXIS_SIGNAL_SET = 32'h03;
     localparam USE_ADV_FEATURES = "1000";
 
     axis_if #(
@@ -214,13 +214,20 @@ module axi_ad9361_top #(
 
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDTH)
-    ) adc_if (
+    ) s_adc_fifo (
+        .clk_i  (l_clk),
+        .arstn_i(~rst)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDTH)
+    ) m_adc_fifo (
         .clk_i  (l_clk),
         .arstn_i(~rst)
     );
 
     axis_data_fifo_wrap #(
-        .AXIS_SIGNAL_SET   (AXIS_SIGNAL_SET),
+        .AXIS_SIGNAL_SET   (S_AXIS_SIGNAL_SET),
         .FIFO_DEPTH        (FIFO_DEPTH),
         .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
         .FAMILY            (FAMILY),
@@ -238,7 +245,7 @@ module axi_ad9361_top #(
     assign dac_if.tready = |dac_tready;
 
     axis_data_fifo_wrap #(
-        .AXIS_SIGNAL_SET   (AXIS_SIGNAL_SET),
+        .AXIS_SIGNAL_SET   (S_AXIS_SIGNAL_SET),
         .FIFO_DEPTH        (FIFO_DEPTH),
         .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
         .FAMILY            (FAMILY),
@@ -248,12 +255,25 @@ module axi_ad9361_top #(
     ) i_adc_fifo (
         .s_en_i(1'b1),
         .m_en_i(1'b1),
-        .s_axis(adc_if),
-        .m_axis(adc_axis)
+        .s_axis(s_adc_fifo),
+        .m_axis(m_adc_fifo)
     );
 
-    assign adc_if.tdata  = adc_tdata;
-    assign adc_if.tvalid = |adc_tvalid;
+    assign s_adc_fifo.tdata  = adc_tdata;
+    assign s_adc_fifo.tvalid = |adc_tvalid;
+
+    localparam logic [31:0] M_AXIS_SIGNAL_SET = 32'h1B;
+
+    axis_subset_converter_wrap #(
+        .FAMILY           (FAMILY),
+        .DEFAULT_TLAST    (FIFO_DEPTH),
+        .S_AXIS_SIGNAL_SET(S_AXIS_SIGNAL_SET),
+        .M_AXIS_SIGNAL_SET(M_AXIS_SIGNAL_SET)
+    ) i_axis_subset_converter_wrap (
+        .en_i  (1'b1),
+        .s_axis(m_adc_fifo),
+        .m_axis(axis_s2mm)
+    );
 
     if (ILA_EN) begin : g_ila
         axil_ila i_axil_ila (

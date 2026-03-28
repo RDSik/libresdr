@@ -286,7 +286,7 @@ module libre_top #(
         .SPI_0_1_ss_t (),
 
         .S_AXIS_S2MM_0_tdata (axis_s2mm.tdata),
-        .S_AXIS_S2MM_0_tkeep ('1),
+        .S_AXIS_S2MM_0_tkeep (axis_s2mm.tkeep),
         .S_AXIS_S2MM_0_tlast (axis_s2mm.tlast),
         .S_AXIS_S2MM_0_tready(axis_s2mm.tready),
         .S_AXIS_S2MM_0_tvalid(axis_s2mm.tvalid),
@@ -299,16 +299,6 @@ module libre_top #(
     localparam int FIFO_DEPTH = 256;
     localparam FIFO_MEM_TYPE = "block";
     localparam FAMILY = "zynq";
-
-    cnt #(
-        .CNT_WIDTH($clog2(FIFO_DEPTH))
-    ) i_cnt (
-        .clk_i     (ps_clk),
-        .arstn_i   (ps_arstn),
-        .num_i     (FIFO_DEPTH),
-        .en_i      (axis_s2mm.tvalid & axis_s2mm.tready),
-        .cnt_last_o(axis_s2mm.tlast)
-    );
 
     axi_ad9361_top #(
         .DATA_WIDTH    (IQ_DATA_WIDTH),
