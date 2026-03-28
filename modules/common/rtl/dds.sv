@@ -32,7 +32,7 @@ module dds #(
 
     dds_compiler i_dds_compiler (
         .aclk               (clk_i),
-        .aresetn            (~rst_i),
+        .aresetn            (~rstn_i),
         .s_axis_phase_tvalid(dds_tvalid),
         .s_axis_phase_tdata ({poff_d, pinc_dd}),
         .m_axis_data_tvalid (tvalid_o),
