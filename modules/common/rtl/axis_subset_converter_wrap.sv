@@ -44,7 +44,7 @@ module axis_subset_converter_wrap #(
         .m_axis_tlast (m_axis.tlast),
         .m_axis_tid   (m_axis.tid),
         .m_axis_tdest (m_axis.tdest),
-        .m_axis_tuser (m_axis.tuser),
+        .m_axis_tuser (m_axis.tuser)
     );
 
 endmodule
