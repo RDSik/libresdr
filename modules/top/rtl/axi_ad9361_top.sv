@@ -272,7 +272,7 @@ module axi_ad9361_top #(
     ) i_axis_subset_converter_wrap (
         .en_i  (1'b1),
         .s_axis(m_adc_fifo),
-        .m_axis(axis_s2mm)
+        .m_axis(adc_axis)
     );
 
     if (ILA_EN) begin : g_ila
