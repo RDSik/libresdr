@@ -137,6 +137,13 @@ module libre_top #(
 
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
+    ) adc_axis (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDH)
     ) dac_axis (
         .clk_i  (ps_clk),
         .arstn_i(ps_arstn)
@@ -285,18 +292,34 @@ module libre_top #(
         .SPI_0_1_ss_o (),
         .SPI_0_1_ss_t (),
 
-        .S_AXIS_0_tdata (axis_s2mm.tdata),
-        .S_AXIS_0_tready(axis_s2mm.tready),
-        .S_AXIS_0_tvalid(axis_s2mm.tvalid),
+        .S_AXIS_S2MM_0_tdata (axis_s2mm.tdata),
+        .S_AXIS_S2MM_0_tkeep (axis_s2mm.tkeep),
+        .S_AXIS_S2MM_0_tlast (axis_s2mm.tlast),
+        .S_AXIS_S2MM_0_tready(axis_s2mm.tready),
+        .S_AXIS_S2MM_0_tvalid(axis_s2mm.tvalid),
 
         .pps_irq(pps_irq)
     );
 
     localparam int SYNC_STAGE_NUM = 3;
     localparam int ASYNC_MODE_EN = 1;
-    localparam int FIFO_DEPTH = 1024;
+    localparam int FIFO_DEPTH = 256;
     localparam FIFO_MEM_TYPE = "block";
     localparam FAMILY = "zynq";
+
+    localparam logic [31:0] S_AXIS_SIGNAL_SET = 32'h03;
+    localparam logic [31:0] M_AXIS_SIGNAL_SET = 32'h1B;
+
+    axis_subset_converter_wrap #(
+        .FAMILY           (FAMILY),
+        .DEFAULT_TLAST    (FIFO_DEPTH),
+        .S_AXIS_SIGNAL_SET(S_AXIS_SIGNAL_SET),
+        .M_AXIS_SIGNAL_SET(M_AXIS_SIGNAL_SET)
+    ) i_axis_subset_converter_wrap (
+        .en_i  (1'b1),
+        .s_axis(adc_axis),
+        .m_axis(axis_s2mm)
+    );
 
     axi_ad9361_top #(
         .DATA_WIDTH    (IQ_DATA_WIDTH),
@@ -336,7 +359,7 @@ module libre_top #(
         .clk        (clk),
         .rst        (rst),
 
-        .adc_axis(axis_s2mm),
+        .adc_axis(adc_axis),
         .dac_axis(dac_axis)
     );
 

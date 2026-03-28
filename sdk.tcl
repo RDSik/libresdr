@@ -7,6 +7,7 @@ set dt_domain   "device_tree_domain"
 set modules_dir [file normalize "modules"]
 set project_dir [file normalize "project"]
 set sdk_dir     [file normalize "$project_dir/$syn_top.sdk"]
+set no_os_dir   [file normalize "no-OS"]
 
 file delete -force $sdk_dir/SDK.log
 file delete -force $sdk_dir/.metadata
@@ -31,8 +32,12 @@ app create -name $app -domain $domain -platform $platform -template {Empty Appli
 
 file copy -force $project_dir/$syn_top.runs/impl_1/$syn_top.bit $sdk_dir/$platform
 
-set source_dir  [glob -nocomplain -type d [file join $modules_dir */driver/source]]
-set include_dir [glob -nocomplain -type d [file join $modules_dir */driver/include]]
+set dac_dir     [glob -nocomplain -type d [file join $no_os_dir */axi_core/axi_dac_core]]
+set adc_dir     [glob -nocomplain -type d [file join $no_os_dir */axi_core/axi_adc_core]]
+set ad_dir      [glob -nocomplain -type d [file join $no_os_dir */rf-transceiver/ad9361]]
+set xilinx_dir  [glob -nocomplain -type d [file join $no_os_dir */platform/xilinx]]
+set drivers_dir [glob -nocomplain -type d [file join $no_os_dir */drivers/api]]
+set include_dir [glob -nocomplain -type d [file join $no_os_dir */include]]
 
 proc import_sources {app current_dir} {
     foreach sdk_path $current_dir  {
@@ -44,7 +49,11 @@ proc import_sources {app current_dir} {
     }
 }
 
-import_sources $app $source_dir
+import_sources $app $dac_dir
+import_sources $app $adc_dir
+import_sources $app $ad_dir
+import_sources $app $xilinx_dir
+import_sources $app $drivers_dir
 import_sources $app $include_dir
 
 app build -name $app
