@@ -18,6 +18,7 @@ set xil_defaultlib "
     $path/rtl/axis_data_fifo_wrap.sv
     $path/rtl/axis_subset_converter_wrap.sv
     $path/rtl/dds.sv
+    $path/rtl/fir_adc_dac.sv
 "
 
 add_files -norecurse $xil_defaultlib
