@@ -31,8 +31,8 @@ app create -name $app -domain $domain -platform $platform -template {Empty Appli
 
 file copy -force $project_dir/$syn_top.runs/impl_1/$syn_top.bit $sdk_dir/$platform
 
-set source_dirs  [glob -nocomplain -type d [file join $modules_dir */driver/source]]
-set include_dirs [glob -nocomplain -type d [file join $modules_dir */driver/include]]
+set source_dir  [glob -nocomplain -type d [file join $modules_dir */driver/source]]
+set include_dir [glob -nocomplain -type d [file join $modules_dir */driver/include]]
 
 proc import_sources {app current_dir} {
     foreach sdk_path $current_dir  {
@@ -44,7 +44,7 @@ proc import_sources {app current_dir} {
     }
 }
 
-import_sources $app $source_dirs
-import_sources $app $include_dirs
+import_sources $app $source_dir
+import_sources $app $include_dir
 
 app build -name $app
