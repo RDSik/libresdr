@@ -43,7 +43,7 @@ module fir_adc_dac #(
         .pulse_period ('0),
         .load_config  ('0),
         .pulse_counter(),
-        .pulse        (pulse),
+        .pulse        (pulse)
     );
 
     for (genvar ch_indx = 0; ch_indx < CH_NUM; ch_indx++) begin : g_ch
