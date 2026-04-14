@@ -12,7 +12,8 @@ package signal_gen_pkg;
     } signal_gen_param_reg_t;
 
     typedef struct packed {
-        logic [13:0] rsrvd;
+        logic [11:0] rsrvd;
+        logic [1:0]  ampl_ovf;
         logic        fifo_full;
         logic        fifo_empty;
         logic [15:0] fifo_cnt;
@@ -20,18 +21,20 @@ package signal_gen_pkg;
 
     typedef struct packed {
         logic [15:0] dds_enable;
-        logic [15:0] dds_resetn;
+        logic [15:0] dds_reset;
     } signal_gen_control_reg_t;
 
     typedef struct packed {
+        logic [14:0]                rsrvd;
+        logic                       round_type;
+        logic [15:0]                ampl;
         logic [DDS_PHASE_WIDTH-1:0] pinc;
         logic [DDS_PHASE_WIDTH-1:0] poff;
     } signal_gen_settings_reg_t;
 
     typedef struct packed {
-        logic [22:0]              rsrvd;
+        logic [23:0]              rsrvd;
         logic [7:0]               select;
-        logic                     module_en;
         signal_gen_settings_reg_t settings;
     } signal_gen_dds_reg_t;
 
@@ -46,9 +49,8 @@ package signal_gen_pkg;
     localparam int SIGNAL_GEN_POFF_REG_POS = SIGNAL_GEN_CONTROL_REG_POS + $bits(
         signal_gen_control_reg_t
     ) / 32;
-    localparam int SIGNAL_GEN_PINC_REG_POS = SIGNAL_GEN_CONTROL_REG_POS + $bits(
-        signal_gen_settings_reg_t
-    ) / 32;
+    localparam int SIGNAL_GEN_PINC_REG_POS = SIGNAL_GEN_POFF_REG_POS + DDS_PHASE_WIDTH / 32;
+    localparam int SIGNAL_GEN_AMPL_REG_POS = SIGNAL_GEN_PINC_REG_POS + DDS_PHASE_WIDTH / 32;
     localparam int SIGNAL_GEN_DDS_REG_POS = SIGNAL_GEN_CONTROL_REG_POS + $bits(
         signal_gen_dds_reg_t
     ) / 32;
@@ -61,7 +63,10 @@ package signal_gen_pkg;
 
     localparam int SIGNAL_GEN_REG_NUM = $bits(signal_gen_regs_t) / 32;
 
-    localparam signal_gen_regs_t SIGNAL_GEN_REG_INIT = '{default: '0};
+    localparam signal_gen_regs_t SIGNAL_GEN_REG_INIT = '{
+        control : '{dds_reset : '1, default: '0},
+        default: '0
+    };
 
 endpackage
 

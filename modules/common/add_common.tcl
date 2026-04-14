@@ -19,6 +19,11 @@ set xil_defaultlib "
     $path/rtl/fir_adc_dac.sv
     $path/rtl/axis_data_fifo_wrap.sv
     $path/rtl/axis_subset_converter_wrap.sv
+    $path/rtl/amplitude.sv
+    $path/rtl/mult_signed.sv
+    $path/rtl/round.sv
+    $path/rtl/saturate.sv
+    $path/rtl/shift_reg.sv
 "
 
 add_files -norecurse $xil_defaultlib
