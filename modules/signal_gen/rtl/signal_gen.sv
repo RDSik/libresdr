@@ -14,7 +14,6 @@ module signal_gen
     parameter       FIFO_MEM_TYPE   = "block",
     parameter       FAMILY          = "zynq"
 ) (
-
     input logic clk_i,
     input logic arstn_i,
 

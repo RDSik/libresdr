@@ -26,7 +26,10 @@ module fir_adc_dac #(
     logic [CH_NUM-1:0]                      int_tvalid;
 
     logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] dac_tdata;
-    assign dac_tdata = dac_axis.tdata;
+    logic                                   dac_tvalid;
+
+    assign dac_tdata  = dac_axis.tdata;
+    assign dac_tvalid = dac_axis.tvalid;
 
     logic pulse;
 
@@ -40,7 +43,7 @@ module fir_adc_dac #(
         .pulse_period ('0),
         .load_config  ('0),
         .pulse_counter(),
-        .pulse        (pulse),
+        .pulse        (pulse)
     );
 
     for (genvar ch_indx = 0; ch_indx < CH_NUM; ch_indx++) begin : g_ch
@@ -96,9 +99,9 @@ module fir_adc_dac #(
         .DATA_WIDTH(FULL_DATA_WIDH)
     ) i_dac_mux (
         .select_path(fir_en_i),
-        .valid_in_0 (dac_axis.tvalid),
+        .valid_in_0 (dac_tvalid),
         .enable_in_0(),
-        .data_in_0  (dac_axis.tdata),
+        .data_in_0  (dac_tdata),
         .valid_in_1 (|int_tvalid),
         .enable_in_1(),
         .data_in_1  (int_tdata),
