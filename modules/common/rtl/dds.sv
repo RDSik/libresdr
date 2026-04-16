@@ -23,11 +23,13 @@ module dds #(
             dds_tvalid        <= '0;
             poff_d            <= '0;
             {pinc_dd, pinc_d} <= '0;
-        end else if (en_i) begin
-            dds_tvalid        <= 1'b1;
-            poff_d            <= poff_i;
-            {pinc_dd, pinc_d} <= {pinc_d, pinc_i};
-        end
+        end else begin 
+            dds_tvalid <= en_i;
+            if (en_i) begin
+                poff_d            <= poff_i;
+                {pinc_dd, pinc_d} <= {pinc_d, pinc_i};
+            end
+         end
     end
 
     dds_compiler i_dds_compiler (
