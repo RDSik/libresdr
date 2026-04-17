@@ -203,6 +203,6 @@ set_property PACKAGE_PIN R2 [get_ports {ddr_dqs_p[2]}]
 set_property PACKAGE_PIN W4 [get_ports {ddr_dqs_n[3]}]
 set_property PACKAGE_PIN W5 [get_ports {ddr_dqs_p[3]}]
 
-set_false_path -from [get_pins {i_axi_ad9361/i_rx/i_up_adc_common/up_adc_gpio_out_int_reg[0]/C}]
-set_false_path -from [get_pins {i_axi_ad9361/i_tx/i_up_dac_common/up_dac_gpio_out_int_reg[0]/C}]
+set_false_path -from [get_pins {i_axi_ad9361_top/i_axi_ad9361/i_rx/i_up_adc_common/up_adc_gpio_out_int_reg[0]/C}]
+set_false_path -from [get_pins {i_axi_ad9361_top/i_axi_ad9361/i_tx/i_up_dac_common/up_dac_gpio_out_int_reg[0]/C}]
 
