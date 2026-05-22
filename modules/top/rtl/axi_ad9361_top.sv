@@ -201,13 +201,11 @@ module axi_ad9361_top #(
         .up_adc_gpio_out(up_adc_gpio_out)
     );
 
-    localparam int FULL_DATA_WIDTH = CH_NUM * DATA_WIDTH * 2;
-
     logic rstn;
     assign rstn = ~rst;
 
     axis_if #(
-        .DATA_WIDTH(FULL_DATA_WIDTH)
+        .DATA_WIDTH(CH_NUM * DATA_WIDTH * 2)
     ) adc_if (
         .clk_i  (l_clk),
         .arstn_i(rstn)
