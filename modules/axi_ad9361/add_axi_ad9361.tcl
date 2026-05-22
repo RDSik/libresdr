@@ -13,7 +13,6 @@ set xil_defaultlib "
     $path/hdl/library/axi_ad9361/xilinx/axi_ad9361_cmos_if.v
     $path/hdl/library/common/ad_rst.v
     $path/hdl/library/common/ad_pnmon.v
-    $path/hdl/library/common/ad_bus_mux.v
     $path/hdl/library/common/ad_dds_cordic_pipe.v
     $path/hdl/library/common/ad_dds_sine_cordic.v
     $path/hdl/library/common/ad_dds_sine.v
@@ -27,7 +26,6 @@ set xil_defaultlib "
     $path/hdl/library/common/ad_pps_receiver.v
     $path/hdl/library/common/up_axi.v
     $path/hdl/library/common/ad_iobuf.v
-    $path/hdl/library/common/util_pulse_gen.v
     $path/hdl/library/common/up_xfer_cntrl.v
     $path/hdl/library/common/up_xfer_status.v
     $path/hdl/library/common/up_clock_mon.v
