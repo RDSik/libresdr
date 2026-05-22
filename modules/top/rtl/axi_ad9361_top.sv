@@ -202,66 +202,52 @@ module axi_ad9361_top #(
     );
 
     localparam int FULL_DATA_WIDTH = CH_NUM * DATA_WIDTH * 2;
+
+    logic rstn;
+    assign rstn = ~rst;
+
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDTH)
+    ) adc_if (
+        .clk_i  (l_clk),
+        .arstn_i(rstn)
+    );
+
+    fir_dac #(
+        .CH_NUM        (CH_NUM),
+        .DATA_WIDTH    (DATA_WIDTH),
+        .FAMILY        (FAMILY),
+        .ASYNC_MODE_EN (ASYNC_MODE_EN),
+        .FIFO_DEPTH    (FIFO_DEPTH),
+        .FIFO_MEM_TYPE (FIFO_MEM_TYPE),
+        .SYNC_STAGE_NUM(SYNC_STAGE_NUM)
+    ) i_fir_dac (
+        .clk_i       (l_clk),
+        .arstn_i     (rstn),
+        .fir_en_i    (up_dac_gpio_out[0]),
+        .dac_tready_i(dac_tready_i),
+        .dac_tdata_o (dac_tdata),
+        .dac_axis    (dac_axis)
+    );
+
+    fir_adc #(
+        .CH_NUM        (CH_NUM),
+        .DATA_WIDTH    (DATA_WIDTH),
+        .FAMILY        (FAMILY),
+        .ASYNC_MODE_EN (ASYNC_MODE_EN),
+        .FIFO_DEPTH    (FIFO_DEPTH),
+        .FIFO_MEM_TYPE (FIFO_MEM_TYPE),
+        .SYNC_STAGE_NUM(SYNC_STAGE_NUM)
+    ) i_fir_adc (
+        .clk_i       (l_clk),
+        .arstn_i     (rstn),
+        .fir_en_i    (up_adc_gpio_out[0]),
+        .adc_tvalid_i(adc_tvalid),
+        .adc_tdata_i (adc_tdata),
+        .adc_axis    (adc_if)
+    );
+
     localparam logic [31:0] S_AXIS_SIGNAL_SET = 32'h03;
-    localparam USE_ADV_FEATURES = "1000";
-
-    axis_if #(
-        .DATA_WIDTH(FULL_DATA_WIDTH)
-    ) dac_if (
-        .clk_i  (l_clk),
-        .arstn_i(~rst)
-    );
-
-    axis_if #(
-        .DATA_WIDTH(FULL_DATA_WIDTH)
-    ) s_adc_fifo (
-        .clk_i  (l_clk),
-        .arstn_i(~rst)
-    );
-
-    axis_if #(
-        .DATA_WIDTH(FULL_DATA_WIDTH)
-    ) m_adc_fifo (
-        .clk_i  (adc_axis.clk_i),
-        .arstn_i(adc_axis.arstn_i)
-    );
-
-    axis_data_fifo_wrap #(
-        .AXIS_SIGNAL_SET   (S_AXIS_SIGNAL_SET),
-        .FIFO_DEPTH        (FIFO_DEPTH),
-        .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
-        .FAMILY            (FAMILY),
-        .ASYNC_MODE_EN     (ASYNC_MODE_EN),
-        .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
-        .USE_ADV_FEATURES  (USE_ADV_FEATURES)
-    ) i_dac_fifo (
-        .s_en_i(1'b1),
-        .m_en_i(1'b1),
-        .s_axis(dac_axis),
-        .m_axis(dac_if)
-    );
-
-    assign dac_tdata     = dac_if.tdata;
-    assign dac_if.tready = |dac_tready;
-
-    axis_data_fifo_wrap #(
-        .AXIS_SIGNAL_SET   (S_AXIS_SIGNAL_SET),
-        .FIFO_DEPTH        (FIFO_DEPTH),
-        .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
-        .FAMILY            (FAMILY),
-        .ASYNC_MODE_EN     (ASYNC_MODE_EN),
-        .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
-        .USE_ADV_FEATURES  (USE_ADV_FEATURES)
-    ) i_adc_fifo (
-        .s_en_i(1'b1),
-        .m_en_i(1'b1),
-        .s_axis(s_adc_fifo),
-        .m_axis(m_adc_fifo)
-    );
-
-    assign s_adc_fifo.tdata  = adc_tdata;
-    assign s_adc_fifo.tvalid = |adc_tvalid;
-
     localparam logic [31:0] M_AXIS_SIGNAL_SET = 32'h1B;
 
     axis_subset_converter_wrap #(
@@ -271,7 +257,7 @@ module axi_ad9361_top #(
         .M_AXIS_SIGNAL_SET(M_AXIS_SIGNAL_SET)
     ) i_axis_subset_converter_wrap (
         .en_i  (1'b1),
-        .s_axis(m_adc_fifo),
+        .s_axis(adc_if),
         .m_axis(adc_axis)
     );
 
