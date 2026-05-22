@@ -47,8 +47,9 @@ module fir_dac #(
     logic                                   dac_tvalid;
     logic [CH_NUM-1:0]                      dac_tready;
 
-    assign dac_tdata  = fir_axis.tdata;
-    assign dac_tvalid = fir_axis.tvalid;
+    assign dac_tdata       = fir_axis.tdata;
+    assign dac_tvalid      = fir_axis.tvalid;
+    assign fir_axis.tready = (fir_en_i) ? |dac_tready : |dac_tready_i;
 
     logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] int_tdata;
     logic [CH_NUM-1:0]                      int_tvalid;
@@ -68,11 +69,9 @@ module fir_dac #(
 
     always_comb begin
         if (fir_en_i) begin
-            fir_axis.tready = |dac_tready;
-            dac_tdata_o     = int_tdata;
+            dac_tdata_o = int_tdata;
         end else begin
-            fir_axis.tready = |dac_tready_i;
-            dac_tdata_o     = dac_tdata;
+            dac_tdata_o = dac_tdata;
         end
     end
 
