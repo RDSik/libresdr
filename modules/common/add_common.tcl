@@ -16,7 +16,8 @@ set xil_defaultlib "
     $path/rtl/axil_reg_file_wrap.sv
     $path/rtl/axil_reg_file.sv
     $path/rtl/dds.sv
-    $path/rtl/fir_adc_dac.sv
+    $path/rtl/fir_adc.sv
+    $path/rtl/fir_dac.sv
     $path/rtl/axis_data_fifo_wrap.sv
     $path/rtl/axis_subset_converter_wrap.sv
     $path/rtl/amplitude.sv
