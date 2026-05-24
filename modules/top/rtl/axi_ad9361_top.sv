@@ -207,8 +207,8 @@ module axi_ad9361_top #(
     axis_if #(
         .DATA_WIDTH(CH_NUM * DATA_WIDTH * 2)
     ) adc_if (
-        .clk_i  (l_clk),
-        .arstn_i(rstn)
+        .clk_i  (adc_axis.clk_i),
+        .arstn_i(adc_axis.arstn_i)
     );
 
     fir_dac #(
