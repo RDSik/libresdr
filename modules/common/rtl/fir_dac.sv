@@ -36,7 +36,7 @@ module fir_dac #(
         .ASYNC_MODE_EN     (ASYNC_MODE_EN),
         .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
         .USE_ADV_FEATURES  (USE_ADV_FEATURES)
-    ) i_adc_fifo (
+    ) i_dac_fifo (
         .s_en_i(1'b1),
         .m_en_i(1'b1),
         .s_axis(dac_axis),
