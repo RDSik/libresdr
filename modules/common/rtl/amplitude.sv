@@ -44,7 +44,7 @@ module amplitude #(
     ) i_shift_reg (
         .clk_i (clk_i),
         .rst_i (rst_i),
-        .en_i  (1'b1),
+        .en_i  (tvalid_i),
         .data_i(tvalid_i),
         .data_o(mult_tvalid)
     );
