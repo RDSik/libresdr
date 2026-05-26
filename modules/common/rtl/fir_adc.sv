@@ -46,7 +46,7 @@ module fir_adc #(
             fir_axis.tvalid = |dec_tvalid;
         end else begin
             fir_axis.tdata  = adc_tdata_i;
-            fir_axis.tvalid = |adc_tvalid_i;
+            fir_axis.tvalid = adc_tvalid_i;
         end
     end
 
