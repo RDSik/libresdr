@@ -86,6 +86,13 @@ module axi_ad9361_top #(
         .TDD_DISABLE             (0),
         .PPS_RECEIVER_ENABLE     (PPS_EN),
         .CMOS_OR_LVDS_N          (0),
+        .IO_DELAY_GROUP          ("dev_if_delay_group"),
+        .IODELAY_CTRL            (1),
+        .MIMO_ENABLE             (0),
+        .USE_SSI_CLK             (!CLK10M_EN),
+        .DELAY_REFCLK_FREQUENCY  (200),
+        .RX_NODPA                (0),
+
         .ADC_INIT_DELAY          (30),
         .ADC_DATAPATH_DISABLE    (0),
         .ADC_USERPORTS_DISABLE   (0),
@@ -93,6 +100,7 @@ module axi_ad9361_top #(
         .ADC_DCFILTER_DISABLE    (0),
         .ADC_IQCORRECTION_DISABLE(0),
         .DAC_INIT_DELAY          (0),
+
         .DAC_CLK_EDGE_SEL        (0),
         .DAC_IODELAY_ENABLE      (0),
         .DAC_DATAPATH_DISABLE    (0),
@@ -101,13 +109,7 @@ module axi_ad9361_top #(
         .DAC_DDS_CORDIC_DW       (14),
         .DAC_DDS_CORDIC_PHASE_DW (13),
         .DAC_USERPORTS_DISABLE   (0),
-        .DAC_IQCORRECTION_DISABLE(0),
-        .IO_DELAY_GROUP          ("dev_if_delay_group"),
-        .IODELAY_CTRL            (1),
-        .MIMO_ENABLE             (0),
-        .USE_SSI_CLK             (!CLK10M_EN),
-        .DELAY_REFCLK_FREQUENCY  (200),
-        .RX_NODPA                (0)
+        .DAC_IQCORRECTION_DISABLE(0)
     ) i_axi_ad9361 (
         .s_axi_aclk   (s_axil.clk_i),
         .s_axi_aresetn(s_axil.arstn_i),
