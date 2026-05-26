@@ -12,7 +12,7 @@ module fir_dac #(
 
     input logic fir_en_i,
 
-    input  logic [CH_NUM-1:0][1:0]                 dac_tready_i,
+    input  logic                                   dac_tready_i,
     output logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] dac_tdata_o,
 
     axis_if.slave dac_axis
@@ -49,7 +49,7 @@ module fir_dac #(
 
     assign dac_tdata       = fir_axis.tdata;
     assign dac_tvalid      = fir_axis.tvalid;
-    assign fir_axis.tready = (fir_en_i) ? |dac_tready : |dac_tready_i;
+    assign fir_axis.tready = (fir_en_i) ? |dac_tready : dac_tready_i;
 
     logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] int_tdata;
     logic [CH_NUM-1:0]                      int_tvalid;
@@ -62,7 +62,7 @@ module fir_dac #(
             .s_axis_data_tready(dac_tready[ch_indx]),
             .s_axis_data_tdata (dac_tdata[ch_indx]),
             .m_axis_data_tvalid(int_tvalid[ch_indx]),
-            .m_axis_data_tready(dac_tready_i[ch_indx]),
+            .m_axis_data_tready(dac_tready_i),
             .m_axis_data_tdata (int_tdata[ch_indx])
         );
     end
