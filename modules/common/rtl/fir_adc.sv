@@ -12,8 +12,8 @@ module fir_adc #(
 
     input logic fir_en_i,
 
-    input logic [CH_NUM-1:0][1:0]                 adc_tvalid_i,
     input logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] adc_tdata_i,
+    input logic                                   adc_tvalid_i,
 
     axis_if.master adc_axis
 );
@@ -25,7 +25,7 @@ module fir_adc #(
         fir_decimator i_fir_decimator (
             .aresetn           (arstn_i),
             .aclk              (clk_i),
-            .s_axis_data_tvalid(|adc_tvalid_i[ch_indx]),
+            .s_axis_data_tvalid(adc_tvalid_i),
             .s_axis_data_tready(),
             .s_axis_data_tdata (adc_tdata_i[ch_indx]),
             .m_axis_data_tvalid(dec_tvalid[ch_indx]),
