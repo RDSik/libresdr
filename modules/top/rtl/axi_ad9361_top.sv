@@ -223,7 +223,7 @@ module axi_ad9361_top #(
         .clk_i       (l_clk),
         .arstn_i     (rstn),
         .fir_en_i    (up_dac_gpio_out[0]),
-        .dac_tready_i(dac_tready),
+        .dac_tready_i(|dac_tready),
         .dac_tdata_o (dac_tdata),
         .dac_axis    (dac_axis)
     );
@@ -240,7 +240,7 @@ module axi_ad9361_top #(
         .clk_i       (l_clk),
         .arstn_i     (rstn),
         .fir_en_i    (up_adc_gpio_out[0]),
-        .adc_tvalid_i(adc_tvalid),
+        .adc_tvalid_i(|adc_tvalid),
         .adc_tdata_i (adc_tdata),
         .adc_axis    (adc_if)
     );
