@@ -95,6 +95,8 @@ module axil_reg_file #(
                             end
                         end
                         wr_valid[reg_indx] <= 1'b1;
+                    end else begin
+                        wr_valid[reg_indx] <= 1'b0;
                     end
                 end
             end else begin
