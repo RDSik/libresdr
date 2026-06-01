@@ -189,6 +189,8 @@ module axil_reg_file #(
                     if (araddr[ADDR_MSB:ADDR_LSB] == reg_indx) begin
                         rd_request[reg_indx] <= 1'b1;
                     end
+                end else begin
+                    rd_request[reg_index] <= 1'b0;
                 end
             end else begin
                 rd_request <= '0;
