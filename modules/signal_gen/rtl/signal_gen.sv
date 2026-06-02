@@ -121,35 +121,20 @@ module signal_gen
     logic [CH_NUM-1:0]                      ampl_tvalid;
 
     for (genvar ch_indx = 0; ch_indx < CH_NUM; ch_indx++) begin : g_ch
-        logic [1:0][DATA_WIDTH-1:0] dds_tdata;
-        logic                       dds_tvalid;
-
-        dds #(
+        test_signal_gen #(
             .PHASE_WIDTH(DDS_PHASE_WIDTH),
             .DATA_WIDTH (DATA_WIDTH)
-        ) i_dds (
-            .clk_i   (clk_i),
-            .rst_i   (dds_reset[ch_indx]),
-            .en_i    (dds_enable[ch_indx]),
-            .pinc_i  (settings[ch_indx].pinc),
-            .poff_i  (settings[ch_indx].poff),
-            .tdata_o (dds_tdata),
-            .tvalid_o(dds_tvalid)
-        );
-
-        amplitude #(
-            .CH_NUM    (2),
-            .DATA_WIDTH(DATA_WIDTH)
-        ) i_amplitude (
-            .clk_i       (clk_i),
-            .rst_i       (dds_reset[ch_indx]),
-            .round_type_i(settings[ch_indx].round_type),
-            .ampl_i      (settings[ch_indx].ampl),
-            .tdata_i     (dds_tdata),
-            .tvalid_i    (dds_tvalid),
-            .tdata_o     (ampl_tdata[ch_indx]),
-            .tvalid_o    (ampl_tvalid[ch_indx]),
-            .ovf_o       (ampl_ovf[ch_indx])
+        ) i_test_signal_gen (
+            .clk_i        (clk_i),
+            .rst_i        (dds_reset[ch_indx]),
+            .en_i         (dds_enable[ch_indx]),
+            .round_type_i (settings[ch_indx].round_type),
+            .ampl_i       (settings[ch_indx].ampl),
+            .pinc_i       (settings[ch_indx].pinc),
+            .poff_i       (settings[ch_indx].poff),
+            .tdata_o      (ampl_tdata[ch_indx]),
+            .tvalid_o     (ampl_tvalid[ch_indx]),
+            .ovf_o        (ampl_ovf[ch_indx])
         );
     end
 
