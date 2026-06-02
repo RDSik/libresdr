@@ -15,12 +15,12 @@ module round #(
     output logic                                  tvalid_o
 );
 
-    localparam int FRAC_WIDTH = DATA_WIDTH_IN - DATA_WIDTH_OUT;
-
-    if (FRAC_WIDTH == 0) begin : g_equal
+    if (DATA_WIDTH_IN == DATA_WIDTH_OUT) begin : g_equal
         assign tdata_o  = tdata_i;
         assign tvalid_o = tvalid_i;
     end else begin : g_round
+        localparam int FRAC_WIDTH = DATA_WIDTH_IN - DATA_WIDTH_OUT;
+        
         for (genvar i = 0; i < CH_NUM; i++) begin : g_ch
             logic signed [DATA_WIDTH_IN-1:0] data_in;
             assign data_in = signed'(tdata_i[i]);
