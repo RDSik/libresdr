@@ -19,7 +19,7 @@ module round #(
 
     for (genvar i = 0; i < CH_NUM; i++) begin : g_ch
         logic signed [DATA_WIDTH_IN-1:0] data_in;
-        assign data_in = tdata_i[i];
+        assign data_in = signed'(tdata_i[i]);
 
         logic [FRAC_WIDTH-1:0] add;
         assign add = (round_type_i) ? {1'b1, {{FRAC_WIDTH - 1} {1'b0}}} : {1'b0, {{FRAC_WIDTH - 1} {1'b1}}};
