@@ -300,7 +300,7 @@ module libre_top #(
     localparam FIFO_MEM_TYPE = "block";
     localparam FAMILY = "zynq";
 
-    axi_ad9361_top #(
+    axi_ad9361_wrap #(
         .DATA_WIDTH    (IQ_DATA_WIDTH),
         .ILA_EN        (ILA_EN),
         .FAMILY        (FAMILY),
@@ -311,7 +311,7 @@ module libre_top #(
         .CLK10M_EN     (CLK10M_EN),
         .PPS_EN        (PPS_EN),
         .SYNC_STAGE_NUM(SYNC_STAGE_NUM)
-    ) i_axi_ad9361_top (
+    ) i_axi_ad9361_wrap (
         .s_axil(axil_ad),
 
         .txnrx         (txnrx),
