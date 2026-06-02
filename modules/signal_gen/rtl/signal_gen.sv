@@ -122,8 +122,8 @@ module signal_gen
 
     for (genvar ch_indx = 0; ch_indx < CH_NUM; ch_indx++) begin : g_ch
         test_signal_gen #(
-            .PHASE_WIDTH(DDS_PHASE_WIDTH),
-            .DATA_WIDTH (DATA_WIDTH)
+            .PHASE_WIDTH (DDS_PHASE_WIDTH),
+            .DATA_WIDTH  (DATA_WIDTH)
         ) i_test_signal_gen (
             .clk_i        (clk_i),
             .rst_i        (dds_reset[ch_indx]),
