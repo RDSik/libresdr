@@ -43,7 +43,6 @@ module round #(
             end
     
             logic signed [DATA_WIDTH_OUT-1:0] data_out;
-            assign tdata_o[i] = data_out;
     
             always_ff @(posedge clk_i) begin
                 if (pattern_detect) begin
@@ -52,6 +51,8 @@ module round #(
                     data_out <= sum_reg[DATA_WIDTH_IN-1:FRAC_WIDTH];
                 end
             end
+
+            assign tdata_o[i] = data_out;
         end
     
         logic tvalid_d;
