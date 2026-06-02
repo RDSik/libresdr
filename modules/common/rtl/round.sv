@@ -38,15 +38,12 @@ module round #(
             sum_reg        <= sum;
         end
 
-        logic lsb_bit;
-        assign lsb_bit = (round_type_i) ? 1'b0 : 1'b1;
-
         logic signed [DATA_WIDTH_OUT-1:0] data_out;
         assign tdata_o[i] = data_out;
 
         always_ff @(posedge clk_i) begin
             if (pattern_detect) begin
-                data_out <= {sum_reg[DATA_WIDTH_IN-1:FRAC_WIDTH+1], lsb_bit};
+                data_out <= {sum_reg[DATA_WIDTH_IN-1:FRAC_WIDTH+1], ~round_type_i};
             end else begin
                 data_out <= sum_reg[DATA_WIDTH_IN-1:FRAC_WIDTH];
             end
