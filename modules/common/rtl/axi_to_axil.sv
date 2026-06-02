@@ -1,5 +1,5 @@
 module axi_to_axil (
-	axi_if.slave   s_axi
+	axi_if.slave   s_axi,
 	axil_if.master m_axil
 );
 
