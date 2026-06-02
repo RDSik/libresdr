@@ -26,6 +26,7 @@ set xil_defaultlib "
     $path/rtl/saturate.sv
     $path/rtl/shift_reg.sv
     $path/rtl/test_signal_gen.sv
+    $path/rtl/axi_to_axil.sv
 "
 
 add_files -norecurse $xil_defaultlib
