@@ -1,4 +1,4 @@
-module axi_ad9361_top #(
+module axi_ad9361_wrap #(
     parameter logic ILA_EN         = 1,
     parameter logic PPS_EN         = 1,
     parameter logic CLK10M_EN      = 1,
