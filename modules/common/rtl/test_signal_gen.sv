@@ -35,7 +35,7 @@ module test_signal_gen #(
     );
 
     amplitude #(
-        .CH_NUM    (2)
+        .CH_NUM    (2),
         .DATA_WIDTH(DATA_WIDTH)
     ) i_amplitude (
         .clk_i       (clk_i),
