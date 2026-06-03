@@ -53,7 +53,6 @@
 #include "xilinx_spi.h"
 #include "xilinx_gpio.h"
 #include "no_os_irq.h"
-#include "xaxidma.h"
 #ifdef ALTERA_PLATFORM
 #include "altera_spi.h"
 #include "altera_gpio.h"
@@ -68,6 +67,7 @@
 
 #include "axi_adc_core.h"
 #include "axi_dac_core.h"
+#include "axi_dmac.h"
 #include "no_os_error.h"
 
 #ifdef IIO_SUPPORT
