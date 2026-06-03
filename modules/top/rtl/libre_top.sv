@@ -370,16 +370,12 @@ module libre_top #(
     localparam FAMILY = "zynq";
 
     axi_ad9361_wrap #(
-        .DATA_WIDTH    (IQ_DATA_WIDTH),
-        .ILA_EN        (ILA_EN),
-        .FAMILY        (FAMILY),
-        .FIFO_DEPTH    (FIFO_DEPTH),
-        .ASYNC_MODE_EN (ASYNC_MODE_EN),
-        .FIFO_MEM_TYPE (FIFO_MEM_TYPE),
-        .CH_NUM        (CH_NUM),
-        .CLK10M_EN     (CLK10M_EN),
-        .PPS_EN        (PPS_EN),
-        .SYNC_STAGE_NUM(SYNC_STAGE_NUM)
+        .DATA_WIDTH(IQ_DATA_WIDTH),
+        .ILA_EN    (ILA_EN),
+        .FAMILY    (FAMILY),
+        .CH_NUM    (CH_NUM),
+        .CLK10M_EN (CLK10M_EN),
+        .PPS_EN    (PPS_EN)
     ) i_axi_ad9361_wrap (
         .s_axil(axil_ad),
 

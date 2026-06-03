@@ -1,14 +1,10 @@
 module axi_ad9361_wrap #(
-    parameter logic ILA_EN         = 1,
-    parameter logic PPS_EN         = 1,
-    parameter logic CLK10M_EN      = 1,
-    parameter int   CH_NUM         = 2,
-    parameter int   DATA_WIDTH     = 16,
-    parameter logic ASYNC_MODE_EN  = 0,
-    parameter int   SYNC_STAGE_NUM = 3,
-    parameter int   FIFO_DEPTH     = 4096,
-    parameter       FIFO_MEM_TYPE  = "block",
-    parameter       FAMILY         = "zynq"
+    parameter logic ILA_EN     = 1,
+    parameter logic PPS_EN     = 1,
+    parameter logic CLK10M_EN  = 1,
+    parameter int   CH_NUM     = 2,
+    parameter int   DATA_WIDTH = 16,
+    parameter       FAMILY     = "zynq"
 ) (
 
     // physical interface (receive-lvds)
@@ -77,21 +73,21 @@ module axi_ad9361_wrap #(
     end
 
     axi_ad9361 #(
-        .ID                      (0),
-        .MODE_1R1T               (0),
-        .FPGA_TECHNOLOGY         (0),
-        .FPGA_FAMILY             (FPGA_FAMILY),
-        .SPEED_GRADE             (0),
-        .DEV_PACKAGE             (0),
-        .TDD_DISABLE             (0),
-        .PPS_RECEIVER_ENABLE     (PPS_EN),
-        .CMOS_OR_LVDS_N          (0),
-        .IO_DELAY_GROUP          ("dev_if_delay_group"),
-        .IODELAY_CTRL            (1),
-        .MIMO_ENABLE             (0),
-        .USE_SSI_CLK             (!CLK10M_EN),
-        .DELAY_REFCLK_FREQUENCY  (200),
-        .RX_NODPA                (0),
+        .ID                    (0),
+        .MODE_1R1T             (0),
+        .FPGA_TECHNOLOGY       (0),
+        .FPGA_FAMILY           (FPGA_FAMILY),
+        .SPEED_GRADE           (0),
+        .DEV_PACKAGE           (0),
+        .TDD_DISABLE           (0),
+        .PPS_RECEIVER_ENABLE   (PPS_EN),
+        .CMOS_OR_LVDS_N        (0),
+        .IO_DELAY_GROUP        ("dev_if_delay_group"),
+        .IODELAY_CTRL          (1),
+        .MIMO_ENABLE           (0),
+        .USE_SSI_CLK           (!CLK10M_EN),
+        .DELAY_REFCLK_FREQUENCY(200),
+        .RX_NODPA              (0),
 
         .ADC_INIT_DELAY          (30),
         .ADC_DATAPATH_DISABLE    (0),
@@ -206,21 +202,9 @@ module axi_ad9361_wrap #(
     logic rstn;
     assign rstn = ~rst;
 
-    axis_if #(
-        .DATA_WIDTH(CH_NUM * DATA_WIDTH * 2)
-    ) adc_if (
-        .clk_i  (adc_axis.clk_i),
-        .arstn_i(adc_axis.arstn_i)
-    );
-
     fir_dac #(
-        .CH_NUM        (CH_NUM),
-        .DATA_WIDTH    (DATA_WIDTH),
-        .FAMILY        (FAMILY),
-        .ASYNC_MODE_EN (ASYNC_MODE_EN),
-        .FIFO_DEPTH    (FIFO_DEPTH),
-        .FIFO_MEM_TYPE (FIFO_MEM_TYPE),
-        .SYNC_STAGE_NUM(SYNC_STAGE_NUM)
+        .CH_NUM    (CH_NUM),
+        .DATA_WIDTH(DATA_WIDTH)
     ) i_fir_dac (
         .clk_i       (l_clk),
         .arstn_i     (rstn),
@@ -231,34 +215,15 @@ module axi_ad9361_wrap #(
     );
 
     fir_adc #(
-        .CH_NUM        (CH_NUM),
-        .DATA_WIDTH    (DATA_WIDTH),
-        .FAMILY        (FAMILY),
-        .ASYNC_MODE_EN (ASYNC_MODE_EN),
-        .FIFO_DEPTH    (FIFO_DEPTH),
-        .FIFO_MEM_TYPE (FIFO_MEM_TYPE),
-        .SYNC_STAGE_NUM(SYNC_STAGE_NUM)
+        .CH_NUM    (CH_NUM),
+        .DATA_WIDTH(DATA_WIDTH)
     ) i_fir_adc (
         .clk_i       (l_clk),
         .arstn_i     (rstn),
         .fir_en_i    (up_adc_gpio_out[0]),
         .adc_tvalid_i(|adc_tvalid),
         .adc_tdata_i (adc_tdata),
-        .adc_axis    (adc_if)
-    );
-
-    localparam logic [31:0] S_AXIS_SIGNAL_SET = 32'h03;
-    localparam logic [31:0] M_AXIS_SIGNAL_SET = 32'h1B;
-
-    axis_subset_converter_wrap #(
-        .FAMILY           (FAMILY),
-        .DEFAULT_TLAST    (FIFO_DEPTH),
-        .S_AXIS_SIGNAL_SET(S_AXIS_SIGNAL_SET),
-        .M_AXIS_SIGNAL_SET(M_AXIS_SIGNAL_SET)
-    ) i_axis_subset_converter_wrap (
-        .en_i  (1'b1),
-        .s_axis(adc_if),
-        .m_axis(adc_axis)
+        .adc_axis    (adc_axis)
     );
 
     if (ILA_EN) begin : g_ila
