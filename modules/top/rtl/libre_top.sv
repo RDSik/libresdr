@@ -406,7 +406,6 @@ module libre_top #(
         .m_axi     (axi_hp),
         .s2mm_irq_o(s2mm_irq),
         .mm2s_irq_o(mm2s_irq)
-
     );
 
     axi_ad9361_wrap #(
