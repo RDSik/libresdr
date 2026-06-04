@@ -1,7 +1,7 @@
 module libre_top #(
-    parameter logic ILA_EN    = 1,
-    parameter logic PPS_EN    = 0,
-    parameter logic CLK10M_EN = 0
+    parameter bit ILA_EN    = 1,
+    parameter bit PPS_EN    = 0,
+    parameter bit CLK10M_EN = 0
 ) (
     inout [14:0] ddr_addr,
     inout [ 2:0] ddr_ba,
