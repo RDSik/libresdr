@@ -287,8 +287,8 @@ proc create_root_design { parentCell } {
  ] $FCLK_CLK0_0
   set FCLK_CLK1_0 [ create_bd_port -dir O -type clk FCLK_CLK1_0 ]
   set FCLK_RESET0_N_0 [ create_bd_port -dir O -type rst FCLK_RESET0_N_0 ]
-  set adc_dma_irq [ create_bd_port -dir I -from 0 -to 0 adc_dma_irq ]
-  set dac_dma_irq [ create_bd_port -dir I -from 0 -to 0 dac_dma_irq ]
+  set s2mm_irq [ create_bd_port -dir I -from 0 -to 0 s2mm_irq ]
+  set mm2s_irq [ create_bd_port -dir I -from 0 -to 0 mm2s_irq ]
   set pps_irq [ create_bd_port -dir I -from 0 -to 0 pps_irq ]
 
   # Create instance: axi_iic_0, and set properties
