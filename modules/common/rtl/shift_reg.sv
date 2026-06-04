@@ -1,8 +1,8 @@
 module shift_reg #(
-    parameter logic RESET_EN   = 0,
-    parameter int   DATA_WIDTH = 16,
-    parameter int   DELAY      = 16,
-    parameter       SRL_STYLE  = "srl"
+    parameter bit RESET_EN   = 0,
+    parameter int DATA_WIDTH = 16,
+    parameter int DELAY      = 16,
+    parameter     SRL_STYLE  = "srl"
 ) (
     input  logic                  clk_i,
     input  logic                  rst_i,
