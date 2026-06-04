@@ -148,22 +148,22 @@ module libre_top #(
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
     ) axis_mm2s (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
+        .clk_i  (l_clk),
+        .arstn_i(~rst)
     );
 
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
     ) axis_s2mm (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
+        .clk_i  (l_clk),
+        .arstn_i(~rst)
     );
 
     axis_if #(
         .DATA_WIDTH(FULL_DATA_WIDH)
     ) dac_axis (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
+        .clk_i  (l_clk),
+        .arstn_i(~rst)
     );
 
     logic                                      pps_irq;
@@ -390,8 +390,8 @@ module libre_top #(
     );
 
     localparam int SYNC_STAGE_NUM = 3;
-    localparam int ASYNC_MODE_EN = 1;
     localparam int FIFO_DEPTH = 256;
+    localparam bit ASYNC_MODE_EN = 1;
     localparam FIFO_MEM_TYPE = "block";
     localparam FAMILY = "zynq";
 
@@ -453,7 +453,7 @@ module libre_top #(
         .AXIL_ADDR_WIDTH(AXIL_ADDR_WIDTH),
         .AXIL_DATA_WIDTH(AXIL_DATA_WIDTH),
         .SYNC_STAGE_NUM (SYNC_STAGE_NUM),
-        .ASYNC_MODE_EN  (0),
+        .ASYNC_MODE_EN  (ASYNC_MODE_EN),
         .FIFO_DEPTH     (FIFO_DEPTH),
         .FIFO_MEM_TYPE  (FIFO_MEM_TYPE),
         .FAMILY         (FAMILY)
