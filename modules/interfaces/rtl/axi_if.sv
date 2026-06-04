@@ -1,6 +1,8 @@
 interface axi_if #(
     parameter int DATA_WIDTH = 32,
-    parameter int ADDR_WIDTH = 32
+    parameter int ADDR_WIDTH = 32,
+    parameter int LEN_WIDTH  = 8,
+    parameter int ID_WIDTH   = 1
 ) (
     input logic clk_i,
     input logic arstn_i
@@ -12,41 +14,46 @@ interface axi_if #(
     logic                  awvalid;
     logic                  awready;
     logic [           2:0] awprot;
-    logic [           7:0] awlen;
+    logic [ LEN_WIDTH-1:0] awlen;
     logic [           2:0] awsize;
     logic [           1:0] awburst;
     logic                  awlock;
     logic [           3:0] awcache;
     logic [           3:0] awregion;
     logic [           3:0] awqos;
+    logic [  ID_WIDTH-1:0] awid;
 
     logic [DATA_WIDTH-1:0] wdata;
     logic [STRB_WIDTH-1:0] wstrb;
     logic                  wvalid;
     logic                  wready;
     logic                  wlast;
+    logic [  ID_WIDTH-1:0] wid;
 
     logic [           1:0] bresp;
     logic                  bvalid;
     logic                  bready;
+    logic [  ID_WIDTH-1:0] bid;
 
     logic [ADDR_WIDTH-1:0] araddr;
     logic                  arvalid;
     logic                  arready;
     logic [           2:0] arprot;
-    logic [           7:0] arlen;
+    logic [ LEN_WIDTH-1:0] arlen;
     logic [           2:0] arsize;
     logic [           1:0] arburst;
     logic                  arlock;
     logic [           3:0] arcache;
     logic [           3:0] arregion;
     logic [           3:0] arqos;
+    logic [  ID_WIDTH-1:0] arid;
 
     logic [DATA_WIDTH-1:0] rdata;
     logic                  rvalid;
     logic                  rready;
     logic                  rlast;
     logic [           1:0] rresp;
+    logic [  ID_WIDTH-1:0] rid;
 
     modport master(
         input clk_i,
@@ -61,15 +68,18 @@ interface axi_if #(
         output awregion,
         output awqos,
         output awvalid,
+        output awid,
         input awready,
         output wdata,
         output wstrb,
         output wvalid,
         output wlast,
+        output wid,
         input wready,
         input rresp,
         input bresp,
         input bvalid,
+        input bid,
         output bready,
         output araddr,
         output arprot,
@@ -81,10 +91,12 @@ interface axi_if #(
         output arregion,
         output arqos,
         output arvalid,
+        output arid,
         input arready,
         input rdata,
         input rvalid,
         input rlast,
+        input rid,
         output rready
     );
 
@@ -101,15 +113,18 @@ interface axi_if #(
         input awregion,
         input awqos,
         input awvalid,
+        input awid,
         output awready,
         input wdata,
         input wstrb,
         input wlast,
         input wvalid,
+        input wid,
         output wready,
         output rresp,
         output bresp,
         output bvalid,
+        output bid,
         input bready,
         input araddr,
         input arprot,
@@ -121,10 +136,12 @@ interface axi_if #(
         input arregion,
         input arqos,
         input arvalid,
+        input arid,
         output arready,
         output rdata,
         output rvalid,
         output rlast,
+        output rid,
         input rready
     );
 
