@@ -594,8 +594,8 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net processing_system7_0_SPI_0 [get_bd_intf_ports SPI_0_0] [get_bd_intf_pins processing_system7_0/SPI_0]
 
   # Create port connections
-  connect_bd_net -net In2_0_1 [get_bd_ports adc_dma_irq] [get_bd_pins xlconcat_0/In2]
-  connect_bd_net -net In3_0_1 [get_bd_ports dac_dma_irq] [get_bd_pins xlconcat_0/In3]
+  connect_bd_net -net In2_0_1 [get_bd_ports s2mm_irq] [get_bd_pins xlconcat_0/In2]
+  connect_bd_net -net In3_0_1 [get_bd_ports mm2s_irq] [get_bd_pins xlconcat_0/In3]
   connect_bd_net -net In4_0_1 [get_bd_ports pps_irq] [get_bd_pins xlconcat_0/In4]
   connect_bd_net -net axi_iic_0_iic2intc_irpt [get_bd_pins axi_iic_0/iic2intc_irpt] [get_bd_pins xlconcat_0/In0]
   connect_bd_net -net axi_quad_spi_0_ip2intc_irpt [get_bd_pins axi_quad_spi_0/ip2intc_irpt] [get_bd_pins xlconcat_0/In1]
