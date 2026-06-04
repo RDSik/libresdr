@@ -205,7 +205,7 @@ module axi_ad9361_wrap #(
     axis_if #(
         .DATA_WIDTH(CH_NUM * DATA_WIDTH * 2)
     ) adc_if (
-         .clk_i  (l_clk),
+        .clk_i  (l_clk),
         .arstn_i(rstn)
     );
 
