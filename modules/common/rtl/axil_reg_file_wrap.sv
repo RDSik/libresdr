@@ -5,8 +5,8 @@ module axil_reg_file_wrap #(
     parameter int   REG_NUM        = 5,
     parameter type  reg_t          = logic          [REG_NUM-1:0][REG_DATA_WIDTH-1:0],
     parameter reg_t REG_INIT       = '{default: '0},
-    parameter logic ILA_EN         = 0,
-    parameter logic ASYNC_MODE_EN  = 0
+    parameter bit ILA_EN          = 0,
+    parameter bit ASYNC_MODE_EN   = 0
 ) (
     input logic clk_i,
     input logic arstn_i,
