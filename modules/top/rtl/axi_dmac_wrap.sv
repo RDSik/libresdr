@@ -1,7 +1,6 @@
 module axi_dmac_wrap #(
-    parameter bit ILA_EN       = 1,
-    parameter bit ASYNC_EN_ADC = 1,
-    parameter bit ASYNC_EN_DAC = 1
+    parameter bit ILA_EN        = 1,
+    parameter bit ASYNC_MODE_EN = 1
 ) (
     output logic adc_dma_irq_o,
     output logic dac_dma_irq_o,
@@ -38,8 +37,8 @@ module axi_dmac_wrap #(
         .DMA_AXIS_ID_W        (adc_axis.ID_WIDTH),
         .DMA_AXIS_DEST_W      (adc_axis.DEST_WIDTH),
 
-        .ASYNC_CLK_REQ_SRC (ASYNC_EN_ADC),
-        .ASYNC_CLK_SRC_DEST(ASYNC_EN_ADC),
+        .ASYNC_CLK_REQ_SRC (ASYNC_MODE_EN),
+        .ASYNC_CLK_SRC_DEST(ASYNC_MODE_EN),
         .ASYNC_CLK_DEST_REQ(0),
 
         .AXI_SLICE_DEST   (0),
@@ -178,8 +177,8 @@ module axi_dmac_wrap #(
         .DMA_AXIS_DEST_W      (dac_axis.DEST_WIDTH),
 
         .ASYNC_CLK_REQ_SRC (0),
-        .ASYNC_CLK_SRC_DEST(ASYNC_EN_DAC),
-        .ASYNC_CLK_DEST_REQ(ASYNC_EN_DAC),
+        .ASYNC_CLK_SRC_DEST(ASYNC_MODE_EN),
+        .ASYNC_CLK_DEST_REQ(ASYNC_MODE_EN),
 
         .AXI_SLICE_DEST   (0),
         .AXI_SLICE_SRC    (0),
