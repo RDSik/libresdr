@@ -232,7 +232,7 @@ module axi_ad9361_wrap #(
         .adc_tdata_i (adc_tdata),
         .adc_axis    (adc_if)
     );
-    
+
     localparam logic [31:0] S_AXIS_SIGNAL_SET = 32'h03;
     localparam logic [31:0] M_AXIS_SIGNAL_SET = 32'h1B;
 
