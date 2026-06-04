@@ -202,6 +202,13 @@ module axi_ad9361_wrap #(
     logic rstn;
     assign rstn = ~rst;
 
+    axis_if #(
+        .DATA_WIDTH(CH_NUM * DATA_WIDTH * 2)
+    ) adc_if (
+         .clk_i  (l_clk),
+        .arstn_i(rstn)
+    );
+
     fir_dac #(
         .CH_NUM    (CH_NUM),
         .DATA_WIDTH(DATA_WIDTH)
@@ -223,14 +230,7 @@ module axi_ad9361_wrap #(
         .fir_en_i    (up_adc_gpio_out[0]),
         .adc_tvalid_i(|adc_tvalid),
         .adc_tdata_i (adc_tdata),
-        .adc_axis    (adc_axis)
-    );
-
-     axis_if #(
-        .DATA_WIDTH(CH_NUM * DATA_WIDTH * 2)
-    ) adc_if (
-         .clk_i  (l_clk),
-        .arstn_i(rstn)
+        .adc_axis    (adc_if)
     );
     
     localparam logic [31:0] S_AXIS_SIGNAL_SET = 32'h03;
