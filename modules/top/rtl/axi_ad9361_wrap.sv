@@ -1,7 +1,7 @@
 module axi_ad9361_wrap #(
-    parameter logic ILA_EN     = 1,
-    parameter logic PPS_EN     = 1,
-    parameter logic CLK10M_EN  = 1,
+    parameter bit ILA_EN     = 1,
+    parameter bit PPS_EN     = 1,
+    parameter bit CLK10M_EN  = 1,
     parameter int   CH_NUM     = 2,
     parameter int   DATA_WIDTH = 16,
     parameter       FAMILY     = "zynq"
