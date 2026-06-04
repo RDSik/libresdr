@@ -5,8 +5,8 @@ module axi_dmac_wrap #(
     output logic adc_dma_irq_o,
     output logic dac_dma_irq_o,
 
-    axis_if.slave  dac_axis,
-    axis_if.master adc_axis,
+    axis_if.master dac_axis,
+    axis_if.slave  adc_axis,
 
     axil_if.slave adc_axil,
     axil_if.slave dac_axil,
