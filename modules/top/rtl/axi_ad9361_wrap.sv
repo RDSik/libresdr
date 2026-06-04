@@ -226,6 +226,27 @@ module axi_ad9361_wrap #(
         .adc_axis    (adc_axis)
     );
 
+     axis_if #(
+        .DATA_WIDTH(CH_NUM * DATA_WIDTH * 2)
+    ) adc_if (
+         .clk_i  (l_clk),
+        .arstn_i(rstn)
+    );
+    
+    localparam logic [31:0] S_AXIS_SIGNAL_SET = 32'h03;
+    localparam logic [31:0] M_AXIS_SIGNAL_SET = 32'h1B;
+
+    axis_subset_converter_wrap #(
+        .FAMILY           (FAMILY),
+        .DEFAULT_TLAST    (FIFO_DEPTH),
+        .S_AXIS_SIGNAL_SET(S_AXIS_SIGNAL_SET),
+        .M_AXIS_SIGNAL_SET(M_AXIS_SIGNAL_SET)
+    ) i_axis_subset_converter_wrap (
+        .en_i  (1'b1),
+        .s_axis(adc_if),
+        .m_axis(adc_axis)
+    );
+
     if (ILA_EN) begin : g_ila
         axil_ila i_axil_ila (
             .clk    (s_axil.clk_i),
