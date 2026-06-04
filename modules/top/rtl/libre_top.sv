@@ -458,8 +458,8 @@ module libre_top #(
         .FIFO_MEM_TYPE  (FIFO_MEM_TYPE),
         .FAMILY         (FAMILY)
     ) i_signal_gen (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn),
+        .clk_i  (l_clk),
+        .arstn_i(~rst),
         .s_axil (axil_sig_gen),
         .s_axis (axis_mm2s),
         .m_axis (dac_axis)
