@@ -105,6 +105,30 @@ module libre_top #(
         assign clk = l_clk;
     end
 
+    axi_if #(
+        .ADDR_WIDTH(AXIL_ADDR_WIDTH),
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) axi_hp (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axil_if #(
+        .DATA_WIDTH(AXIL_DATA_WIDTH),
+        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
+    ) axil_s2mm (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axil_if #(
+        .DATA_WIDTH(AXIL_DATA_WIDTH),
+        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
+    ) axil_mm2s (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
     axil_if #(
         .DATA_WIDTH(AXIL_DATA_WIDTH),
         .ADDR_WIDTH(AXIL_ADDR_WIDTH)
@@ -143,6 +167,8 @@ module libre_top #(
     );
 
     logic                                      pps_irq;
+    logic                                      s2mm_irq;
+    logic                                      mm2s_irq;
 
     logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] adc_tdata;
     logic [CH_NUM-1:0][1:0]                    adc_tvalid;
@@ -231,45 +257,45 @@ module libre_top #(
         .AXI_AD9361_0_wstrb  (axil_ad.wstrb),
         .AXI_AD9361_0_wvalid (axil_ad.wvalid),
 
-        .AXI_DMAC_0_araddr (),
-        .AXI_DMAC_0_arprot (),
-        .AXI_DMAC_0_arready(),
-        .AXI_DMAC_0_arvalid(),
-        .AXI_DMAC_0_awaddr (),
-        .AXI_DMAC_0_awprot (),
-        .AXI_DMAC_0_awready(),
-        .AXI_DMAC_0_awvalid(),
-        .AXI_DMAC_0_bready (),
-        .AXI_DMAC_0_bresp  (),
-        .AXI_DMAC_0_bvalid (),
-        .AXI_DMAC_0_rdata  (),
-        .AXI_DMAC_0_rready (),
-        .AXI_DMAC_0_rresp  (),
-        .AXI_DMAC_0_rvalid (),
-        .AXI_DMAC_0_wdata  (),
-        .AXI_DMAC_0_wready (),
-        .AXI_DMAC_0_wstrb  (),
-        .AXI_DMAC_0_wvalid (),
+        .AXI_DMAC_0_araddr (axil_s2mm.araddr),
+        .AXI_DMAC_0_arprot (axil_s2mm.arprot),
+        .AXI_DMAC_0_arready(axil_s2mm.arready),
+        .AXI_DMAC_0_arvalid(axil_s2mm.arvalid),
+        .AXI_DMAC_0_awaddr (axil_s2mm.awaddr),
+        .AXI_DMAC_0_awprot (axil_s2mm.awprot),
+        .AXI_DMAC_0_awready(axil_s2mm.awready),
+        .AXI_DMAC_0_awvalid(axil_s2mm.awvalid),
+        .AXI_DMAC_0_bready (axil_s2mm.bready),
+        .AXI_DMAC_0_bresp  (axil_s2mm.bresp),
+        .AXI_DMAC_0_bvalid (axil_s2mm.bvalid),
+        .AXI_DMAC_0_rdata  (axil_s2mm.rdata),
+        .AXI_DMAC_0_rready (axil_s2mm.rready),
+        .AXI_DMAC_0_rresp  (axil_s2mm.rresp),
+        .AXI_DMAC_0_rvalid (axil_s2mm.rvalid),
+        .AXI_DMAC_0_wdata  (axil_s2mm.wdata),
+        .AXI_DMAC_0_wready (axil_s2mm.wready),
+        .AXI_DMAC_0_wstrb  (axil_s2mm.wstrb),
+        .AXI_DMAC_0_wvalid (axil_s2mm.wvalid),
 
-        .AXI_DMAC_1_araddr (),
-        .AXI_DMAC_1_arprot (),
-        .AXI_DMAC_1_arready(),
-        .AXI_DMAC_1_arvalid(),
-        .AXI_DMAC_1_awaddr (),
-        .AXI_DMAC_1_awprot (),
-        .AXI_DMAC_1_awready(),
-        .AXI_DMAC_1_awvalid(),
-        .AXI_DMAC_1_bready (),
-        .AXI_DMAC_1_bresp  (),
-        .AXI_DMAC_1_bvalid (),
-        .AXI_DMAC_1_rdata  (),
-        .AXI_DMAC_1_rready (),
-        .AXI_DMAC_1_rresp  (),
-        .AXI_DMAC_1_rvalid (),
-        .AXI_DMAC_1_wdata  (),
-        .AXI_DMAC_1_wready (),
-        .AXI_DMAC_1_wstrb  (),
-        .AXI_DMAC_1_wvalid (),
+        .AXI_DMAC_1_araddr (axil_mm2s.araddr),
+        .AXI_DMAC_1_arprot (axil_mm2s.arprot),
+        .AXI_DMAC_1_arready(axil_mm2s.arready),
+        .AXI_DMAC_1_arvalid(axil_mm2s.arvalid),
+        .AXI_DMAC_1_awaddr (axil_mm2s.awaddr),
+        .AXI_DMAC_1_awprot (axil_mm2s.awprot),
+        .AXI_DMAC_1_awready(axil_mm2s.awready),
+        .AXI_DMAC_1_awvalid(axil_mm2s.awvalid),
+        .AXI_DMAC_1_bready (axil_mm2s.bready),
+        .AXI_DMAC_1_bresp  (axil_mm2s.bresp),
+        .AXI_DMAC_1_bvalid (axil_mm2s.bvalid),
+        .AXI_DMAC_1_rdata  (axil_mm2s.rdata),
+        .AXI_DMAC_1_rready (axil_mm2s.rready),
+        .AXI_DMAC_1_rresp  (axil_mm2s.rresp),
+        .AXI_DMAC_1_rvalid (axil_mm2s.rvalid),
+        .AXI_DMAC_1_wdata  (axil_mm2s.wdata),
+        .AXI_DMAC_1_wready (axil_mm2s.wready),
+        .AXI_DMAC_1_wstrb  (axil_mm2s.wstrb),
+        .AXI_DMAC_1_wvalid (axil_mm2s.wvalid),
 
         .M05_AXI_araddr (axil_sig_gen.araddr),
         .M05_AXI_arprot (axil_sig_gen.arprot),
@@ -358,8 +384,8 @@ module libre_top #(
         .S_AXI_HP1_0_wstrb  (),
         .S_AXI_HP1_0_wvalid (),
 
-        .adc_dma_irq(),
-        .dac_dma_irq(),
+        .adc_dma_irq(s2mm_irq),
+        .dac_dma_irq(mm2s_irq),
         .pps_irq    (pps_irq)
     );
 
@@ -368,6 +394,20 @@ module libre_top #(
     localparam int FIFO_DEPTH = 256;
     localparam FIFO_MEM_TYPE = "block";
     localparam FAMILY = "zynq";
+
+    axi_dmac_wrap #(
+        .ILA_EN  (ILA_EN),
+        .ASYNC_EN(ASYNC_MODE_EN)
+    ) i_axi_dmac_wrap (
+        .s2mm_axil (axil_s2mm),
+        .mm2s_axil (axil_mm2s),
+        .s2mm_axis (axis_s2mm),
+        .mm2s_axis (axis_mm2s),
+        .m_axi     (axi_hp),
+        .s2mm_irq_o(s2mm_irq),
+        .mm2s_irq_o(mm2s_irq)
+
+    );
 
     axi_ad9361_wrap #(
         .DATA_WIDTH(IQ_DATA_WIDTH),
