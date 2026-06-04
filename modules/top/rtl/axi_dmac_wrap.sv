@@ -5,11 +5,11 @@ module axi_dmac_wrap #(
     output logic s2mm_irq_o,
     output logic mm2s_irq_o,
 
-    axis_if.slave  s2mm_axis,
-    axis_if.master mm2s_axis,
-
     axil_if.slave s2mm_axil,
     axil_if.slave mm2s_axil,
+
+    axis_if.slave  s2mm_axis,
+    axis_if.master mm2s_axis,
 
     axi_if.master m_axi
 );
