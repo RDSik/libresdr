@@ -6,7 +6,7 @@ module axil_reg_file #(
     parameter int   REG_NUM        = 5,
     parameter type  reg_t          = logic          [REG_NUM-1:0][REG_DATA_WIDTH-1:0],
     parameter reg_t REG_INIT       = '{default: '0},
-    parameter logic ILA_EN         = 0
+    parameter bit ILA_EN           = 0
 ) (
     input reg_t               rd_regs_i,
     input logic [REG_NUM-1:0] rd_valid_i,
