@@ -1,5 +1,5 @@
 module axi_dmac_wrap #(
-    parameter bit ILA_EN        = 1,
+    parameter bit ILA_EN        = 0,
     parameter bit ASYNC_MODE_EN = 1
 ) (
     output logic s2mm_irq_o,
