@@ -38,4 +38,6 @@ module fir_adc #(
         end
     end
 
+    assign adc_axis.tkeep = '1;
+
 endmodule
