@@ -244,16 +244,15 @@ module libre_top #(
         .ad_axil  (ad_axil),
         .s2mm_axil(s2mm_axil),
         .mm2s_axil(mm2s_axil),
-        .ext_axil (axil_sig_gen),
-        .hp_axi   (hp_axi),
-
+        .ext_axil (sig_gen_axil),
+        .hp_axi   (hp_axi)
     );
 
     localparam bit ASYNC_MODE_EN = 1;
 
     axi_dmac_wrap #(
-        .ILA_EN  (ILA_EN),
-        .ASYNC_EN(ASYNC_MODE_EN)
+        .ILA_EN       (ILA_EN),
+        .ASYNC_MODE_EN(ASYNC_MODE_EN)
     ) i_axi_dmac_wrap (
         .s2mm_axil (s2mm_axil),
         .mm2s_axil (mm2s_axil),

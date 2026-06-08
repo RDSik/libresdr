@@ -11,7 +11,7 @@ set axi_dmac "
     $path/hdl/library/axi_dmac/axi_dmac_resize_src.v
     $path/hdl/library/axi_dmac/axi_dmac_response_manager.v
     $path/hdl/library/axi_dmac/axi_dmac_transfer.v
-    $path/hdl/library/axi_dmac/address_generator.vh
+    $path/hdl/library/axi_dmac/address_generator.v
     $path/hdl/library/axi_dmac/data_mover.v
     $path/hdl/library/axi_dmac/request_arb.v
     $path/hdl/library/axi_dmac/request_generator.v
@@ -20,7 +20,7 @@ set axi_dmac "
     $path/hdl/library/axi_dmac/dmac_2d_transfer.v
     $path/hdl/library/axi_dmac/dest_axi_mm.v
     $path/hdl/library/axi_dmac/dest_axi_stream.v
-    $path/hdl/library/axi_dmac/dest_fifo_inf.vh
+    $path/hdl/library/axi_dmac/dest_fifo_inf.v
     $path/hdl/library/axi_dmac/src_axi_mm.v
     $path/hdl/library/axi_dmac/src_axi_stream.v
     $path/hdl/library/axi_dmac/src_fifo_inf.v

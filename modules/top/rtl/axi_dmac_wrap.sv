@@ -184,7 +184,7 @@ module axi_dmac_wrap #(
         .AXI_SLICE_SRC    (0),
         .AXI_ID_WIDTH_SRC (m_axi.ID_WIDTH),
         .AXI_ID_WIDTH_DEST(m_axi.ID_WIDTH)
-    ) i_dac_dma (
+    ) i_mm2s_dma (
         .s_axi_aclk   (mm2s_axil.clk_i),
         .s_axi_aresetn(mm2s_axil.arstn_i),
         .s_axi_awvalid(mm2s_axil.awvalid),
