@@ -25,8 +25,8 @@ module axis_tlast_gen #(
     assign s_axis.tlast  = cnt_last;
     assign s_axis.tid    = m_axis.tid;
     assign s_axis.tdest  = m_axis.tdest;
-    assign s_axis.tstrb = m_axis.tstrb;
-    assign s_axis.tuser = m_axis.tuser;
+    assign s_axis.tstrb  = m_axis.tstrb;
+    assign s_axis.tuser  = m_axis.tuser;
     assign s_axis.tkeep  = '1;
 
     assign m_axis.tready = s_axis.tready;
