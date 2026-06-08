@@ -4,6 +4,7 @@ module axi_ad9361_wrap #(
     parameter bit CLK10M_EN  = 1,
     parameter int CH_NUM     = 2,
     parameter int DATA_WIDTH = 16,
+    parameter int TLAST_VAL  = 256,
     parameter     FAMILY     = "zynq"
 ) (
 
@@ -234,7 +235,7 @@ module axi_ad9361_wrap #(
     );
 
     axis_tlast_gen #(
-        .TLAST_VAL(FIFO_DEPTH)
+        .TLAST_VAL(TLAST_VAL)
     ) i_axis_tlast_gen (
         .s_axis(adc_if),
         .m_axis(adc_axis)
