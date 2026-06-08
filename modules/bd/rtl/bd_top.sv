@@ -29,9 +29,9 @@ module bd_top (
     output logic i2c_sda_o,
     output logic i2c_sda_t,
 
-    input  logic gpio_i,
-    output logic gpio_o,
-    output logic gpio_t,
+    input  logic [24:0] gpio_i,
+    output logic [24:0] gpio_o,
+    output logic [24:0] gpio_t,
 
     output logic ps_spi_csn_o,
     output logic ps_spi_clk_o,
