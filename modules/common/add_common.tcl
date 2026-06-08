@@ -27,6 +27,8 @@ set xil_defaultlib "
     $path/rtl/shift_reg.sv
     $path/rtl/test_signal_gen.sv
     $path/rtl/axi_to_axil.sv
+    $path/rtl/cnt.sv
+    $path/rtl/axis_tlast_gen.sv
 "
 
 add_files -norecurse $xil_defaultlib
