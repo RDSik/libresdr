@@ -27,26 +27,26 @@ module axi_ad9361_wrap #(
 
     // ensm control
 
-    output logic enable,
-    output logic txnrx,
+    output logic enable_o,
+    output logic txnrx_o,
 
-    input  logic gps_pps,
-    output logic gps_pps_irq,
+    input  logic gps_pps_i,
+    output logic gps_pps_irq_o,
 
     // delay clock
 
-    input logic delay_clk,
+    input logic delay_clk_i,
 
     // master interface
 
-    output logic l_clk,
-    input  logic clk,
-    output logic rst,
+    input  logic clk_i,
+    output logic l_clk_o,
+    output logic rstn_o,
 
     // gpio
 
-    input logic up_enable,
-    input logic up_txnrx,
+    input logic up_enable_i,
+    input logic up_txnrx_i,
 
     axil_if.slave s_axil,
 
@@ -71,6 +71,9 @@ module axi_ad9361_wrap #(
             assign adc_tdata[ch_indx][iq_indx] = signed'(adc_data[ch_indx][iq_indx]);
         end
     end
+
+    logic rst;
+    assign rstn_o = ~rst;
 
     axi_ad9361 #(
         .ID                    (0),
@@ -129,8 +132,8 @@ module axi_ad9361_wrap #(
         .s_axi_rresp  (s_axil.rresp),
         .s_axi_rready (s_axil.rready),
 
-        .txnrx         (txnrx),
-        .enable        (enable),
+        .txnrx         (txnrx_o),
+        .enable        (enable_o),
         .rx_clk_in_n   (rx_clk_in_n),
         .rx_clk_in_p   (rx_clk_in_p),
         .rx_data_in_n  (rx_data_in_n),
@@ -144,8 +147,8 @@ module axi_ad9361_wrap #(
         .tx_frame_out_n(tx_frame_out_n),
         .tx_frame_out_p(tx_frame_out_p),
 
-        .up_txnrx     (up_txnrx),
-        .up_enable    (up_enable),
+        .up_txnrx     (up_txnrx_i),
+        .up_enable    (up_enable_i),
         .rx_clk_in    ('0),
         .rx_frame_in  ('0),
         .rx_data_in   ('0),
@@ -156,11 +159,11 @@ module axi_ad9361_wrap #(
         .dac_sync_out (),
         .tdd_sync     ('0),
         .tdd_sync_cntr(),
-        .gps_pps      (gps_pps),
-        .gps_pps_irq  (gps_pps_irq),
-        .delay_clk    (delay_clk),
-        .l_clk        (l_clk),
-        .clk          (clk),
+        .gps_pps      (gps_pps_i),
+        .gps_pps_irq  (gps_pps_irq_o),
+        .delay_clk    (delay_clk_i),
+        .l_clk        (l_clk_o),
+        .clk          (clk_i),
         .rst          (rst),
 
         .adc_enable_i0(),
@@ -199,22 +202,19 @@ module axi_ad9361_wrap #(
         .up_adc_gpio_out(up_adc_gpio_out)
     );
 
-    logic rstn;
-    assign rstn = ~rst;
-
     axis_if #(
         .DATA_WIDTH(CH_NUM * DATA_WIDTH * 2)
     ) adc_if (
-        .clk_i  (l_clk),
-        .arstn_i(rstn)
+        .clk_i  (l_clk_o),
+        .arstn_i(rstn_o)
     );
 
     fir_dac #(
         .CH_NUM    (CH_NUM),
         .DATA_WIDTH(DATA_WIDTH)
     ) i_fir_dac (
-        .clk_i       (l_clk),
-        .arstn_i     (rstn),
+        .clk_i       (l_clk_o),
+        .arstn_i     (rstn_o),
         .fir_en_i    (up_dac_gpio_out[0]),
         .dac_tready_i(|dac_tready),
         .dac_tdata_o (dac_tdata),
@@ -225,8 +225,8 @@ module axi_ad9361_wrap #(
         .CH_NUM    (CH_NUM),
         .DATA_WIDTH(DATA_WIDTH)
     ) i_fir_adc (
-        .clk_i       (l_clk),
-        .arstn_i     (rstn),
+        .clk_i       (l_clk_o),
+        .arstn_i     (rstn_o),
         .fir_en_i    (up_adc_gpio_out[0]),
         .adc_tvalid_i(|adc_tvalid),
         .adc_tdata_i (adc_tdata),

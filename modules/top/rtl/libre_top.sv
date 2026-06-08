@@ -63,13 +63,112 @@ module libre_top #(
     input pps
 );
 
-    // internal signals
+    localparam int CH_NUM = 2;
+    localparam int IQ_DATA_WIDTH = 16;
+    localparam int FULL_DATA_WIDH = CH_NUM * IQ_DATA_WIDTH * 2;
+    localparam int AXIL_ADDR_WIDTH = 32;
+    localparam int AXIL_DATA_WIDTH = 32;
+
+    logic ps_clk;
+    logic ps_arstn;
+
+    logic delay_clk;
+    logic l_clk;
+    logic clk;
+    logic rstn;
+
+    if (CLK10M_EN) begin : g_clk10m
+        assign clk = clk_10m;
+    end else begin : g_rx_clk
+        assign clk = l_clk;
+    end
+
+    axi_if #(
+        .ADDR_WIDTH(AXIL_ADDR_WIDTH),
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) hp_axi (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axil_if #(
+        .DATA_WIDTH(AXIL_DATA_WIDTH),
+        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
+    ) s2mm_axil (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axil_if #(
+        .DATA_WIDTH(AXIL_DATA_WIDTH),
+        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
+    ) mm2s_axil (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axil_if #(
+        .DATA_WIDTH(AXIL_DATA_WIDTH),
+        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
+    ) ad_axil (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axil_if #(
+        .DATA_WIDTH(AXIL_DATA_WIDTH),
+        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
+    ) sig_gen_axil (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) mm2s_axis (
+        .clk_i  (l_clk),
+        .arstn_i(rstn)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) s2mm_axis (
+        .clk_i  (l_clk),
+        .arstn_i(rstn)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) dac_axis (
+        .clk_i  (l_clk),
+        .arstn_i(rstn)
+    );
+
+    logic i2c_scl_i;
+    logic i2c_scl_o;
+    logic i2c_scl_t;
+
+    logic i2c_sda_i;
+    logic i2c_sda_o;
+    logic i2c_sda_t;
+
+    IOBUF i_scl_IOBUF (
+        .O (i2c_scl_i),
+        .IO(iic_scl),
+        .I (i2c_scl_o),
+        .T (i2c_scl_t)
+    );
+
+    IOBUF i_sda_IOBUF (
+        .O (i2c_sda_i),
+        .IO(iic_sda),
+        .I (i2c_sda_o),
+        .T (i2c_sda_t)
+    );
 
     logic [24:0] gpio_i;
     logic [24:0] gpio_o;
     logic [24:0] gpio_t;
-
-    // instantiations
 
     ad_iobuf #(
         .DATA_WIDTH(14)
@@ -85,328 +184,64 @@ module libre_top #(
 
     assign gpio_i[16:14] = gpio_o[16:14];
 
-    localparam int CH_NUM = 2;
-    localparam int IQ_DATA_WIDTH = 16;
-    localparam int FULL_DATA_WIDH = CH_NUM * IQ_DATA_WIDTH * 2;
-    localparam int AXIL_ADDR_WIDTH = 32;
-    localparam int AXIL_DATA_WIDTH = 32;
+    logic pps_irq;
+    logic s2mm_irq;
+    logic mm2s_irq;
 
-    logic ps_clk;
-    logic ps_arstn;
+    bd_top i_bd_top (
+        .pps_irq_i (pps_irq),
+        .s2mm_irq_i(s2mm_irq),
+        .mm2s_irq_i(mm2s_irq),
 
-    logic delay_clk;
-    logic l_clk;
-    logic clk;
-    logic rst;
+        .ps_clk1_o (ps_clk),
+        .ps_clk2_o (delay_clk),
+        .ps_arstn_o(ps_arstn),
 
-    if (CLK10M_EN) begin : g_clk10m
-        assign clk = clk_10m;
-    end else begin : g_rx_clk
-        assign clk = l_clk;
-    end
+        .gpio_o(gpio_o),
+        .gpio_i(gpio_i),
+        .gpio_t(gpio_t),
 
-    axi_if #(
-        .ADDR_WIDTH(AXIL_ADDR_WIDTH),
-        .DATA_WIDTH(FULL_DATA_WIDH)
-    ) axi_hp (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
+        .i2c_scl_i(i2c_scl_i),
+        .i2c_scl_o(i2c_scl_o),
+        .i2c_scl_t(i2c_scl_t),
+
+        .i2c_sda_i(i2c_sda_i),
+        .i2c_sda_o(i2c_sda_o),
+        .i2c_sda_t(i2c_sda_t),
+
+        .ps_spi_csn_o (spi_csn),
+        .ps_spi_clk_o (spi_clk),
+        .ps_spi_mosi_o(spi_mosi),
+        .ps_spi_miso_i(spi_miso),
+
+        .pl_spi_clk_o (pl_spi_clk_o),
+        .pl_spi_mosi_o(pl_spi_mosi),
+        .pl_spi_miso_i(pl_spi_miso),
+
+        .ad_axil  (ad_axil),
+        .s2mm_axil(s2mm_axil),
+        .mm2s_axil(mm2s_axil),
+        .ext_axil (axil_sig_gen),
+        .hp_axi   (hp_axi),
+
     );
 
-    axil_if #(
-        .DATA_WIDTH(AXIL_DATA_WIDTH),
-        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
-    ) axil_s2mm (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
-    );
-
-    axil_if #(
-        .DATA_WIDTH(AXIL_DATA_WIDTH),
-        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
-    ) axil_mm2s (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
-    );
-
-    axil_if #(
-        .DATA_WIDTH(AXIL_DATA_WIDTH),
-        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
-    ) axil_ad (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
-    );
-
-    axil_if #(
-        .DATA_WIDTH(AXIL_DATA_WIDTH),
-        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
-    ) axil_sig_gen (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
-    );
-
-    axis_if #(
-        .DATA_WIDTH(FULL_DATA_WIDH)
-    ) axis_mm2s (
-        .clk_i  (l_clk),
-        .arstn_i(~rst)
-    );
-
-    axis_if #(
-        .DATA_WIDTH(FULL_DATA_WIDH)
-    ) axis_s2mm (
-        .clk_i  (l_clk),
-        .arstn_i(~rst)
-    );
-
-    axis_if #(
-        .DATA_WIDTH(FULL_DATA_WIDH)
-    ) dac_axis (
-        .clk_i  (l_clk),
-        .arstn_i(~rst)
-    );
-
-    logic                                      pps_irq;
-    logic                                      s2mm_irq;
-    logic                                      mm2s_irq;
-
-    logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] adc_tdata;
-    logic [CH_NUM-1:0][1:0]                    adc_tvalid;
-
-    logic [CH_NUM-1:0][1:0][IQ_DATA_WIDTH-1:0] dac_tdata;
-    logic [CH_NUM-1:0][1:0]                    dac_tready;
-
-    logic                                      scl_i;
-    logic                                      scl_o;
-    logic                                      scl_t;
-
-    logic                                      sda_i;
-    logic                                      sda_o;
-    logic                                      sda_t;
-
-    IOBUF i_scl_IOBUF (
-        .O (scl_i),
-        .IO(iic_scl),
-        .I (scl_o),
-        .T (scl_t)
-    );
-
-    IOBUF i_sda_IOBUF (
-        .O (sda_i),
-        .IO(iic_sda),
-        .I (sda_o),
-        .T (sda_t)
-    );
-
-    libre_bd i_libre_bd (
-        .DDR_0_addr   (ddr_addr),
-        .DDR_0_ba     (ddr_ba),
-        .DDR_0_cas_n  (ddr_cas_n),
-        .DDR_0_ck_n   (ddr_ck_n),
-        .DDR_0_ck_p   (ddr_ck_p),
-        .DDR_0_cke    (ddr_cke),
-        .DDR_0_cs_n   (ddr_cs_n),
-        .DDR_0_dm     (ddr_dm),
-        .DDR_0_dq     (ddr_dq),
-        .DDR_0_dqs_n  (ddr_dqs_n),
-        .DDR_0_dqs_p  (ddr_dqs_p),
-        .DDR_0_odt    (ddr_odt),
-        .DDR_0_ras_n  (ddr_ras_n),
-        .DDR_0_reset_n(ddr_reset_n),
-        .DDR_0_we_n   (ddr_we_n),
-
-        .FCLK_CLK0_0    (ps_clk),
-        .FCLK_CLK1_0    (delay_clk),
-        .FCLK_RESET0_N_0(ps_arstn),
-
-        .FIXED_IO_0_ddr_vrn (fixed_io_ddr_vrn),
-        .FIXED_IO_0_ddr_vrp (fixed_io_ddr_vrp),
-        .FIXED_IO_0_mio     (fixed_io_mio),
-        .FIXED_IO_0_ps_clk  (fixed_io_ps_clk),
-        .FIXED_IO_0_ps_porb (fixed_io_ps_porb),
-        .FIXED_IO_0_ps_srstb(fixed_io_ps_srstb),
-
-        .GPIO_0_0_tri_i(gpio_i),
-        .GPIO_0_0_tri_o(gpio_o),
-        .GPIO_0_0_tri_t(gpio_t),
-
-        .IIC_0_scl_i(scl_i),
-        .IIC_0_scl_o(scl_o),
-        .IIC_0_scl_t(scl_t),
-        .IIC_0_sda_i(sda_i),
-        .IIC_0_sda_o(sda_o),
-        .IIC_0_sda_t(sda_t),
-
-        .AXI_AD9361_0_araddr (axil_ad.araddr),
-        .AXI_AD9361_0_arprot (axil_ad.arprot),
-        .AXI_AD9361_0_arready(axil_ad.arready),
-        .AXI_AD9361_0_arvalid(axil_ad.arvalid),
-        .AXI_AD9361_0_awaddr (axil_ad.awaddr),
-        .AXI_AD9361_0_awprot (axil_ad.awprot),
-        .AXI_AD9361_0_awready(axil_ad.awready),
-        .AXI_AD9361_0_awvalid(axil_ad.awvalid),
-        .AXI_AD9361_0_bready (axil_ad.bready),
-        .AXI_AD9361_0_bresp  (axil_ad.bresp),
-        .AXI_AD9361_0_bvalid (axil_ad.bvalid),
-        .AXI_AD9361_0_rdata  (axil_ad.rdata),
-        .AXI_AD9361_0_rready (axil_ad.rready),
-        .AXI_AD9361_0_rresp  (axil_ad.rresp),
-        .AXI_AD9361_0_rvalid (axil_ad.rvalid),
-        .AXI_AD9361_0_wdata  (axil_ad.wdata),
-        .AXI_AD9361_0_wready (axil_ad.wready),
-        .AXI_AD9361_0_wstrb  (axil_ad.wstrb),
-        .AXI_AD9361_0_wvalid (axil_ad.wvalid),
-
-        .AXI_DMAC_0_araddr (axil_s2mm.araddr),
-        .AXI_DMAC_0_arprot (axil_s2mm.arprot),
-        .AXI_DMAC_0_arready(axil_s2mm.arready),
-        .AXI_DMAC_0_arvalid(axil_s2mm.arvalid),
-        .AXI_DMAC_0_awaddr (axil_s2mm.awaddr),
-        .AXI_DMAC_0_awprot (axil_s2mm.awprot),
-        .AXI_DMAC_0_awready(axil_s2mm.awready),
-        .AXI_DMAC_0_awvalid(axil_s2mm.awvalid),
-        .AXI_DMAC_0_bready (axil_s2mm.bready),
-        .AXI_DMAC_0_bresp  (axil_s2mm.bresp),
-        .AXI_DMAC_0_bvalid (axil_s2mm.bvalid),
-        .AXI_DMAC_0_rdata  (axil_s2mm.rdata),
-        .AXI_DMAC_0_rready (axil_s2mm.rready),
-        .AXI_DMAC_0_rresp  (axil_s2mm.rresp),
-        .AXI_DMAC_0_rvalid (axil_s2mm.rvalid),
-        .AXI_DMAC_0_wdata  (axil_s2mm.wdata),
-        .AXI_DMAC_0_wready (axil_s2mm.wready),
-        .AXI_DMAC_0_wstrb  (axil_s2mm.wstrb),
-        .AXI_DMAC_0_wvalid (axil_s2mm.wvalid),
-
-        .AXI_DMAC_1_araddr (axil_mm2s.araddr),
-        .AXI_DMAC_1_arprot (axil_mm2s.arprot),
-        .AXI_DMAC_1_arready(axil_mm2s.arready),
-        .AXI_DMAC_1_arvalid(axil_mm2s.arvalid),
-        .AXI_DMAC_1_awaddr (axil_mm2s.awaddr),
-        .AXI_DMAC_1_awprot (axil_mm2s.awprot),
-        .AXI_DMAC_1_awready(axil_mm2s.awready),
-        .AXI_DMAC_1_awvalid(axil_mm2s.awvalid),
-        .AXI_DMAC_1_bready (axil_mm2s.bready),
-        .AXI_DMAC_1_bresp  (axil_mm2s.bresp),
-        .AXI_DMAC_1_bvalid (axil_mm2s.bvalid),
-        .AXI_DMAC_1_rdata  (axil_mm2s.rdata),
-        .AXI_DMAC_1_rready (axil_mm2s.rready),
-        .AXI_DMAC_1_rresp  (axil_mm2s.rresp),
-        .AXI_DMAC_1_rvalid (axil_mm2s.rvalid),
-        .AXI_DMAC_1_wdata  (axil_mm2s.wdata),
-        .AXI_DMAC_1_wready (axil_mm2s.wready),
-        .AXI_DMAC_1_wstrb  (axil_mm2s.wstrb),
-        .AXI_DMAC_1_wvalid (axil_mm2s.wvalid),
-
-        .M05_AXI_araddr (axil_sig_gen.araddr),
-        .M05_AXI_arprot (axil_sig_gen.arprot),
-        .M05_AXI_arready(axil_sig_gen.arready),
-        .M05_AXI_arvalid(axil_sig_gen.arvalid),
-        .M05_AXI_awaddr (axil_sig_gen.awaddr),
-        .M05_AXI_awprot (axil_sig_gen.awprot),
-        .M05_AXI_awready(axil_sig_gen.awready),
-        .M05_AXI_awvalid(axil_sig_gen.awvalid),
-        .M05_AXI_bready (axil_sig_gen.bready),
-        .M05_AXI_bresp  (axil_sig_gen.bresp),
-        .M05_AXI_bvalid (axil_sig_gen.bvalid),
-        .M05_AXI_rdata  (axil_sig_gen.rdata),
-        .M05_AXI_rready (axil_sig_gen.rready),
-        .M05_AXI_rresp  (axil_sig_gen.rresp),
-        .M05_AXI_rvalid (axil_sig_gen.rvalid),
-        .M05_AXI_wdata  (axil_sig_gen.wdata),
-        .M05_AXI_wready (axil_sig_gen.wready),
-        .M05_AXI_wstrb  (axil_sig_gen.wstrb),
-        .M05_AXI_wvalid (axil_sig_gen.wvalid),
-
-        .SPI_0_0_io0_i('0),
-        .SPI_0_0_io0_o(spi_mosi),
-        .SPI_0_0_io0_t(),
-        .SPI_0_0_io1_i(spi_miso),
-        .SPI_0_0_io1_o(),
-        .SPI_0_0_io1_t(),
-        .SPI_0_0_sck_i('0),
-        .SPI_0_0_sck_o(spi_clk),
-        .SPI_0_0_sck_t(),
-        .SPI_0_0_ss1_o(),
-        .SPI_0_0_ss2_o(),
-        .SPI_0_0_ss_i ('1),
-        .SPI_0_0_ss_o (spi_csn),
-        .SPI_0_0_ss_t (),
-
-        .SPI_0_1_io0_i('0),
-        .SPI_0_1_io0_o(pl_spi_mosi),
-        .SPI_0_1_io0_t(),
-        .SPI_0_1_io1_i(pl_spi_miso),
-        .SPI_0_1_io1_o(),
-        .SPI_0_1_io1_t(),
-        .SPI_0_1_sck_i('0),
-        .SPI_0_1_sck_o(pl_spi_clk_o),
-        .SPI_0_1_sck_t(),
-        .SPI_0_1_ss_i ('1),
-        .SPI_0_1_ss_o (),
-        .SPI_0_1_ss_t (),
-
-        .S_AXI_HP1_0_araddr (axi_hp.araddr),
-        .S_AXI_HP1_0_arburst(axi_hp.arburst),
-        .S_AXI_HP1_0_arcache(axi_hp.arcache),
-        .S_AXI_HP1_0_arid   (axi_hp.arid),
-        .S_AXI_HP1_0_arlen  (axi_hp.arlen),
-        .S_AXI_HP1_0_arlock (axi_hp.arlock),
-        .S_AXI_HP1_0_arprot (axi_hp.arprot),
-        .S_AXI_HP1_0_arqos  (axi_hp.arqos),
-        .S_AXI_HP1_0_arready(axi_hp.arready),
-        .S_AXI_HP1_0_arsize (axi_hp.arsize),
-        .S_AXI_HP1_0_arvalid(axi_hp.arvalid),
-        .S_AXI_HP1_0_rdata  (axi_hp.rdata),
-        .S_AXI_HP1_0_rid    (axi_hp.rid),
-        .S_AXI_HP1_0_rlast  (axi_hp.rlast),
-        .S_AXI_HP1_0_rready (axi_hp.rready),
-        .S_AXI_HP1_0_rresp  (axi_hp.rresp),
-        .S_AXI_HP1_0_rvalid (axi_hp.rvalid),
-        .S_AXI_HP1_0_awaddr (axi_hp.awaddr),
-        .S_AXI_HP1_0_awburst(axi_hp.awburst),
-        .S_AXI_HP1_0_awcache(axi_hp.awcache),
-        .S_AXI_HP1_0_awid   (axi_hp.awid),
-        .S_AXI_HP1_0_awlen  (axi_hp.awlen),
-        .S_AXI_HP1_0_awlock (axi_hp.awlock),
-        .S_AXI_HP1_0_awprot (axi_hp.awprot),
-        .S_AXI_HP1_0_awqos  (axi_hp.awqos),
-        .S_AXI_HP1_0_awready(axi_hp.awready),
-        .S_AXI_HP1_0_awsize (axi_hp.awsize),
-        .S_AXI_HP1_0_awvalid(axi_hp.awvalid),
-        .S_AXI_HP1_0_bid    (axi_hp.bid),
-        .S_AXI_HP1_0_bready (axi_hp.bready),
-        .S_AXI_HP1_0_bresp  (axi_hp.bresp),
-        .S_AXI_HP1_0_bvalid (axi_hp.bvalid),
-        .S_AXI_HP1_0_wdata  (axi_hp.wdata),
-        .S_AXI_HP1_0_wid    (axi_hp.wid),
-        .S_AXI_HP1_0_wlast  (axi_hp.wlast),
-        .S_AXI_HP1_0_wready (axi_hp.wready),
-        .S_AXI_HP1_0_wstrb  (axi_hp.wstrb),
-        .S_AXI_HP1_0_wvalid (axi_hp.wvalid),
-
-        .s2mm_irq(s2mm_irq),
-        .mm2s_irq(mm2s_irq),
-        .pps_irq (pps_irq)
-    );
-
-    localparam int SYNC_STAGE_NUM = 3;
-    localparam int FIFO_DEPTH = 256;
     localparam bit ASYNC_MODE_EN = 1;
-    localparam FIFO_MEM_TYPE = "block";
-    localparam FAMILY = "zynq";
 
     axi_dmac_wrap #(
         .ILA_EN  (ILA_EN),
         .ASYNC_EN(ASYNC_MODE_EN)
     ) i_axi_dmac_wrap (
-        .s2mm_axil (axil_s2mm),
-        .mm2s_axil (axil_mm2s),
-        .s2mm_axis (axis_s2mm),
-        .mm2s_axis (axis_mm2s),
-        .m_axi     (axi_hp),
+        .s2mm_axil (s2mm_axil),
+        .mm2s_axil (mm2s_axil),
+        .s2mm_axis (s2mm_axis),
+        .mm2s_axis (mm2s_axis),
+        .m_axi     (hp_axi),
         .s2mm_irq_o(s2mm_irq),
         .mm2s_irq_o(mm2s_irq)
     );
+
+    localparam FAMILY = "zynq";
 
     axi_ad9361_wrap #(
         .DATA_WIDTH(IQ_DATA_WIDTH),
@@ -416,10 +251,10 @@ module libre_top #(
         .CLK10M_EN (CLK10M_EN),
         .PPS_EN    (PPS_EN)
     ) i_axi_ad9361_wrap (
-        .s_axil(axil_ad),
+        .s_axil(ad_axil),
 
-        .txnrx         (txnrx),
-        .enable        (enable),
+        .txnrx_o       (txnrx),
+        .enable_o      (enable),
         .rx_clk_in_n   (rx_clk_in_n),
         .rx_clk_in_p   (rx_clk_in_p),
         .rx_data_in_n  (rx_data_in_n),
@@ -433,18 +268,22 @@ module libre_top #(
         .tx_frame_out_n(tx_frame_out_n),
         .tx_frame_out_p(tx_frame_out_p),
 
-        .up_txnrx   (gpio_o[16]),
-        .up_enable  (gpio_o[15]),
-        .gps_pps    (pps),
-        .gps_pps_irq(pps_irq),
-        .delay_clk  (delay_clk),
-        .l_clk      (l_clk),
-        .clk        (clk),
-        .rst        (rst),
+        .up_txnrx_i   (gpio_o[16]),
+        .up_enable_i  (gpio_o[15]),
+        .gps_pps_i    (pps),
+        .gps_pps_irq_o(pps_irq),
+        .delay_clk_i  (delay_clk),
+        .l_clk_o      (l_clk),
+        .clk_i        (clk),
+        .rstn_o       (rstn),
 
-        .adc_axis(axis_s2mm),
+        .adc_axis(s2mm_axis),
         .dac_axis(dac_axis)
     );
+
+    localparam int SYNC_STAGE_NUM = 3;
+    localparam int FIFO_DEPTH = 256;
+    localparam FIFO_MEM_TYPE = "block";
 
     signal_gen #(
         .ILA_EN         (ILA_EN),
@@ -459,9 +298,9 @@ module libre_top #(
         .FAMILY         (FAMILY)
     ) i_signal_gen (
         .clk_i  (l_clk),
-        .arstn_i(~rst),
-        .s_axil (axil_sig_gen),
-        .s_axis (axis_mm2s),
+        .arstn_i(rstn),
+        .s_axil (sig_gen_axil),
+        .s_axis (mm2s_axis),
         .m_axis (dac_axis)
     );
 

@@ -58,6 +58,7 @@ interface axi_if #(
     modport master(
         input clk_i,
         input arstn_i,
+
         output awaddr,
         output awprot,
         output awlen,
@@ -70,17 +71,20 @@ interface axi_if #(
         output awvalid,
         output awid,
         input awready,
+
         output wdata,
         output wstrb,
         output wvalid,
         output wlast,
         output wid,
         input wready,
+
         input rresp,
         input bresp,
         input bvalid,
         input bid,
         output bready,
+
         output araddr,
         output arprot,
         output arlen,
@@ -93,6 +97,7 @@ interface axi_if #(
         output arvalid,
         output arid,
         input arready,
+
         input rdata,
         input rvalid,
         input rlast,
@@ -115,17 +120,20 @@ interface axi_if #(
         input awvalid,
         input awid,
         output awready,
+
         input wdata,
         input wstrb,
         input wlast,
         input wvalid,
         input wid,
         output wready,
+
         output rresp,
         output bresp,
         output bvalid,
         output bid,
         input bready,
+
         input araddr,
         input arprot,
         input arlen,
@@ -138,6 +146,7 @@ interface axi_if #(
         input arvalid,
         input arid,
         output arready,
+
         output rdata,
         output rvalid,
         output rlast,

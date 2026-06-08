@@ -39,18 +39,22 @@ interface axil_if #(
         output awprot,
         output awvalid,
         input awready,
+
         output wdata,
         output wstrb,
         output wvalid,
         input wready,
+
         input rresp,
         input bresp,
         input bvalid,
         output bready,
+
         output araddr,
         output arprot,
         output arvalid,
         input arready,
+
         input rdata,
         input rvalid,
         output rready
@@ -63,18 +67,22 @@ interface axil_if #(
         input awprot,
         input awvalid,
         output awready,
+
         input wdata,
         input wstrb,
         input wvalid,
         output wready,
+
         output rresp,
         output bresp,
         output bvalid,
         input bready,
+
         input araddr,
         input arprot,
         input arvalid,
         output arready,
+
         output rdata,
         output rvalid,
         input rready
