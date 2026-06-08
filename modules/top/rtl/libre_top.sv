@@ -189,6 +189,29 @@ module libre_top #(
     logic mm2s_irq;
 
     bd_top i_bd_top (
+        .ddr_addr   (ddr_addr),
+        .ddr_ba     (ddr_ba),
+        .ddr_cas_n  (ddr_cas_n),
+        .ddr_ck_n   (ddr_ck_n),
+        .ddr_ck_p   (ddr_ck_p),
+        .ddr_cke    (ddr_cke),
+        .ddr_cs_n   (ddr_cs_n),
+        .ddr_dm     (ddr_dm),
+        .ddr_dq     (ddr_dq),
+        .ddr_odt    (ddr_odt),
+        .ddr_we_n   (ddr_we_n),
+        .ddr_dqs_n  (ddr_dqs_n),
+        .ddr_dqs_p  (ddr_dqs_p),
+        .ddr_ras_n  (ddr_ras_n),
+        .ddr_reset_n(ddr_reset_n),
+
+        .fixed_io_mio     (fixed_io_mio),
+        .fixed_io_ps_clk  (fixed_io_ps_clk),
+        .fixed_io_ddr_vrn (fixed_io_ddr_vrn),
+        .fixed_io_ddr_vrp (fixed_io_ddr_vrp),
+        .fixed_io_ps_porb (fixed_io_ps_porb),
+        .fixed_io_ps_srstb(fixed_io_ps_srstb),
+
         .pps_irq_i (pps_irq),
         .s2mm_irq_i(s2mm_irq),
         .mm2s_irq_i(mm2s_irq),
@@ -241,10 +264,12 @@ module libre_top #(
         .mm2s_irq_o(mm2s_irq)
     );
 
+    localparam int FIFO_DEPTH = 256;
     localparam FAMILY = "zynq";
 
     axi_ad9361_wrap #(
         .DATA_WIDTH(IQ_DATA_WIDTH),
+        .TLAST_VAL (FIFO_DEPTH),
         .ILA_EN    (ILA_EN),
         .FAMILY    (FAMILY),
         .CH_NUM    (CH_NUM),
@@ -282,7 +307,6 @@ module libre_top #(
     );
 
     localparam int SYNC_STAGE_NUM = 3;
-    localparam int FIFO_DEPTH = 256;
     localparam FIFO_MEM_TYPE = "block";
 
     signal_gen #(
