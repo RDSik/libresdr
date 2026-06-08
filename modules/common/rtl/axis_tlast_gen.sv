@@ -6,29 +6,29 @@ module axis_tlast_gen #(
 );
 
     logic handshake;
-    assign handshake = m_axis.tvalid & m_axis.tready;
+    assign handshake = s_axis.tvalid & s_axis.tready;
 
     logic cnt_last;
 
     cnt #(
         .MAX_VAL(TLAST_VAL)
     ) i_cnt (
-        .clk_i     (m_axis.clk_i),
-        .rst_i     (~m_axis.arstn_i),
+        .clk_i     (s_axis.clk_i),
+        .rst_i     (~s_axis.arstn_i),
         .en_i      (handshake),
         .cnt_last_o(cnt_last),
         .cnt_o     ()
     );
 
-    assign s_axis.tdata  = m_axis.tdata;
-    assign s_axis.tvalid = m_axis.tvalid;
-    assign s_axis.tlast  = cnt_last;
-    assign s_axis.tid    = m_axis.tid;
-    assign s_axis.tdest  = m_axis.tdest;
-    assign s_axis.tstrb  = m_axis.tstrb;
-    assign s_axis.tuser  = m_axis.tuser;
-    assign s_axis.tkeep  = m_axis.tkeep;
+    assign m_axis.tdata  = s_axis.tdata;
+    assign m_axis.tvalid = s_axis.tvalid;
+    assign m_axis.tlast  = cnt_last;
+    assign m_axis.tid    = s_axis.tid;
+    assign m_axis.tdest  = s_axis.tdest;
+    assign m_axis.tstrb  = s_axis.tstrb;
+    assign m_axis.tuser  = s_axis.tuser;
+    assign m_axis.tkeep  = s_axis.tkeep;
 
-    assign m_axis.tready = s_axis.tready;
+    assign s_axis.tready = m_axis.tready;
 
 endmodule
