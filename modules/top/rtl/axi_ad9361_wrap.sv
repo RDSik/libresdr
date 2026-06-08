@@ -236,8 +236,8 @@ module axi_ad9361_wrap #(
     axis_tlast_gen #(
         .TLAST_VAL(FIFO_DEPTH)
     ) i_axis_tlast_gen (
-        .m_axis(adc_if),
-        .s_axis(adc_axis)
+        .s_axis(adc_if),
+        .m_axis(adc_axis)
     );
 
     if (ILA_EN) begin : g_ila
