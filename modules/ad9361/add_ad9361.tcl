@@ -33,6 +33,7 @@ set axi_dmac "
     $path/hdl/library/common/ad_mem_asym.v
     $path/hdl/library/util_axis_fifo/util_axis_fifo.v
     $path/hdl/library/util_axis_fifo/util_axis_fifo_address_generator.v
+    $path/rtl/axi_dmac_wrap.sv
 "
 
 add_files -norecurse $axi_dmac
@@ -77,6 +78,7 @@ set axi_ad_9361 "
     $path/hdl/library/xilinx/common/ad_data_out.v
     $path/hdl/library/xilinx/common/ad_dcfilter.v
     $path/hdl/library/xilinx/common/ad_mul.v
+    $path/rtl/axi_ad9361_wrap.sv
 "
 
 add_files -norecurse $axi_ad_9361

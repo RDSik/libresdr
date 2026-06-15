@@ -287,9 +287,9 @@ proc create_root_design { parentCell } {
  ] $FCLK_CLK0_0
   set FCLK_CLK1_0 [ create_bd_port -dir O -type clk FCLK_CLK1_0 ]
   set FCLK_RESET0_N_0 [ create_bd_port -dir O -type rst FCLK_RESET0_N_0 ]
-  set s2mm_irq [ create_bd_port -dir I -from 0 -to 0 s2mm_irq ]
   set mm2s_irq [ create_bd_port -dir I -from 0 -to 0 mm2s_irq ]
   set pps_irq [ create_bd_port -dir I -from 0 -to 0 pps_irq ]
+  set s2mm_irq [ create_bd_port -dir I -from 0 -to 0 s2mm_irq ]
 
   # Create instance: axi_iic_0, and set properties
   set axi_iic_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.1 axi_iic_0 ]
@@ -342,7 +342,10 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_CLK2_FREQ {10000000} \
     CONFIG.PCW_CLK3_FREQ {10000000} \
     CONFIG.PCW_CRYSTAL_PERIPHERAL_FREQMHZ {50} \
-    CONFIG.PCW_DDR_RAM_HIGHADDR {0x1FFFFFFF} \
+    CONFIG.PCW_DDR_RAM_HIGHADDR {0x3FFFFFFF} \
+    CONFIG.PCW_DM_WIDTH {4} \
+    CONFIG.PCW_DQS_WIDTH {4} \
+    CONFIG.PCW_DQ_WIDTH {32} \
     CONFIG.PCW_ENET0_ENET0_IO {MIO 16 .. 27} \
     CONFIG.PCW_ENET0_GRP_MDIO_ENABLE {1} \
     CONFIG.PCW_ENET0_GRP_MDIO_IO {MIO 52 .. 53} \
@@ -350,7 +353,7 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_ENET0_PERIPHERAL_ENABLE {1} \
     CONFIG.PCW_ENET0_PERIPHERAL_FREQMHZ {1000 Mbps} \
     CONFIG.PCW_ENET0_RESET_ENABLE {1} \
-    CONFIG.PCW_ENET0_RESET_IO {MIO 0} \
+    CONFIG.PCW_ENET0_RESET_IO {MIO 46} \
     CONFIG.PCW_ENET1_PERIPHERAL_CLKSRC {IO PLL} \
     CONFIG.PCW_ENET1_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_ENET_RESET_ENABLE {1} \
@@ -365,12 +368,14 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_EN_ENET1 {0} \
     CONFIG.PCW_EN_GPIO {1} \
     CONFIG.PCW_EN_QSPI {1} \
+    CONFIG.PCW_EN_RST1_PORT {0} \
     CONFIG.PCW_EN_SDIO0 {1} \
     CONFIG.PCW_EN_SPI0 {1} \
     CONFIG.PCW_EN_UART0 {1} \
+    CONFIG.PCW_EN_USB0 {1} \
     CONFIG.PCW_FCLK_CLK1_BUF {TRUE} \
-    CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100} \
-    CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {200} \
+    CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100.0} \
+    CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {200.0} \
     CONFIG.PCW_FPGA_FCLK0_ENABLE {1} \
     CONFIG.PCW_FPGA_FCLK1_ENABLE {1} \
     CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE {1} \
@@ -378,8 +383,11 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_GPIO_EMIO_GPIO_WIDTH {25} \
     CONFIG.PCW_GPIO_MIO_GPIO_ENABLE {1} \
     CONFIG.PCW_GPIO_MIO_GPIO_IO {MIO} \
+    CONFIG.PCW_I2C0_PERIPHERAL_ENABLE {0} \
+    CONFIG.PCW_I2C1_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_I2C_RESET_ENABLE {1} \
     CONFIG.PCW_IRQ_F2P_INTR {1} \
+    CONFIG.PCW_IRQ_F2P_MODE {REVERSE} \
     CONFIG.PCW_MIO_0_IOTYPE {LVCMOS 3.3V} \
     CONFIG.PCW_MIO_0_PULLUP {enabled} \
     CONFIG.PCW_MIO_0_SLEW {slow} \
@@ -508,7 +516,7 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_MIO_48_PULLUP {enabled} \
     CONFIG.PCW_MIO_48_SLEW {slow} \
     CONFIG.PCW_MIO_49_IOTYPE {LVCMOS 2.5V} \
-    CONFIG.PCW_MIO_49_PULLUP {enabled} \
+    CONFIG.PCW_MIO_49_PULLUP {disabled} \
     CONFIG.PCW_MIO_49_SLEW {slow} \
     CONFIG.PCW_MIO_4_IOTYPE {LVCMOS 3.3V} \
     CONFIG.PCW_MIO_4_SLEW {slow} \
@@ -535,10 +543,14 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_MIO_9_IOTYPE {LVCMOS 3.3V} \
     CONFIG.PCW_MIO_9_PULLUP {enabled} \
     CONFIG.PCW_MIO_9_SLEW {slow} \
-    CONFIG.PCW_MIO_TREE_PERIPHERALS {ENET Reset#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#UART 0#UART 0#Enet 0#Enet 0#Enet\
-0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#Enet 0#Enet 0} \
-    CONFIG.PCW_MIO_TREE_SIGNALS {reset#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#gpio[8]#gpio[9]#gpio[10]#gpio[11]#gpio[12]#gpio[13]#rx#tx#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#gpio[28]#gpio[29]#gpio[30]#gpio[31]#gpio[32]#gpio[33]#gpio[34]#gpio[35]#gpio[36]#gpio[37]#gpio[38]#gpio[39]#clk#cmd#data[0]#data[1]#data[2]#data[3]#gpio[46]#gpio[47]#gpio[48]#gpio[49]#gpio[50]#gpio[51]#mdc#mdio}\
+    CONFIG.PCW_MIO_PRIMITIVE {54} \
+    CONFIG.PCW_MIO_TREE_PERIPHERALS {GPIO#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#UART 0#UART 0#Enet 0#Enet 0#Enet 0#Enet\
+0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#ENET Reset#USB Reset#GPIO#GPIO#GPIO#GPIO#Enet\
+0#Enet 0} \
+    CONFIG.PCW_MIO_TREE_SIGNALS {gpio[0]#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#gpio[8]#gpio[9]#gpio[10]#gpio[11]#gpio[12]#gpio[13]#rx#tx#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#data[4]#dir#stp#nxt#data[0]#data[1]#data[2]#data[3]#clk#data[5]#data[6]#data[7]#clk#cmd#data[0]#data[1]#data[2]#data[3]#reset#reset#gpio[48]#gpio[49]#gpio[50]#gpio[51]#mdc#mdio}\
 \
+    CONFIG.PCW_PACKAGE_NAME {clg400} \
+    CONFIG.PCW_PRESET_BANK0_VOLTAGE {LVCMOS 3.3V} \
     CONFIG.PCW_PRESET_BANK1_VOLTAGE {LVCMOS 2.5V} \
     CONFIG.PCW_QSPI_GRP_FBCLK_ENABLE {0} \
     CONFIG.PCW_QSPI_GRP_IO1_ENABLE {0} \
@@ -558,17 +570,48 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_SINGLE_QSPI_DATA_MODE {x4} \
     CONFIG.PCW_SPI0_PERIPHERAL_ENABLE {1} \
     CONFIG.PCW_SPI0_SPI0_IO {EMIO} \
+    CONFIG.PCW_SPI1_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_SPI_PERIPHERAL_FREQMHZ {166.666666} \
     CONFIG.PCW_SPI_PERIPHERAL_VALID {1} \
+    CONFIG.PCW_TTC0_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_UART0_GRP_FULL_ENABLE {0} \
     CONFIG.PCW_UART0_PERIPHERAL_ENABLE {1} \
     CONFIG.PCW_UART0_UART0_IO {MIO 14 .. 15} \
     CONFIG.PCW_UART_PERIPHERAL_FREQMHZ {100} \
     CONFIG.PCW_UART_PERIPHERAL_VALID {1} \
     CONFIG.PCW_UIPARAM_ACT_DDR_FREQ_MHZ {525.000000} \
+    CONFIG.PCW_UIPARAM_DDR_BANK_ADDR_COUNT {3} \
+    CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY0 {0.241} \
+    CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY1 {0.240} \
+    CONFIG.PCW_UIPARAM_DDR_BUS_WIDTH {32 Bit} \
+    CONFIG.PCW_UIPARAM_DDR_CL {7} \
+    CONFIG.PCW_UIPARAM_DDR_COL_ADDR_COUNT {10} \
+    CONFIG.PCW_UIPARAM_DDR_CWL {5} \
+    CONFIG.PCW_UIPARAM_DDR_DEVICE_CAPACITY {4096 MBits} \
+    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_0 {0.048} \
+    CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_1 {0.050} \
+    CONFIG.PCW_UIPARAM_DDR_DRAM_WIDTH {16 Bits} \
+    CONFIG.PCW_UIPARAM_DDR_PARTNO {Custom} \
+    CONFIG.PCW_UIPARAM_DDR_ROW_ADDR_COUNT {15} \
+    CONFIG.PCW_UIPARAM_DDR_SPEED_BIN {DDR3_1066F} \
+    CONFIG.PCW_UIPARAM_DDR_TRAIN_DATA_EYE {1} \
+    CONFIG.PCW_UIPARAM_DDR_TRAIN_READ_GATE {1} \
+    CONFIG.PCW_UIPARAM_DDR_TRAIN_WRITE_LEVEL {1} \
+    CONFIG.PCW_UIPARAM_DDR_T_FAW {40.0} \
+    CONFIG.PCW_UIPARAM_DDR_T_RAS_MIN {35.0} \
+    CONFIG.PCW_UIPARAM_DDR_T_RC {48.91} \
+    CONFIG.PCW_UIPARAM_DDR_T_RCD {7} \
+    CONFIG.PCW_UIPARAM_DDR_T_RP {7} \
+    CONFIG.PCW_UIPARAM_DDR_USE_INTERNAL_VREF {0} \
+    CONFIG.PCW_USB0_PERIPHERAL_ENABLE {1} \
+    CONFIG.PCW_USB0_RESET_ENABLE {1} \
+    CONFIG.PCW_USB0_RESET_IO {MIO 47} \
+    CONFIG.PCW_USB0_USB0_IO {MIO 28 .. 39} \
     CONFIG.PCW_USB_RESET_ENABLE {1} \
+    CONFIG.PCW_USB_RESET_SELECT {Share reset pin} \
     CONFIG.PCW_USE_FABRIC_INTERRUPT {1} \
     CONFIG.PCW_USE_S_AXI_HP1 {1} \
+    CONFIG.PCW_USE_S_AXI_HP2 {0} \
   ] $processing_system7_0
 
 
@@ -607,9 +650,9 @@ proc create_root_design { parentCell } {
 
   # Create address segments
   assign_bd_address -offset 0x43C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs AXI_AD9361_0/Reg] -force
+  assign_bd_address -offset 0x43C10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs AXI_DMAC_0/Reg] -force
   assign_bd_address -offset 0x43C20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs AXI_DMAC_1/Reg] -force
   assign_bd_address -offset 0x43C30000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs M05_AXI_0/Reg] -force
-  assign_bd_address -offset 0x43C10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs AXI_DMAC_0/Reg] -force
   assign_bd_address -offset 0x41600000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_iic_0/S_AXI/Reg] -force
   assign_bd_address -offset 0x41E00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_quad_spi_0/AXI_LITE/Reg] -force
   assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces S_AXI_HP1_0] [get_bd_addr_segs processing_system7_0/S_AXI_HP1/HP1_DDR_LOWOCM] -force
