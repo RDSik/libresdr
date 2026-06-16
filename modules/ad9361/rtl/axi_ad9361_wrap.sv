@@ -217,7 +217,7 @@ module axi_ad9361_wrap #(
         .clk_i       (l_clk_o),
         .arstn_i     (rstn_o),
         .fir_en_i    (up_dac_gpio_out[0]),
-        .dac_tready_i(|dac_tready),
+        .dac_tready_i(&dac_tready),
         .dac_tdata_o (dac_tdata),
         .dac_axis    (dac_axis)
     );
