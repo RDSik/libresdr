@@ -54,7 +54,7 @@ module bd_top (
     axil_if.master s2mm_axil,
     axil_if.master mm2s_axil,
     axil_if.master ext_axil,
-    axi_if.master  hp_axi
+    axi_if.slave   hp_axi
 );
 
     libre_bd i_libre_bd (
