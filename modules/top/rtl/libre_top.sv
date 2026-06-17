@@ -166,6 +166,7 @@ module libre_top #(
     localparam int SYNC_STAGE_NUM = 3;
     localparam int FIFO_DEPTH = 256;
     localparam FIFO_MEM_TYPE = "block";
+    localparam FAMILY = "zynq";
 
     bd_top #(
         .FIFO_DEPTH        (FIFO_DEPTH),
@@ -229,8 +230,6 @@ module libre_top #(
         .s2mm_axis(s2mm_axis),
         .mm2s_axis(mm2s_axis)
     );
-
-    localparam FAMILY = "zynq";
 
     axi_ad9361_wrap #(
         .DATA_WIDTH(IQ_DATA_WIDTH),

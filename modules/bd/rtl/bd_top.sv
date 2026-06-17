@@ -2,7 +2,8 @@ module bd_top #(
     parameter bit ASYNC_MODE_EN      = 1,
     parameter int SYNCHRONIZER_STAGE = 3,
     parameter int FIFO_DEPTH         = 256,
-    parameter     FIFO_MEM_TYPE      = "block"
+    parameter     FIFO_MEM_TYPE      = "block",
+    parameter     FAMILY             = "zynq"
 ) (
     inout [14:0] ddr_addr,
     inout [ 2:0] ddr_ba,
