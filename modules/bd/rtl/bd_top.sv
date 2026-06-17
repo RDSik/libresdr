@@ -194,12 +194,10 @@ module bd_top #(
         .FAMILY            (FAMILY),
         .USE_ADV_FEATURES  ("1000")
     ) i_s2mm_fifo (
-        .s_en_i            (1'b1),
-        .m_en_i            (1'b1),
-        .s_axis            (),
-        .m_axis            (),
-        .axis_rd_data_count(),
-        .axis_wr_data_count()
+        .s_en_i(1'b1),
+        .m_en_i(1'b1),
+        .s_axis(),
+        .m_axis()
     );
 
     axis_data_fifo_wrap #(
@@ -211,12 +209,10 @@ module bd_top #(
         .FAMILY            (FAMILY),
         .USE_ADV_FEATURES  ("1000")
     ) i_mm2s_fifo (
-        .s_en_i            (1'b1),
-        .m_en_i            (1'b1),
-        .s_axis            (),
-        .m_axis            (),
-        .axis_rd_data_count(),
-        .axis_wr_data_count()
+        .s_en_i(1'b1),
+        .m_en_i(1'b1),
+        .s_axis(),
+        .m_axis()
     );
 
     axis_tlast_gen #(
