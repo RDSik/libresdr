@@ -169,6 +169,7 @@ module libre_top #(
     localparam FAMILY = "zynq";
 
     bd_top #(
+        .FIFO_WIDTH        (FULL_DATA_WIDH),
         .FIFO_DEPTH        (FIFO_DEPTH),
         .ASYNC_MODE_EN     (ASYNC_MODE_EN),
         .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
