@@ -163,8 +163,17 @@ module libre_top #(
     logic pps_irq;
 
     localparam bit ASYNC_MODE_EN = 1;
+    localparam int SYNC_STAGE_NUM = 3;
+    localparam int FIFO_DEPTH = 256;
+    localparam FIFO_MEM_TYPE = "block";
 
-    bd_top i_bd_top (
+    bd_top #(
+        .FIFO_DEPTH        (FIFO_DEPTH),
+        .FIFO_WIDTH        (FULL_DATA_WIDH),
+        .ASYNC_MODE_EN     (ASYNC_MODE_EN),
+        .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
+        .FIFO_MEM_TYPE     (FIFO_MEM_TYPE)
+    ) i_bd_top (
         .ddr_addr   (ddr_addr),
         .ddr_ba     (ddr_ba),
         .ddr_cas_n  (ddr_cas_n),
@@ -222,12 +231,10 @@ module libre_top #(
         .mm2s_axis(mm2s_axis)
     );
 
-    localparam int FIFO_DEPTH = 256;
     localparam FAMILY = "zynq";
 
     axi_ad9361_wrap #(
         .DATA_WIDTH(IQ_DATA_WIDTH),
-        .TLAST_VAL (FIFO_DEPTH),
         .ILA_EN    (ILA_EN),
         .FAMILY    (FAMILY),
         .CH_NUM    (CH_NUM),
@@ -263,9 +270,6 @@ module libre_top #(
         .adc_axis(s2mm_axis),
         .dac_axis(dac_axis)
     );
-
-    localparam int SYNC_STAGE_NUM = 3;
-    localparam FIFO_MEM_TYPE = "block";
 
     signal_gen #(
         .ILA_EN         (ILA_EN),

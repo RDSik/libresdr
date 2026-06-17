@@ -1,4 +1,10 @@
-module bd_top (
+module bd_top #(
+    parameter bit ASYNC_MODE_EN      = 1,
+    parameter int SYNCHRONIZER_STAGE = 3,
+    parameter int FIFO_DEPTH         = 256,
+    parameter int FIFO_WIDTH         = 64,
+    parameter     FIFO_MEM_TYPE      = "block"
+) (
     inout [14:0] ddr_addr,
     inout [ 2:0] ddr_ba,
     inout        ddr_cas_n,
@@ -175,6 +181,49 @@ module bd_top (
         .S_AXIS_S2MM_0_tvalid(s2mm_axis.tvalid),
 
         .pps_irq(pps_irq_i)
+    );
+
+    localparam logic [31:0] AXIS_SIGNAL_SET = 32'h03;
+
+    axis_data_fifo_wrap #(
+        .ASYNC_MODE_EN     (ASYNC_MODE_EN),
+        .SYNCHRONIZER_STAGE(SYNCHRONIZER_STAGE),
+        .AXIS_SIGNAL_SET   (AXIS_SIGNAL_SET),
+        .FIFO_DEPTH        (FIFO_DEPTH),
+        .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
+        .FAMILY            (FAMILY),
+        .USE_ADV_FEATURES  ("1000")
+    ) i_s2mm_fifo (
+        .s_en_i            (1'b1),
+        .m_en_i            (1'b1),
+        .s_axis            (),
+        .m_axis            (),
+        .axis_rd_data_count(),
+        .axis_wr_data_count()
+    );
+
+    axis_data_fifo_wrap #(
+        .ASYNC_MODE_EN     (ASYNC_MODE_EN),
+        .SYNCHRONIZER_STAGE(SYNCHRONIZER_STAGE),
+        .AXIS_SIGNAL_SET   (AXIS_SIGNAL_SET),
+        .FIFO_DEPTH        (FIFO_DEPTH),
+        .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
+        .FAMILY            (FAMILY),
+        .USE_ADV_FEATURES  ("1000")
+    ) i_mm2s_fifo (
+        .s_en_i            (1'b1),
+        .m_en_i            (1'b1),
+        .s_axis            (),
+        .m_axis            (),
+        .axis_rd_data_count(),
+        .axis_wr_data_count()
+    );
+
+    axis_tlast_gen #(
+        .TLAST_VAL(FIFO_DEPTH)
+    ) i_axis_tlast_gen (
+        .s_axis(),
+        .m_axis()
     );
 
 endmodule

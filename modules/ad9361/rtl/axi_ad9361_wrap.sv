@@ -4,7 +4,6 @@ module axi_ad9361_wrap #(
     parameter bit CLK10M_EN  = 1,
     parameter int CH_NUM     = 2,
     parameter int DATA_WIDTH = 16,
-    parameter int TLAST_VAL  = 256,
     parameter     FAMILY     = "zynq"
 ) (
 
@@ -231,14 +230,7 @@ module axi_ad9361_wrap #(
         .fir_en_i    (up_adc_gpio_out[0]),
         .adc_tvalid_i(|adc_tvalid),
         .adc_tdata_i (adc_tdata),
-        .adc_axis    (adc_if)
-    );
-
-    axis_tlast_gen #(
-        .TLAST_VAL(TLAST_VAL)
-    ) i_axis_tlast_gen (
-        .s_axis(adc_if),
-        .m_axis(adc_axis)
+        .adc_axis    (adc_axis)
     );
 
     if (ILA_EN) begin : g_ila
