@@ -26,15 +26,15 @@ module axi_dmac_wrap #(
         .ALLOW_ASYM_MEM         (0),
         .CACHE_COHERENT_DEST    (0),
 
-        .DMA_DATA_WIDTH_SRC   (m_axi.DATA_WIDTH),
-        .DMA_DATA_WIDTH_DEST  (m_axi.DATA_WIDTH),
+        .DMA_DATA_WIDTH_SRC   (s2mm_axi.DATA_WIDTH),
+        .DMA_DATA_WIDTH_DEST  (s2mm_axi.DATA_WIDTH),
         .DMA_LENGTH_WIDTH     (24),
         .DMA_2D_TRANSFER      (0),
         .DMA_AXI_PROTOCOL_DEST(1),
         .DMA_AXI_PROTOCOL_SRC (1),
         .DMA_TYPE_DEST        (1),
         .DMA_TYPE_SRC         (1),
-        .DMA_AXI_ADDR_WIDTH   (m_axi.ADDR_WIDTH),
+        .DMA_AXI_ADDR_WIDTH   (s2mm_axi.ADDR_WIDTH),
         .DMA_AXIS_ID_W        (s2mm_axis.ID_WIDTH),
         .DMA_AXIS_DEST_W      (s2mm_axis.DEST_WIDTH),
 
@@ -44,8 +44,8 @@ module axi_dmac_wrap #(
 
         .AXI_SLICE_DEST   (0),
         .AXI_SLICE_SRC    (0),
-        .AXI_ID_WIDTH_SRC (m_axi.ID_WIDTH),
-        .AXI_ID_WIDTH_DEST(m_axi.ID_WIDTH)
+        .AXI_ID_WIDTH_SRC (s2mm_axi.ID_WIDTH),
+        .AXI_ID_WIDTH_DEST(s2mm_axi.ID_WIDTH)
     ) i_s2mm_dma (
         .s_axi_aclk   (s2mm_axil.clk_i),
         .s_axi_aresetn(s2mm_axil.arstn_i),
@@ -165,15 +165,15 @@ module axi_dmac_wrap #(
         .ALLOW_ASYM_MEM         (0),
         .CACHE_COHERENT_DEST    (0),
 
-        .DMA_DATA_WIDTH_SRC   (m_axi.DATA_WIDTH),
-        .DMA_DATA_WIDTH_DEST  (m_axi.DATA_WIDTH),
+        .DMA_DATA_WIDTH_SRC   (mm2s_axi.DATA_WIDTH),
+        .DMA_DATA_WIDTH_DEST  (mm2s_axi.DATA_WIDTH),
         .DMA_LENGTH_WIDTH     (24),
         .DMA_2D_TRANSFER      (0),
         .DMA_AXI_PROTOCOL_DEST(1),
         .DMA_AXI_PROTOCOL_SRC (1),
         .DMA_TYPE_DEST        (1),
         .DMA_TYPE_SRC         (1),
-        .DMA_AXI_ADDR_WIDTH   (m_axi.ADDR_WIDTH),
+        .DMA_AXI_ADDR_WIDTH   (mm2s_axi.ADDR_WIDTH),
         .DMA_AXIS_ID_W        (mm2s_axis.ID_WIDTH),
         .DMA_AXIS_DEST_W      (mm2s_axis.DEST_WIDTH),
 
@@ -183,8 +183,8 @@ module axi_dmac_wrap #(
 
         .AXI_SLICE_DEST   (0),
         .AXI_SLICE_SRC    (0),
-        .AXI_ID_WIDTH_SRC (m_axi.ID_WIDTH),
-        .AXI_ID_WIDTH_DEST(m_axi.ID_WIDTH)
+        .AXI_ID_WIDTH_SRC (mm2s_axi.ID_WIDTH),
+        .AXI_ID_WIDTH_DEST(mm2s_axi.ID_WIDTH)
     ) i_mm2s_dma (
         .s_axi_aclk   (mm2s_axil.clk_i),
         .s_axi_aresetn(mm2s_axil.arstn_i),
