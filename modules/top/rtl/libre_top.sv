@@ -86,7 +86,15 @@ module libre_top #(
     axi_if #(
         .ADDR_WIDTH(AXIL_ADDR_WIDTH),
         .DATA_WIDTH(FULL_DATA_WIDH)
-    ) hp_axi (
+    ) s2mm_axi (
+        .clk_i  (ps_clk),
+        .arstn_i(ps_arstn)
+    );
+
+    axi_if #(
+        .ADDR_WIDTH(AXIL_ADDR_WIDTH),
+        .DATA_WIDTH(FULL_DATA_WIDH)
+    ) mm2s_axi (
         .clk_i  (ps_clk),
         .arstn_i(ps_arstn)
     );
@@ -245,7 +253,9 @@ module libre_top #(
         .s2mm_axil(s2mm_axil),
         .mm2s_axil(mm2s_axil),
         .ext_axil (sig_gen_axil),
-        .hp_axi   (hp_axi)
+
+        .s2mm_axi(s2mm_axi),
+        .mm2s_axi(mm2s_axi)
     );
 
     localparam bit ASYNC_MODE_EN = 1;
@@ -258,7 +268,8 @@ module libre_top #(
         .mm2s_axil (mm2s_axil),
         .s2mm_axis (s2mm_axis),
         .mm2s_axis (mm2s_axis),
-        .m_axi     (hp_axi),
+        .s2mm_axi  (s2mm_axi),
+        .mm2s_axi  (mm2s_axi),
         .s2mm_irq_o(s2mm_irq),
         .mm2s_irq_o(mm2s_irq)
     );
