@@ -2,6 +2,7 @@ module bd_top #(
     parameter bit ASYNC_MODE_EN      = 1,
     parameter int SYNCHRONIZER_STAGE = 3,
     parameter int FIFO_DEPTH         = 256,
+    parameter int FIFO_WIDTH         = 64,
     parameter     FIFO_MEM_TYPE      = "block",
     parameter     FAMILY             = "zynq"
 ) (
@@ -60,6 +61,20 @@ module bd_top #(
     axis_if.slave  s2mm_axis,
     axis_if.master mm2s_axis
 );
+
+    axis_if #(
+        .DATA_WIDTH(FIFO_WIDTH)
+    ) m_axis_mm2s (
+        .clk_i  (ps_clk1_o),
+        .arstn_i(ps_arstn_o)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(FIFO_WIDTH)
+    ) s_axis_s2mm (
+        .clk_i  (ps_clk1_o),
+        .arstn_i(ps_arstn_o)
+    );
 
     libre_bd i_libre_bd (
         .DDR_0_addr   (ddr_addr),
@@ -168,17 +183,17 @@ module bd_top #(
         .SPI_0_1_ss_o (),
         .SPI_0_1_ss_t (),
 
-        .M_AXIS_MM2S_0_tdata (mm2s_axis.tdata),
-        .M_AXIS_MM2S_0_tkeep (mm2s_axis.tkeep),
-        .M_AXIS_MM2S_0_tlast (mm2s_axis.tlast),
-        .M_AXIS_MM2S_0_tready(mm2s_axis.tready),
-        .M_AXIS_MM2S_0_tvalid(mm2s_axis.tvalid),
+        .M_AXIS_MM2S_0_tdata (m_axis_mm2s.tdata),
+        .M_AXIS_MM2S_0_tkeep (m_axis_mm2s.tkeep),
+        .M_AXIS_MM2S_0_tlast (m_axis_mm2s.tlast),
+        .M_AXIS_MM2S_0_tready(m_axis_mm2s.tready),
+        .M_AXIS_MM2S_0_tvalid(m_axis_mm2s.tvalid),
 
-        .S_AXIS_S2MM_0_tdata (s2mm_axis.tdata),
-        .S_AXIS_S2MM_0_tkeep (s2mm_axis.tkeep),
-        .S_AXIS_S2MM_0_tlast (s2mm_axis.tlast),
-        .S_AXIS_S2MM_0_tready(s2mm_axis.tready),
-        .S_AXIS_S2MM_0_tvalid(s2mm_axis.tvalid),
+        .S_AXIS_S2MM_0_tdata (s_axis_s2mm.tdata),
+        .S_AXIS_S2MM_0_tkeep (s_axis_s2mm.tkeep),
+        .S_AXIS_S2MM_0_tlast (s_axis_s2mm.tlast),
+        .S_AXIS_S2MM_0_tready(s_axis_s2mm.tready),
+        .S_AXIS_S2MM_0_tvalid(s_axis_s2mm.tvalid),
 
         .pps_irq(pps_irq_i)
     );
@@ -193,11 +208,18 @@ module bd_top #(
         .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
         .FAMILY            (FAMILY),
         .USE_ADV_FEATURES  ("1000")
-    ) i_s2mm_fifo (
+    ) i_mm2s_fifo (
         .s_en_i(1'b1),
         .m_en_i(1'b1),
-        .s_axis(),
-        .m_axis()
+        .s_axis(m_axis_mm2s),
+        .m_axis(mm2s_axis)
+    );
+
+    axis_if #(
+        .DATA_WIDTH(FIFO_WIDTH)
+    ) axis (
+        .clk_i  (ps_clk1_o),
+        .arstn_i(ps_arstn_o)
     );
 
     axis_data_fifo_wrap #(
@@ -208,18 +230,18 @@ module bd_top #(
         .FIFO_MEM_TYPE     (FIFO_MEM_TYPE),
         .FAMILY            (FAMILY),
         .USE_ADV_FEATURES  ("1000")
-    ) i_mm2s_fifo (
+    ) i_s2mm_fifo (
         .s_en_i(1'b1),
         .m_en_i(1'b1),
-        .s_axis(),
-        .m_axis()
+        .s_axis(s2mm_axis),
+        .m_axis(axis)
     );
 
     axis_tlast_gen #(
         .TLAST_VAL(FIFO_DEPTH)
     ) i_axis_tlast_gen (
-        .s_axis(),
-        .m_axis()
+        .s_axis(axis),
+        .m_axis(s_axis_s2mm)
     );
 
 endmodule
