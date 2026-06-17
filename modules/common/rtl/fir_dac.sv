@@ -19,7 +19,7 @@ module fir_dac #(
 
     assign dac_tdata       = dac_axis.tdata;
     assign dac_tvalid      = dac_axis.tvalid;
-    assign dac_axis.tready = (fir_en_i) ? |dac_tready : dac_tready_i;
+    assign dac_axis.tready = (fir_en_i) ? &dac_tready : dac_tready_i;
 
     logic [CH_NUM-1:0][1:0][DATA_WIDTH-1:0] int_tdata;
     logic [CH_NUM-1:0]                      int_tvalid;
