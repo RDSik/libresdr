@@ -20,15 +20,30 @@ module axis_tlast_gen #(
         .cnt_o     ()
     );
 
-    assign m_axis.tdata  = s_axis.tdata;
-    assign m_axis.tvalid = s_axis.tvalid;
-    assign m_axis.tlast  = cnt_last;
-    assign m_axis.tid    = s_axis.tid;
-    assign m_axis.tdest  = s_axis.tdest;
-    assign m_axis.tstrb  = s_axis.tstrb;
-    assign m_axis.tuser  = s_axis.tuser;
-    assign m_axis.tkeep  = s_axis.tkeep;
+    axis_if #(
+        .DEST_WIDTH(s_axis.DEST_WIDTH),
+        .DATA_WIDTH(s_axis.DATA_WIDTH),
+        .ID_WIDTH  (s_axis.ID_WIDTH),
+        .USER_WIDTH(s_axis.USER_WIDTH)
+    ) axis (
+        .clk_i  (s_axis.clk_i),
+        .arstn_i(s_axis.arstn_i)
+    );
 
-    assign s_axis.tready = m_axis.tready;
+    assign axis.tdata  = s_axis.tdata;
+    assign axis.tvalid = s_axis.tvalid;
+    assign axis.tlast  = cnt_last;
+    assign axis.tid    = s_axis.tid;
+    assign axis.tdest  = s_axis.tdest;
+    assign axis.tstrb  = s_axis.tstrb;
+    assign axis.tuser  = s_axis.tuser;
+    assign axis.tkeep  = s_axis.tkeep;
+
+    assign s_axis.tready = axis.tready;
+
+    axis_reg_slice i_axis_reg_slice (
+        .s_axis(axis),
+        .m_axis(m_axis)
+    );
 
 endmodule

@@ -83,38 +83,6 @@ module libre_top #(
         assign clk = l_clk;
     end
 
-    axi_if #(
-        .ADDR_WIDTH(AXIL_ADDR_WIDTH),
-        .DATA_WIDTH(FULL_DATA_WIDH)
-    ) s2mm_axi (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
-    );
-
-    axi_if #(
-        .ADDR_WIDTH(AXIL_ADDR_WIDTH),
-        .DATA_WIDTH(FULL_DATA_WIDH)
-    ) mm2s_axi (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
-    );
-
-    axil_if #(
-        .DATA_WIDTH(AXIL_DATA_WIDTH),
-        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
-    ) s2mm_axil (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
-    );
-
-    axil_if #(
-        .DATA_WIDTH(AXIL_DATA_WIDTH),
-        .ADDR_WIDTH(AXIL_ADDR_WIDTH)
-    ) mm2s_axil (
-        .clk_i  (ps_clk),
-        .arstn_i(ps_arstn)
-    );
-
     axil_if #(
         .DATA_WIDTH(AXIL_DATA_WIDTH),
         .ADDR_WIDTH(AXIL_ADDR_WIDTH)
@@ -193,8 +161,6 @@ module libre_top #(
     assign gpio_i[16:14] = gpio_o[16:14];
 
     logic pps_irq;
-    logic s2mm_irq;
-    logic mm2s_irq;
 
     bd_top i_bd_top (
         .ddr_addr   (ddr_addr),
@@ -221,8 +187,6 @@ module libre_top #(
         .fixed_io_ps_srstb(fixed_io_ps_srstb),
 
         .pps_irq_i (pps_irq),
-        .s2mm_irq_i(s2mm_irq),
-        .mm2s_irq_i(mm2s_irq),
 
         .ps_clk1_o (ps_clk),
         .ps_clk2_o (delay_clk),
@@ -249,31 +213,14 @@ module libre_top #(
         .pl_spi_mosi_o(pl_spi_mosi),
         .pl_spi_miso_i(pl_spi_miso),
 
-        .ad_axil  (ad_axil),
-        .s2mm_axil(s2mm_axil),
-        .mm2s_axil(mm2s_axil),
-        .ext_axil (sig_gen_axil),
+        .ad_axil (ad_axil),
+        .ext_axil(sig_gen_axil),
 
-        .s2mm_axi(s2mm_axi),
-        .mm2s_axi(mm2s_axi)
+        .s2mm_axis(s2mm_axis),
+        .mm2s_axis(mm2s_axis)
     );
 
     localparam bit ASYNC_MODE_EN = 1;
-
-    axi_dmac_wrap #(
-        .ILA_EN       (ILA_EN),
-        .ASYNC_MODE_EN(ASYNC_MODE_EN)
-    ) i_axi_dmac_wrap (
-        .s2mm_axil (s2mm_axil),
-        .mm2s_axil (mm2s_axil),
-        .s2mm_axis (s2mm_axis),
-        .mm2s_axis (mm2s_axis),
-        .s2mm_axi  (s2mm_axi),
-        .mm2s_axi  (mm2s_axi),
-        .s2mm_irq_o(s2mm_irq),
-        .mm2s_irq_o(mm2s_irq)
-    );
-
     localparam int FIFO_DEPTH = 256;
     localparam FAMILY = "zynq";
 

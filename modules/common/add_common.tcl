@@ -29,6 +29,7 @@ set xil_defaultlib "
     $path/rtl/axi_to_axil.sv
     $path/rtl/cnt.sv
     $path/rtl/axis_tlast_gen.sv
+    $path/rtl/axis_reg_slice.sv
 "
 
 add_files -norecurse $xil_defaultlib
