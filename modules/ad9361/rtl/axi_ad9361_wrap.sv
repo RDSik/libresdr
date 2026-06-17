@@ -202,13 +202,6 @@ module axi_ad9361_wrap #(
         .up_adc_gpio_out(up_adc_gpio_out)
     );
 
-    axis_if #(
-        .DATA_WIDTH(CH_NUM * DATA_WIDTH * 2)
-    ) adc_if (
-        .clk_i  (l_clk_o),
-        .arstn_i(rstn_o)
-    );
-
     fir_dac #(
         .CH_NUM    (CH_NUM),
         .DATA_WIDTH(DATA_WIDTH)
