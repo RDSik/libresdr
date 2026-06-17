@@ -39,7 +39,6 @@
 #ifndef __PARAMETERS_H__
 #define __PARAMETERS_H__
 
-#ifdef XILINX_PLATFORM
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
@@ -171,6 +170,5 @@
 #else
 #define AD9361_DAC_DMA_IRQ_INTR		XPAR_FABRIC_AXI_AD9361_DAC_DMA_IRQ_INTR
 #define AD9361_ADC_DMA_IRQ_INTR		XPAR_FABRIC_AXI_AD9361_ADC_DMA_IRQ_INTR
-#endif
 
 #endif // __PARAMETERS_H__
