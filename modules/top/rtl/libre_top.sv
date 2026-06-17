@@ -162,6 +162,8 @@ module libre_top #(
 
     logic pps_irq;
 
+    localparam bit ASYNC_MODE_EN = 1;
+
     bd_top i_bd_top (
         .ddr_addr   (ddr_addr),
         .ddr_ba     (ddr_ba),
@@ -186,7 +188,7 @@ module libre_top #(
         .fixed_io_ps_porb (fixed_io_ps_porb),
         .fixed_io_ps_srstb(fixed_io_ps_srstb),
 
-        .pps_irq_i (pps_irq),
+        .pps_irq_i(pps_irq),
 
         .ps_clk1_o (ps_clk),
         .ps_clk2_o (delay_clk),
@@ -220,7 +222,6 @@ module libre_top #(
         .mm2s_axis(mm2s_axis)
     );
 
-    localparam bit ASYNC_MODE_EN = 1;
     localparam int FIFO_DEPTH = 256;
     localparam FAMILY = "zynq";
 
