@@ -39,6 +39,7 @@ set xilinx_dir  [glob -nocomplain -type d [file join $no_os_dir */platform/xilin
 set include_dir $no_os_dir/include
 set drivers_dir $no_os_dir/drivers/api
 set iio_dir     $no_os_dir/iio
+set util_dir    $no_os_dir/util
 
 proc import_sources {app current_dir} {
     foreach sdk_path $current_dir  {
@@ -58,6 +59,7 @@ set source_dirs [concat \
     $include_dir \
     $drivers_dir \
     $iio_dir \
+    $util_dir \
     $modules_dir/top/driver \
 ]
 
