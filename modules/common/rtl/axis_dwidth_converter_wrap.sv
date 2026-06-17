@@ -16,7 +16,7 @@ module axis_dwidth_converter_wrap #(
         .C_M_AXIS_TUSER_WIDTH(m_axis.USER_WIDTH),
         .C_AXIS_TDEST_WIDTH  (s_axis.DEST_WIDTH),
         .C_AXIS_TID_WIDTH    (s_axis.ID_WIDTH),
-        .C_AXIS_SIGNAL_SET   (C_AXIS_SIGNAL_SET),
+        .C_AXIS_SIGNAL_SET   (C_AXIS_SIGNAL_SET)
     ) i_axis_dwidth_converter (
         .aclk         (s_axis.clk_i),
         .aresetn      (s_axis.arstn_i),
