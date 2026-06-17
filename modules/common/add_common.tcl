@@ -6,7 +6,7 @@ set xci_defaultlib "
     $path/ip/fir_decimator/fir_decimator.xci
     $path/ip/dds_compiler/dds_compiler.xci
     $path/ip/axil_ila/axil_ila.xci
-    $path/ip/axis_subset_converter/axis_subset_converter.xci
+    $path/ip/axis_dwidth_converter/axis_dwidth_converter.xci
     $path/ip/axis_data_fifo/axis_data_fifo.xci
 "
 
@@ -19,7 +19,7 @@ set xil_defaultlib "
     $path/rtl/fir_adc.sv
     $path/rtl/fir_dac.sv
     $path/rtl/axis_data_fifo_wrap.sv
-    $path/rtl/axis_subset_converter_wrap.sv
+    $path/rtl/axis_dwidth_converter_wrap.sv
     $path/rtl/amplitude.sv
     $path/rtl/mult_signed.sv
     $path/rtl/round.sv
