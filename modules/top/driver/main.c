@@ -47,27 +47,16 @@
 #include "no_os_spi.h"
 #include "no_os_gpio.h"
 #include "no_os_delay.h"
-#ifdef XILINX_PLATFORM
 #include <xparameters.h>
 #include <xil_cache.h>
 #include "xilinx_spi.h"
 #include "xilinx_gpio.h"
 #include "no_os_irq.h"
-#ifdef ALTERA_PLATFORM
-#include "altera_spi.h"
-#include "altera_gpio.h"
-#endif
-#endif
-#ifdef LINUX_PLATFORM
-#include "linux_spi.h"
-#include "linux_gpio.h"
-#else
 #include "xilinx_irq.h"
-#endif //LINUX
 
 #include "axi_adc_core.h"
 #include "axi_dac_core.h"
-#include "axi_dmac.h"
+#include "xaxidma.h"
 #include "no_os_error.h"
 
 #ifdef IIO_SUPPORT
@@ -78,12 +67,10 @@
 #include "no_os_uart.h"
 #include "iio_app.h"
 
-#ifdef XILINX_PLATFORM
 #include "xilinx_uart.h"
 #include "xil_cache.h"
-#endif //XILINX
 
-#if defined LINUX_PLATFORM || defined GENERIC_PLATFORM
+#ifdef GENERIC_PLATFORM
 static uint8_t in_buff[MAX_SIZE_BASE_ADDR];
 static uint8_t out_buff[MAX_SIZE_BASE_ADDR];
 #endif
@@ -106,7 +93,6 @@ uint16_t adc_buffer[ADC_BUFFER_SAMPLES * ADC_CHANNELS] __attribute__ ((
 
 #define AD9361_ADC_DAC_BYTES_PER_SAMPLE 2
 
-#ifdef XILINX_PLATFORM
 struct xil_spi_init_param xil_spi_param = {
 #ifdef PLATFORM_MB
 	.type = SPI_PL,
@@ -129,7 +115,6 @@ struct xil_gpio_init_param xil_gpio_param = {
 #define SPI_OPS		&xil_spi_ops
 #define GPIO_PARAM	&xil_gpio_param
 #define SPI_PARAM	&xil_spi_param
-#endif
 
 #ifdef GENERIC_PLATFORM
 #define GPIO_OPS	&generic_gpio_ops
@@ -137,24 +122,14 @@ struct xil_gpio_init_param xil_gpio_param = {
 #define GPIO_PARAM	NULL
 #define SPI_PARAM	NULL
 #endif
+
 #ifdef XILINX_PLATFORM
-#endif
-#ifdef LINUX_PLATFORM
-#define GPIO_OPS	&linux_gpio_ops
-#define SPI_OPS		&linux_spi_ops
-#define GPIO_PARAM	NULL
-#define SPI_PARAM	NULL
 #endif
 
 struct axi_adc_init rx_adc_init = {
 	.name = "cf-ad9361-lpc",
 	.base = RX_CORE_BASEADDR,
-#ifdef FMCOMMS5
-	.slave_base = AD9361_RX_1_BASEADDR,
-	.num_channels = 8,
-#else
 	.num_channels = 4,
-#endif
 	.num_slave_channels =  4
 };
 struct axi_dac_init tx_dac_init = {
@@ -164,26 +139,8 @@ struct axi_dac_init tx_dac_init = {
 	NULL,
 	3
 };
-struct axi_dmac_init rx_dmac_init = {
-	"rx_dmac",
-	CF_AD9361_RX_DMA_BASEADDR,
-#ifdef DMA_IRQ_ENABLE
-	IRQ_ENABLED
-#else
-	IRQ_DISABLED
-#endif
-};
-struct axi_dmac *rx_dmac;
-struct axi_dmac_init tx_dmac_init = {
-	"tx_dmac",
-	CF_AD9361_TX_DMA_BASEADDR,
-#ifdef DMA_IRQ_ENABLE
-	IRQ_ENABLED
-#else
-	IRQ_DISABLED
-#endif
-};
-struct axi_dmac *tx_dmac;
+
+XAxiDma AxiDma;
 
 AD9361_InitParam default_init_param = {
 	/* Device selection */
@@ -372,11 +329,7 @@ AD9361_InitParam default_init_param = {
 	4,		//rx_data_delay *** adi,rx-data-delay
 	7,		//tx_fb_clock_delay *** adi,tx-fb-clock-delay
 	0,		//tx_data_delay *** adi,tx-data-delay
-#ifdef ALTERA_PLATFORM
-	300,	//lvds_bias_mV *** adi,lvds-bias-mV
-#else
 	150,	//lvds_bias_mV *** adi,lvds-bias-mV
-#endif
 	1,		//lvds_rx_onchip_termination_enable *** adi,lvds-rx-onchip-termination-enable
 	0,		//rx1rx2_phase_inversion_en *** adi,rx1-rx2-phase-inversion-enable
 	0xFF,	//lvds_invert1_control *** adi,lvds-invert1-control
@@ -513,9 +466,6 @@ AD9361_TXFIRConfig tx_fir_config = {	// BPF PASSBAND 3/20 fs to 1/4 fs
 	0 // tx_bandwidth
 };
 struct ad9361_rf_phy *ad9361_phy;
-#ifdef FMCOMMS5
-struct ad9361_rf_phy *ad9361_phy_b;
-#endif
 
 
 /***************************************************************************//**
@@ -524,36 +474,17 @@ struct ad9361_rf_phy *ad9361_phy_b;
 int main(void)
 {
 	int32_t status;
-#ifdef XILINX_PLATFORM
 	Xil_ICacheEnable();
 	Xil_DCacheEnable();
 	default_init_param.spi_param.extra = &xil_spi_param;
 	default_init_param.spi_param.platform_ops = &xil_spi_ops;
-#endif
-
-#ifdef ALTERA_PLATFORM
-	default_init_param.spi_param.platform_ops = &altera_spi_ops;
-
-	if (altera_bridge_init()) {
-		printf("Altera Bridge Init Error!\n");
-		return -1;
-	}
-#endif
 
 	// NOTE: The user has to choose the GPIO numbers according to desired
 	// carrier board.
 	default_init_param.gpio_resetb.number = GPIO_RESET_PIN;
-
-#ifdef FMCOMMS5
-	default_init_param.gpio_sync.number = GPIO_SYNC_PIN;
-	default_init_param.gpio_cal_sw1.number = GPIO_CAL_SW1_PIN;
-	default_init_param.gpio_cal_sw2.number = GPIO_CAL_SW2_PIN;
-	default_init_param.rx1rx2_phase_inversion_en = 1;
-#else
 	default_init_param.gpio_sync.number = -1;
 	default_init_param.gpio_cal_sw1.number = -1;
 	default_init_param.gpio_cal_sw2.number = -1;
-#endif
 
 	if (AD9364_DEVICE) {
 		default_init_param.dev_sel = ID_AD9364;
@@ -565,254 +496,79 @@ int main(void)
 	if (AD9363A_DEVICE)
 		default_init_param.dev_sel = ID_AD9363A;
 
-#if defined FMCOMMS5 || defined ADI_RF_SOM || defined ADI_RF_SOM_CMOS
-	default_init_param.xo_disable_use_ext_refclk_enable = 1;
-#endif
-
-#ifdef ADI_RF_SOM_CMOS
-	if (AD9361_DEVICE)
-		default_init_param.swap_ports_enable = 1;
-	default_init_param.lvds_mode_enable = 0;
-	default_init_param.lvds_rx_onchip_termination_enable = 0;
-	default_init_param.full_port_enable = 1;
-	default_init_param.digital_interface_tune_fir_disable = 1;
-#endif
-
 	ad9361_init(&ad9361_phy, &default_init_param);
 
 	ad9361_set_tx_fir_config(ad9361_phy, tx_fir_config);
 	ad9361_set_rx_fir_config(ad9361_phy, rx_fir_config);
 
-#ifdef FMCOMMS5
-#ifdef LINUX_PLATFORM
-	gpio_init(default_init_param.gpio_sync);
-#endif
-	default_init_param.spi_param.chip_select = SPI_CS_2;
-	default_init_param.gpio_resetb.number = GPIO_RESET_PIN_2;
-#ifdef LINUX_PLATFORM
-	gpio_init(default_init_param.gpio_resetb);
-#endif
-	default_init_param.gpio_sync.number = -1;
-	default_init_param.gpio_cal_sw1.number = -1;
-	default_init_param.gpio_cal_sw2.number = -1;
-	default_init_param.rx_synthesizer_frequency_hz = 2300000000UL;
-	default_init_param.tx_synthesizer_frequency_hz = 2300000000UL;
+	XAxiDma_Config *CfgPtr;
+	int TimeOut = POLL_TIMEOUT_COUNTER;
 
-	rx_adc_init.base = AD9361_RX_1_BASEADDR;
-	rx_adc_init.num_slave_channels = 0;
-	tx_dac_init.base = AD9361_TX_1_BASEADDR;
-
-	ad9361_init(&ad9361_phy_b, &default_init_param);
-
-	ad9361_set_tx_fir_config(ad9361_phy_b, tx_fir_config);
-	ad9361_set_rx_fir_config(ad9361_phy_b, rx_fir_config);
-#endif
-	status = axi_dmac_init(&tx_dmac, &tx_dmac_init);
-	if (status < 0) {
-		printf("axi_dmac_init tx init error: %"PRIi32"\n", status);
-		return status;
+	CfgPtr = XAxiDma_LookupConfig(XPAR_AXIDMA_0_DEVICE_ID);
+	if (!CfgPtr) {
+		xil_printf("No config found for %d\r\n", XPAR_AXIDMA_0_DEVICE_ID);
+		return XST_FAILURE;
 	}
-	status = axi_dmac_init(&rx_dmac, &rx_dmac_init);
-	if (status < 0) {
-		printf("axi_dmac_init rx init error: %"PRIi32"\n", status);
-		return status;
+
+	status = XAxiDma_CfgInitialize(&AxiDma, CfgPtr);
+	if (status != XST_SUCCESS) {
+		xil_printf("Initialization failed %d\r\n", status);
+		return XST_FAILURE;
 	}
+
+	if (XAxiDma_HasSg(&AxiDma)) {
+		xil_printf("Device configured as SG mode \r\n");
+		return XST_FAILURE;
+	}
+
+	XAxiDma_IntrDisable(&AxiDma, XAXIDMA_IRQ_ALL_MASK, XAXIDMA_DEVICE_TO_DMA);
+	XAxiDma_IntrDisable(&AxiDma, XAXIDMA_IRQ_ALL_MASK, XAXIDMA_DMA_TO_DEVICE);
+
+	// Flush the buffers before the DMA transfer, in case the Data Cache is enabled
+	Xil_DCacheFlushRange((uintptr_t)adc_buffer, sizeof(adc_buffer));
+	Xil_DCacheFlushRange((uintptr_t)dac_buffer, sizeof(sine_lut_iq));
+
 #ifndef AXI_ADC_NOT_PRESENT
-#if defined XILINX_PLATFORM || defined LINUX_PLATFORM || defined ALTERA_PLATFORM
 #ifdef DMA_EXAMPLE
-#ifdef FMCOMMS5
-	axi_dac_init(&ad9361_phy_b->tx_dac, &tx_dac_init);
-	axi_dac_set_datasel(ad9361_phy_b->tx_dac, -1, AXI_DAC_DATA_SEL_DMA);
-	rx_adc_init.base = AD9361_RX_0_BASEADDR;
-	rx_adc_init.num_slave_channels = 4;
-	tx_dac_init.base = AD9361_TX_0_BASEADDR;
-#endif
 	axi_dac_init(&ad9361_phy->tx_dac, &tx_dac_init);
 	extern const uint32_t sine_lut_iq[1024];
 	axi_dac_set_datasel(ad9361_phy->tx_dac, -1, AXI_DAC_DATA_SEL_DMA);
 	axi_dac_load_custom_data(ad9361_phy->tx_dac, sine_lut_iq,
 				 NO_OS_ARRAY_SIZE(sine_lut_iq),
 				 (uintptr_t)dac_buffer);
-#ifdef XILINX_PLATFORM
 	Xil_DCacheFlush();
-#endif
 #else
-#ifdef FMCOMMS5
-	axi_dac_init(&ad9361_phy_b->tx_dac, &tx_dac_init);
-	axi_dac_set_datasel(ad9361_phy_b->tx_dac, -1, AXI_DAC_DATA_SEL_DDS);
-	rx_adc_init.base = AD9361_RX_0_BASEADDR;
-	rx_adc_init.num_slave_channels = 4;
-	tx_dac_init.base = AD9361_TX_0_BASEADDR;
-#endif
 	axi_dac_init(&ad9361_phy->tx_dac, &tx_dac_init);
 	axi_dac_set_datasel(ad9361_phy->tx_dac, -1, AXI_DAC_DATA_SEL_DDS);
 #endif
 #endif
-#endif
-
-#ifdef FMCOMMS5
-	ad9361_do_mcs(ad9361_phy, ad9361_phy_b);
-#endif
-
-#ifndef AXI_ADC_NOT_PRESENT
-#if (defined XILINX_PLATFORM || defined ALTERA_PLATFORM)
-	uint32_t samples = 16384;
-#if (defined DMA_IRQ_ENABLE)
-	/**
-	 * Xilinx platform dependent initialization for IRQ.
-	 */
-	struct xil_irq_init_param xil_irq_init_par = {
-		.type = IRQ_PS,
-	};
-
-	/**
-	 * IRQ initial configuration.
-	 */
-	struct no_os_irq_init_param irq_init_param = {
-		.irq_ctrl_id = INTC_DEVICE_ID,
-		.platform_ops = &xil_irq_ops,
-		.extra = &xil_irq_init_par,
-	};
-
-	/**
-	 * IRQ instance.
-	 */
-	struct no_os_irq_ctrl_desc *irq_desc;
-
-	status = no_os_irq_ctrl_init(&irq_desc, &irq_init_param);
-	if(status < 0)
-		return status;
-
-	status = no_os_irq_global_enable(irq_desc);
-	if (status < 0)
-		return status;
-
-	struct no_os_callback_desc rx_dmac_callback = {
-		.ctx = rx_dmac,
-		.callback = axi_dmac_dev_to_mem_isr,
-	};
-
-	status = no_os_irq_register_callback(irq_desc,
-					     AD9361_ADC_DMA_IRQ_INTR, &rx_dmac_callback);
-	if(status < 0)
-		return status;
-
-	status = no_os_irq_trigger_level_set(irq_desc,
-					     AD9361_ADC_DMA_IRQ_INTR, NO_OS_IRQ_LEVEL_HIGH);
-	if(status < 0)
-		return status;
-
-	status = no_os_irq_enable(irq_desc, AD9361_ADC_DMA_IRQ_INTR);
-	if(status < 0)
-		return status;
-
-	samples = 2048;
-#endif
-	// NOTE: To prevent unwanted data loss, it's recommended to invalidate
-	// cache after each axi_dmac_transfer_start() call, keeping in mind that the
-	// size of the capture and the start address must be aligned to the size
-	// of the cache line.
 
 #ifdef DMA_EXAMPLE
-#ifdef DMA_IRQ_ENABLE
-	struct no_os_callback_desc tx_dmac_callback = {
-		.ctx = tx_dmac,
-		.callback = axi_dmac_mem_to_dev_isr,
-	};
+	status = XAxiDma_SimpleTransfer(&AxiDma, (uintptr_t)dac_buffer, sizeof(sine_lut_iq), XAXIDMA_DMA_TO_DEVICE);
+	if (status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
 
-	status = no_os_irq_register_callback(irq_desc,
-					     AD9361_DAC_DMA_IRQ_INTR, &tx_dmac_callback);
-	if(status < 0)
-		return status;
+	status = XAxiDma_SimpleTransfer(&AxiDma, (uintptr_t)adc_buffer, sizeof(adc_buffer), XAXIDMA_DEVICE_TO_DMA);
+	if (status != XST_SUCCESS) {
+		return XST_FAILURE;
+	}
 
-	status = no_os_irq_enable(irq_desc, AD9361_DAC_DMA_IRQ_INTR);
-	if(status < 0)
-		return status;
-#endif
+	/*Wait till tranfer is done or 1usec * 10^6 iterations of timeout occurs*/
+	while (TimeOut) {
+		if (!(XAxiDma_Busy(&AxiDma, XAXIDMA_DEVICE_TO_DMA)) &&
+			!(XAxiDma_Busy(&AxiDma, XAXIDMA_DMA_TO_DEVICE))) {
+			break;
+		}
+		TimeOut--;
+		usleep(1U);
+	}
 
-	struct axi_dma_transfer transfer = {
-		// Number of bytes to write/read
-		.size = sizeof(sine_lut_iq),
-		// Transfer done flag
-		.transfer_done = 0,
-		// Signal transfer mode
-		.cyclic = CYCLIC,
-		// Address of data source
-		.src_addr = (uintptr_t)dac_buffer,
-		// Address of data destination
-		.dest_addr = 0
-	};
-
-	/* Transfer the data. */
-	axi_dmac_transfer_start(tx_dmac, &transfer);
-
-	/* Flush cache data. */
 	Xil_DCacheInvalidateRange((uintptr_t)dac_buffer, sizeof(sine_lut_iq));
-
-	no_os_mdelay(1000);
-
-#endif
-#ifdef FMCOMMS5
-	struct axi_dma_transfer read_transfer = {
-		// Number of bytes to write/read
-		.size = samples * AD9361_ADC_DAC_BYTES_PER_SAMPLE * ad9361_phy->rx_adc->num_channels,
-		// Transfer done flag
-		.transfer_done = 0,
-		// Signal transfer mode
-		.cyclic = NO,
-		// Address of data source
-		.src_addr = 0,
-		// Address of data destination
-		.dest_addr = (uintptr_t)ADC_DDR_BASEADDR
-	};
-
-	/* Read the data from the ADC DMA. */
-	axi_dmac_transfer_start(rx_dmac, &read_transfer);
-
-	/* Wait until transfer finishes */
-	status = axi_dmac_transfer_wait_completion(rx_dmac, 500);
-	if(status < 0)
-		return status;
-#else
-	struct axi_dma_transfer read_transfer = {
-		// Number of bytes to write/read
-		.size = sizeof(adc_buffer),
-		// Transfer done flag
-		.transfer_done = 0,
-		// Signal transfer mode
-		.cyclic = NO,
-		// Address of data source
-		.src_addr = 0,
-		// Address of data destination
-		.dest_addr = (uintptr_t)adc_buffer
-	};
-
-	/* Read the data from the ADC DMA. */
-	axi_dmac_transfer_start(rx_dmac, &read_transfer);
-
-	/* Wait until transfer finishes */
-	status = axi_dmac_transfer_wait_completion(rx_dmac, 500);
-	if(status < 0)
-		return status;
-#endif
-#ifdef XILINX_PLATFORM
-#ifdef FMCOMMS5
-	Xil_DCacheInvalidateRange((uintptr_t)ADC_DDR_BASEADDR,
-				  samples * AD9361_ADC_DAC_BYTES_PER_SAMPLE *
-				  ad9361_phy->rx_adc->num_channels);
-	printf("DMA_EXAMPLE: address=%#x samples=%lu channels=%u bits=%u\n",
-	       (uintptr_t)ADC_DDR_BASEADDR,
-	       read_transfer.size / AD9361_ADC_DAC_BYTES_PER_SAMPLE,
-	       rx_adc_init.num_channels,
-	       8 * sizeof(adc_buffer[0]));
-#else
 	Xil_DCacheInvalidateRange((uintptr_t)adc_buffer, sizeof(adc_buffer));
 	printf("DMA_EXAMPLE: address=%#lx samples=%lu channels=%u bits=%lu\n",
 	       (uintptr_t)adc_buffer, NO_OS_ARRAY_SIZE(adc_buffer), rx_adc_init.num_channels,
 	       8 * sizeof(adc_buffer[0]));
-#endif
-#endif
-#endif
 #endif
 
 #ifdef IIO_SUPPORT
@@ -847,65 +603,40 @@ int main(void)
 	 * iio axi adc configurations.
 	 */
 	struct iio_axi_adc_init_param iio_axi_adc_init_par;
-#ifdef FMCOMMS5
-	struct iio_axi_adc_init_param iio_axi_adc_b_init_par;
-#endif
 
 	/**
 	 * iio axi dac configurations.
 	 */
 	struct iio_axi_dac_init_param iio_axi_dac_init_par;
-#ifdef FMCOMMS5
-	struct iio_axi_dac_init_param iio_axi_dac_b_init_par;
-#endif
 
 	/**
 	 * iio ad9361 configurations.
 	 */
 	struct iio_ad9361_init_param iio_ad9361_init_param;
-#ifdef FMCOMMS5
-	struct iio_ad9361_init_param iio_ad9361_b_init_param;
-#endif
 
 	/**
 	 * iio instance descriptor.
 	 */
 	struct iio_axi_adc_desc *iio_axi_adc_desc;
-#ifdef FMCOMMS5
-	struct iio_axi_adc_desc *iio_axi_adc_b_desc;
-#endif
 
 	/**
 	 * iio instance descriptor.
 	 */
 	struct iio_axi_dac_desc *iio_axi_dac_desc;
-#ifdef FMCOMMS5
-	struct iio_axi_dac_desc *iio_axi_dac_b_desc;
-#endif
 
 	/**
 	 * iio ad9361 instance descriptor.
 	 */
 	struct iio_ad9361_desc *iio_ad9361_desc;
-#ifdef FMCOMMS5
-	struct iio_ad9361_desc *iio_ad9361_b_desc;
-#endif
 
 	/**
 	 * iio devices corresponding to every device.
 	 */
 	struct iio_device *adc_dev_desc, *dac_dev_desc, *ad9361_dev_desc;
-#ifdef FMCOMMS5
-	struct iio_device *adc_b_dev_desc, *dac_b_dev_desc, *ad9361_b_dev_desc;
-#endif
-
-	status = axi_dmac_init(&tx_dmac, &tx_dmac_init);
-	if(status < 0)
-		return status;
 
 	iio_axi_adc_init_par = (struct iio_axi_adc_init_param) {
 		.rx_adc = ad9361_phy->rx_adc,
-		.rx_dmac = rx_dmac,
+		.rx_dmac = &AxiDma,
 #ifndef PLATFORM_MB
 		.dcache_invalidate_range = (void (*)(uint32_t,
 						     uint32_t))Xil_DCacheInvalidateRange
@@ -922,20 +653,9 @@ int main(void)
 		.size = 0xFFFFFFFF,
 	};
 
-#ifdef FMCOMMS5
-	iio_axi_adc_b_init_par = (struct iio_axi_adc_init_param) {
-		.rx_adc = ad9361_phy_b->rx_adc,
-	};
-
-	status = iio_axi_adc_init(&iio_axi_adc_b_desc, &iio_axi_adc_b_init_par);
-	if(status < 0)
-		return status;
-	iio_axi_adc_get_dev_descriptor(iio_axi_adc_b_desc, &adc_b_dev_desc);
-#endif
-
 	iio_axi_dac_init_par = (struct iio_axi_dac_init_param) {
 		.tx_dac = ad9361_phy->tx_dac,
-		.tx_dmac = tx_dmac,
+		.tx_dmac = &AxiDma,
 #ifndef PLATFORM_MB
 		.dcache_flush_range = (void (*)(uint32_t, uint32_t))Xil_DCacheFlushRange,
 #endif
@@ -951,17 +671,6 @@ int main(void)
 		.size = 0xFFFFFFFF,
 	};
 
-#ifdef FMCOMMS5
-	iio_axi_dac_b_init_par = (struct iio_axi_dac_init_param) {
-		.tx_dac = ad9361_phy_b->tx_dac,
-	};
-
-	status = iio_axi_dac_init(&iio_axi_dac_b_desc, &iio_axi_dac_b_init_par);
-	if (status < 0)
-		return status;
-	iio_axi_dac_get_dev_descriptor(iio_axi_dac_b_desc, &dac_b_dev_desc);
-#endif
-
 	iio_ad9361_init_param = (struct iio_ad9361_init_param) {
 		.ad9361_phy = ad9361_phy,
 	};
@@ -971,26 +680,10 @@ int main(void)
 		return status;
 	iio_ad9361_get_dev_descriptor(iio_ad9361_desc, &ad9361_dev_desc);
 
-#ifdef FMCOMMS5
-	iio_ad9361_b_init_param = (struct iio_ad9361_init_param) {
-		.ad9361_phy = ad9361_phy_b,
-	};
-
-	status = iio_ad9361_init(&iio_ad9361_b_desc, &iio_ad9361_b_init_param);
-	if (status < 0)
-		return status;
-	iio_ad9361_get_dev_descriptor(iio_ad9361_b_desc, &ad9361_b_dev_desc);
-#endif
-
 	struct iio_app_device devices[] = {
 		IIO_APP_DEVICE("cf-ad9361-lpc", iio_axi_adc_desc, adc_dev_desc, &read_buff, NULL, NULL),
 		IIO_APP_DEVICE("cf-ad9361-dds-core-lpc", iio_axi_dac_desc, dac_dev_desc, NULL, &write_buff, NULL),
 		IIO_APP_DEVICE("ad9361-phy", ad9361_phy, ad9361_dev_desc, NULL, NULL, NULL),
-#ifdef FMCOMMS5
-		IIO_APP_DEVICE("cf-ad9361-B", iio_axi_adc_b_desc, adc_b_dev_desc, &read_buff, NULL, NULL),
-		IIO_APP_DEVICE("cf-ad9361-dds-core-B", iio_axi_dac_b_desc, dac_b_dev_desc, NULL, &write_buff, NULL),
-		IIO_APP_DEVICE("ad9361-phy-B", ad9361_phy_b, ad9361_b_dev_desc, NULL, NULL, NULL)
-#endif
 	};
 
 	app_init_param.devices = devices;
@@ -1141,21 +834,9 @@ int main(void)
 #endif
 
 	ad9361_remove(ad9361_phy);
-#ifdef FMCOMMS5
-	ad9361_remove(ad9361_phy_b);
-#endif
 
-#ifdef XILINX_PLATFORM
 	Xil_DCacheDisable();
 	Xil_ICacheDisable();
-#endif
-
-#ifdef ALTERA_PLATFORM
-	if (altera_bridge_uninit()) {
-		printf("Altera Bridge Uninit Error!\n");
-		return -1;
-	}
-#endif
 
 	return 0;
 }
