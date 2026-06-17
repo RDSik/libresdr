@@ -372,7 +372,7 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_EN_SDIO0 {1} \
     CONFIG.PCW_EN_SPI0 {1} \
     CONFIG.PCW_EN_UART0 {1} \
-    CONFIG.PCW_EN_USB0 {1} \
+    CONFIG.PCW_EN_USB0 {0} \
     CONFIG.PCW_FCLK_CLK1_BUF {TRUE} \
     CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100.0} \
     CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {200.0} \
@@ -545,9 +545,8 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_MIO_9_SLEW {slow} \
     CONFIG.PCW_MIO_PRIMITIVE {54} \
     CONFIG.PCW_MIO_TREE_PERIPHERALS {GPIO#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#UART 0#UART 0#Enet 0#Enet 0#Enet 0#Enet\
-0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#ENET Reset#USB Reset#GPIO#GPIO#GPIO#GPIO#Enet\
-0#Enet 0} \
-    CONFIG.PCW_MIO_TREE_SIGNALS {gpio[0]#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#gpio[8]#gpio[9]#gpio[10]#gpio[11]#gpio[12]#gpio[13]#rx#tx#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#data[4]#dir#stp#nxt#data[0]#data[1]#data[2]#data[3]#clk#data[5]#data[6]#data[7]#clk#cmd#data[0]#data[1]#data[2]#data[3]#reset#reset#gpio[48]#gpio[49]#gpio[50]#gpio[51]#mdc#mdio}\
+0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#ENET Reset#GPIO#GPIO#GPIO#GPIO#GPIO#Enet 0#Enet 0} \
+    CONFIG.PCW_MIO_TREE_SIGNALS {gpio[0]#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#gpio[8]#gpio[9]#gpio[10]#gpio[11]#gpio[12]#gpio[13]#rx#tx#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#gpio[28]#gpio[29]#gpio[30]#gpio[31]#gpio[32]#gpio[33]#gpio[34]#gpio[35]#gpio[36]#gpio[37]#gpio[38]#gpio[39]#clk#cmd#data[0]#data[1]#data[2]#data[3]#reset#gpio[47]#gpio[48]#gpio[49]#gpio[50]#gpio[51]#mdc#mdio}\
 \
     CONFIG.PCW_PACKAGE_NAME {clg400} \
     CONFIG.PCW_PRESET_BANK0_VOLTAGE {LVCMOS 3.3V} \
@@ -603,12 +602,10 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_UIPARAM_DDR_T_RCD {7} \
     CONFIG.PCW_UIPARAM_DDR_T_RP {7} \
     CONFIG.PCW_UIPARAM_DDR_USE_INTERNAL_VREF {0} \
-    CONFIG.PCW_USB0_PERIPHERAL_ENABLE {1} \
+    CONFIG.PCW_USB0_PERIPHERAL_ENABLE {0} \
     CONFIG.PCW_USB0_RESET_ENABLE {1} \
     CONFIG.PCW_USB0_RESET_IO {MIO 47} \
-    CONFIG.PCW_USB0_USB0_IO {MIO 28 .. 39} \
     CONFIG.PCW_USB_RESET_ENABLE {1} \
-    CONFIG.PCW_USB_RESET_SELECT {Share reset pin} \
     CONFIG.PCW_USE_FABRIC_INTERRUPT {1} \
     CONFIG.PCW_USE_S_AXI_HP1 {1} \
     CONFIG.PCW_USE_S_AXI_HP2 {0} \
