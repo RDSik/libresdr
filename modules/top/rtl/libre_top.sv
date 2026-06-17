@@ -169,7 +169,6 @@ module libre_top #(
 
     bd_top #(
         .FIFO_DEPTH        (FIFO_DEPTH),
-        .FIFO_WIDTH        (FULL_DATA_WIDH),
         .ASYNC_MODE_EN     (ASYNC_MODE_EN),
         .SYNCHRONIZER_STAGE(SYNC_STAGE_NUM),
         .FIFO_MEM_TYPE     (FIFO_MEM_TYPE)
