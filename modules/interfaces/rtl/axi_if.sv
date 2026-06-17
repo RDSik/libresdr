@@ -1,8 +1,8 @@
 interface axi_if #(
     parameter int DATA_WIDTH = 32,
     parameter int ADDR_WIDTH = 32,
-    parameter int LEN_WIDTH  = 8,
-    parameter int ID_WIDTH   = 1
+    parameter int LEN_WIDTH  = 4,
+    parameter int ID_WIDTH   = 6
 ) (
     input logic clk_i,
     input logic arstn_i
