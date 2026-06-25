@@ -502,7 +502,7 @@ int main(void)
 	ad9361_set_rx_fir_config(ad9361_phy, rx_fir_config);
 
 	XAxiDma_Config *CfgPtr;
-	int TimeOut = POLL_TIMEOUT_COUNTER;
+	uint32_t TimeOut = POLL_TIMEOUT_COUNTER;
 
 	CfgPtr = XAxiDma_LookupConfig(XPAR_AXIDMA_0_DEVICE_ID);
 	if (!CfgPtr) {
