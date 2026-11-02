@@ -77,11 +77,7 @@ module libre_top #(
     logic clk;
     logic rstn;
 
-    if (CLK10M_EN) begin : g_clk10m
-        assign clk = clk_10m;
-    end else begin : g_rx_clk
-        assign clk = l_clk;
-    end
+    assign clk = (CLK10M_EN) ? clk_10m : l_clk;
 
     axil_if #(
         .DATA_WIDTH(AXIL_DATA_WIDTH),
