@@ -238,7 +238,8 @@ module libre_top #(
         .FAMILY    (FAMILY),
         .CH_NUM    (CH_NUM),
         .CLK10M_EN (CLK10M_EN),
-        .PPS_EN    (PPS_EN)
+        .PPS_EN    (PPS_EN),
+        .DELAY_CLK (200)
     ) i_axi_ad9361_wrap (
         .s_axil(ad_axil),
 
