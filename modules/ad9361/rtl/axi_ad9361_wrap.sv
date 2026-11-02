@@ -4,6 +4,7 @@ module axi_ad9361_wrap #(
     parameter bit CLK10M_EN  = 1,
     parameter int CH_NUM     = 2,
     parameter int DATA_WIDTH = 16,
+    parameter int DELAY_CLK  = 200,
     parameter     FAMILY     = "zynq"
 ) (
 
@@ -75,6 +76,7 @@ module axi_ad9361_wrap #(
     logic rst;
     assign rstn_o = ~rst;
 
+    // https://developer.analog.com/docs/hdl/library/axi_ad9361/index.html
     axi_ad9361 #(
         .ID                    (0),
         .MODE_1R1T             (0),
@@ -89,7 +91,7 @@ module axi_ad9361_wrap #(
         .IODELAY_CTRL          (1),
         .MIMO_ENABLE           (0),
         .USE_SSI_CLK           (!CLK10M_EN),
-        .DELAY_REFCLK_FREQUENCY(200),
+        .DELAY_REFCLK_FREQUENCY(DELAY_CLK),
         .RX_NODPA              (0),
 
         .ADC_INIT_DELAY          (30),
@@ -98,8 +100,8 @@ module axi_ad9361_wrap #(
         .ADC_DATAFORMAT_DISABLE  (0),
         .ADC_DCFILTER_DISABLE    (0),
         .ADC_IQCORRECTION_DISABLE(0),
-        .DAC_INIT_DELAY          (0),
 
+        .DAC_INIT_DELAY          (0),
         .DAC_CLK_EDGE_SEL        (0),
         .DAC_IODELAY_ENABLE      (0),
         .DAC_DATAPATH_DISABLE    (0),
