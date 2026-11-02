@@ -3,10 +3,10 @@
 
 module round #(
     parameter bit ROUND_TYPE     = 1,     // 1 - even, 0 - odd
-    parameter int  CH_NUM         = 2,
-    parameter int  IN_DATA_WIDTH  = 32,
-    parameter int  OUT_DATA_WIDTH = 16,
-    parameter      USE_DSP        = "yes"
+    parameter int CH_NUM         = 2,
+    parameter int IN_DATA_WIDTH  = 32,
+    parameter int OUT_DATA_WIDTH = 16,
+    parameter     USE_DSP        = "yes"
 ) (
     input logic clk_i,
     input logic rst_i,
