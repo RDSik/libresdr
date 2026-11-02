@@ -7,7 +7,6 @@ module axi_ad9361_wrap #(
     parameter int DELAY_CLK  = 200,
     parameter     FAMILY     = "zynq"
 ) (
-
     // physical interface (receive-lvds)
 
     input logic       rx_clk_in_p,
