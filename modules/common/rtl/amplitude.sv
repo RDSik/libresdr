@@ -72,7 +72,8 @@ module amplitude #(
         .ROUND_TYPE    (ROUND_TYPE),
         .CH_NUM        (CH_NUM),
         .IN_DATA_WIDTH (SAT_DATA_WIDTH),
-        .OUT_DATA_WIDTH(DATA_WIDTH)
+        .OUT_DATA_WIDTH(DATA_WIDTH),
+        .USE_DSP       ("no")
     ) i_round (
         .clk_i       (clk_i),
         .rst_i       (rst_i),
