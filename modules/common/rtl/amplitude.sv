@@ -1,11 +1,10 @@
 module amplitude #(
+    parameter bit ROUND_TYPE = 1,
     parameter int CH_NUM     = 2,
     parameter int DATA_WIDTH = 16
 ) (
     input logic clk_i,
     input logic rst_i,
-
-    input logic round_type_i,
 
     input logic [DATA_WIDTH-1:0] ampl_i,
 
@@ -70,13 +69,13 @@ module amplitude #(
     );
 
     round #(
+        .ROUND_TYPE    (ROUND_TYPE),
         .CH_NUM        (CH_NUM),
-        .DATA_WIDTH_IN (SAT_DATA_WIDTH),
-        .DATA_WIDTH_OUT(DATA_WIDTH)
+        .IN_DATA_WIDTH (SAT_DATA_WIDTH),
+        .OUT_DATA_WIDTH(DATA_WIDTH)
     ) i_round (
         .clk_i       (clk_i),
         .rst_i       (rst_i),
-        .round_type_i(round_type_i),
         .tvalid_i    (sat_tvalid),
         .tdata_i     (sat_tdata),
         .tvalid_o    (tvalid_o),
