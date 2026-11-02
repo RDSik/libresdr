@@ -59,8 +59,8 @@ module libre_top #(
     output pl_spi_mosi,
     input  pl_spi_miso,
 
-    input clk_10m,
-    input pps
+    input pps,
+    input clk_10m
 );
 
     localparam int CH_NUM = 2;
